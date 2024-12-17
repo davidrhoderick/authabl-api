@@ -1,0 +1,28 @@
+name = "hono-oath2-admin-api"
+main = "src/index.ts"
+compatibility_date = "2024-12-17"
+
+# compatibility_flags = [ "nodejs_compat" ]
+
+# [vars]
+# MY_VAR = "my-variable"
+
+[[kv_namespaces]]
+binding = "CLIENTS"
+id = "976f61e6c01c4454bd3c6e03a7922995"
+
+# [[r2_buckets]]
+# binding = "MY_BUCKET"
+# bucket_name = "my-bucket"
+
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "my-database"
+# database_id = ""
+
+# [ai]
+# binding = "AI"
+
+# [observability]
+# enabled = true
+# head_sampling_rate = 1
