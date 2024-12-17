@@ -10,7 +10,7 @@ export const ErrorSchema = z.object({
   message: z.string().openapi({
     example: "Bad Request",
   }),
-});
+}).openapi('Error');
 
 export const ClientSchema = z.object({
   id: zodRequiredString(),
@@ -21,20 +21,20 @@ export const ClientSchema = z.object({
   refreshTokenValidity: z.number().min(60).default(1209600),
   disableRefreshToken: z.boolean().default(false),
   refreshRefreshToken: z.boolean().default(true),
-});
+}).openapi('Client');
 
 export const CreateClientBodySchema = ClientSchema.omit({
   id: true,
   secret: true,
-});
+}).openapi('NewClient');
 
-export const UpdateClientBodySchema = CreateClientBodySchema.partial();
+export const UpdateClientBodySchema = CreateClientBodySchema.partial().openapi('UpdatedClient');
 
 export const ClientParamsSchema = z.object({
   clientId: zodRequiredString(),
-});
+}).openapi('ClientId');
 
 export const ClientsSchema = z.array(z.object({
   id: zodRequiredString(),
   name: zodRequiredString()
-}))
+})).openapi('Clients')
