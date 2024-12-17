@@ -76,7 +76,7 @@ app.openapi(listClientRoute, async (c) => {
 app.openapi(updateClientRoute, async (c) => {
   const { clientId } = c.req.valid("param");
 
-  const { name, ...clientUpdates } = c.req.valid("json");
+  const clientUpdates = c.req.valid("json");
 
   try {
     const response = await c.env.CLIENTS.getWithMetadata<
