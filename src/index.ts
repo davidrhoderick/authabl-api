@@ -10,10 +10,13 @@ import {
 } from "./routes";
 import { ClientMetadata, ClientValue, Bindings } from "./types";
 import { combineMetadata, splitMetadata } from "./utils";
+import { cors } from "hono/cors";
 
 const CLIENT_PREFIX = "client:";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
+
+app.use("*", cors());
 
 app.openapi(getClientRoute, async (c) => {
   const { clientId } = c.req.valid("param");
