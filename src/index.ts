@@ -123,7 +123,7 @@ app.openapi(deleteClientRoute, async (c) => {
   }
 });
 
-app.doc("/doc", {
+app.doc("/clients-doc", {
   openapi: "3.0.0",
   info: {
     version: "1.0.0",
@@ -132,9 +132,9 @@ app.doc("/doc", {
 });
 
 app.get(
-  "/ui",
+  "/clients-ui",
   swaggerUI({
-    url: "/doc",
+    url: "/clients-doc",
   })
 );
 
