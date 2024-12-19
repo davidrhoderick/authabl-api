@@ -9,6 +9,7 @@ import {
 } from "./schemas";
 
 export const getClientRoute = createRoute({
+  tags: ["Clients"],
   method: "get",
   path: "/clients/{clientId}",
   request: {
@@ -43,6 +44,7 @@ export const getClientRoute = createRoute({
 });
 
 export const listClientRoute = createRoute({
+  tags: ["Clients"],
   method: "get",
   path: "/clients",
   responses: {
@@ -66,6 +68,7 @@ export const listClientRoute = createRoute({
 });
 
 export const createClientRoute = createRoute({
+  tags: ["Clients"],
   method: "post",
   path: "/clients",
   request: {
@@ -94,6 +97,7 @@ export const createClientRoute = createRoute({
 });
 
 export const updateClientRoute = createRoute({
+  tags: ["Clients"],
   method: "patch",
   path: "/clients/{clientId}",
   request: {
@@ -131,6 +135,7 @@ export const updateClientRoute = createRoute({
 });
 
 export const deleteClientRoute = createRoute({
+  tags: ["Clients"],
   method: "delete",
   path: "/clients/{clientId}",
   request: {
