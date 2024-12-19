@@ -8,7 +8,7 @@ compatibility_date = "2024-12-17"
 # MY_VAR = "my-variable"
 
 [[kv_namespaces]]
-binding = "OUATHABL"
+binding = "OAUTHABL"
 id = "2e912562ac3f4f999093552b063d9cc3"
 
 # [[r2_buckets]]
@@ -23,6 +23,6 @@ id = "2e912562ac3f4f999093552b063d9cc3"
 # [ai]
 # binding = "AI"
 
-# [observability]
-# enabled = true
+[observability.logs]
+enabled = true
 # head_sampling_rate = 1
