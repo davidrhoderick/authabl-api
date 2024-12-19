@@ -22,7 +22,7 @@ app.openapi(getClientRoute, async (c) => {
   const { clientId } = c.req.valid("param");
 
   try {
-    const response = await c.env.CLIENTS.getWithMetadata<
+    const response = await c.env.OAUTHABL.getWithMetadata<
       ClientValue,
       ClientMetadata
     >(`client:${clientId}`, "json");
@@ -48,7 +48,7 @@ app.openapi(createClientRoute, async (c) => {
 
   try {
     const { value, options } = splitMetadata(newClient);
-    await c.env.CLIENTS.put(`client:${id}`, value, options);
+    await c.env.OAUTHABL.put(`client:${id}`, value, options);
 
     return c.json(newClient, 200);
   } catch (error) {
@@ -59,14 +59,17 @@ app.openapi(createClientRoute, async (c) => {
 
 app.openapi(listClientRoute, async (c) => {
   try {
-    const clients = await c.env.CLIENTS.list<ClientMetadata>({
+    const clients = await c.env.OAUTHABL.list<ClientMetadata>({
       prefix: CLIENT_PREFIX,
     });
 
     return c.json(
       clients.keys.map(({ name: id, metadata }) => ({
+        // @ts-expect-error metadata.name is always defined
+        name: metadata.name,
         id: id.substring(CLIENT_PREFIX.length),
-        name: metadata?.name ?? "no name",
+        // @ts-expect-error metadata.secret is always defined
+        secret: metadata.secret,
       })),
       200
     );
@@ -82,7 +85,7 @@ app.openapi(updateClientRoute, async (c) => {
   const clientUpdates = c.req.valid("json");
 
   try {
-    const response = await c.env.CLIENTS.getWithMetadata<
+    const response = await c.env.OAUTHABL.getWithMetadata<
       ClientValue,
       ClientMetadata
     >(`client:${clientId}`, "json");
@@ -101,7 +104,7 @@ app.openapi(updateClientRoute, async (c) => {
 
       const { value, options } = splitMetadata(newClient);
 
-      await c.env.CLIENTS.put(`client:${clientId}`, value, options);
+      await c.env.OAUTHABL.put(`client:${clientId}`, value, options);
 
       return c.json(newClient, 200);
     } catch (error) {
@@ -117,7 +120,7 @@ app.openapi(updateClientRoute, async (c) => {
 app.openapi(deleteClientRoute, async (c) => {
   const { clientId } = c.req.valid("param");
   try {
-    await c.env.CLIENTS.delete(`client:${clientId}`);
+    await c.env.OAUTHABL.delete(`client:${clientId}`);
 
     return c.json({ code: 200, message: "Client deleted" });
   } catch (error) {

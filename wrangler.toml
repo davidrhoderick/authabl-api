@@ -8,8 +8,8 @@ compatibility_date = "2024-12-17"
 # MY_VAR = "my-variable"
 
 [[kv_namespaces]]
-binding = "CLIENTS"
-id = "976f61e6c01c4454bd3c6e03a7922995"
+binding = "OUATHABL"
+id = "2e912562ac3f4f999093552b063d9cc3"
 
 # [[r2_buckets]]
 # binding = "MY_BUCKET"

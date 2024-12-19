@@ -11,7 +11,10 @@ export const combineMetadata = ({
 export const splitMetadata = (
   client: Client
 ): { value: string; options: { metadata: ClientMetadata } } => {
-  const { name, ...value } = client;
+  const { name, secret, ...value } = client;
 
-  return { value: JSON.stringify(value), options: { metadata: { name } } };
+  return {
+    value: JSON.stringify(value),
+    options: { metadata: { name, secret } },
+  };
 };
