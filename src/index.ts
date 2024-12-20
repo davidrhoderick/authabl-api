@@ -12,6 +12,7 @@ import {
 } from "./clients/routes";
 import { ClientMetadata, ClientValue } from "./clients/types";
 import { combineMetadata, splitMetadata } from "./clients/utils";
+import { logoutRoute, refreshRoute, tokenRoute } from "./oauth/routes";
 
 type Bindings = {
   OAUTHABL: KVNamespace;
@@ -24,7 +25,7 @@ const app = new OpenAPIHono<{ Bindings: Bindings }>();
 app.use("*", cors());
 
 /**
- * Clients API
+ * Clients
  */
 app
   .openapi(getClientRoute, async (c) => {
@@ -132,6 +133,24 @@ app
       console.error(error);
       return c.json({ code: 500, message: "Internal server error" }, 500);
     }
+  });
+
+/**
+ * OAuth
+ */
+app
+  .openapi(tokenRoute, async (c) => {
+    const { clientId, clientSecret, email, password } = c.req.valid("json");
+
+    console.log(clientId, clientSecret, email, password);
+
+    return c.json({ code: 200, message: "Success" }, 200);
+  })
+  .openapi(refreshRoute, async (c) => {
+    return c.json({ code: 200, message: "Success" }, 200);
+  })
+  .openapi(logoutRoute, async (c) => {
+    return c.json({ code: 200, message: "Success" }, 200);
   });
 
 /**

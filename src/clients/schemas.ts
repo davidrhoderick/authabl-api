@@ -1,18 +1,5 @@
 import { z } from "@hono/zod-openapi";
-
-const zodRequiredString = (message = "Required") =>
-  z.string({ required_error: message }).trim().min(1, { message });
-
-export const ErrorSchema = z
-  .object({
-    code: z.number().openapi({
-      example: 400,
-    }),
-    message: z.string().openapi({
-      example: "Bad Request",
-    }),
-  })
-  .openapi("Error");
+import { zodRequiredString } from "../schemas";
 
 export const ClientSchema = z
   .object({

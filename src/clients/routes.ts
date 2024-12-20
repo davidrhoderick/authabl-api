@@ -4,9 +4,9 @@ import {
   ClientSchema,
   ClientsSchema,
   CreateClientBodySchema,
-  ErrorSchema,
   UpdateClientBodySchema,
 } from "./schemas";
+import { InternalServerErrorSchema, NotFoundSchema } from "../schemas";
 
 export const getClientRoute = createRoute({
   tags: ["Clients"],
@@ -27,7 +27,7 @@ export const getClientRoute = createRoute({
     404: {
       content: {
         "application/json": {
-          schema: ErrorSchema,
+          schema: NotFoundSchema,
         },
       },
       description: "Not found",
@@ -35,7 +35,7 @@ export const getClientRoute = createRoute({
     500: {
       content: {
         "application/json": {
-          schema: ErrorSchema,
+          schema: InternalServerErrorSchema,
         },
       },
       description: "Internal server error",
@@ -59,7 +59,7 @@ export const listClientRoute = createRoute({
     500: {
       content: {
         "application/json": {
-          schema: ErrorSchema,
+          schema: InternalServerErrorSchema,
         },
       },
       description: "Internal server error",
@@ -88,7 +88,7 @@ export const createClientRoute = createRoute({
     500: {
       content: {
         "application/json": {
-          schema: ErrorSchema,
+          schema: InternalServerErrorSchema,
         },
       },
       description: "Internal server error",
@@ -118,7 +118,7 @@ export const updateClientRoute = createRoute({
     404: {
       content: {
         "application/json": {
-          schema: ErrorSchema,
+          schema: NotFoundSchema,
         },
       },
       description: "Not found",
@@ -126,7 +126,7 @@ export const updateClientRoute = createRoute({
     500: {
       content: {
         "application/json": {
-          schema: ErrorSchema,
+          schema: InternalServerErrorSchema,
         },
       },
       description: "Internal server error",
@@ -148,7 +148,7 @@ export const deleteClientRoute = createRoute({
     500: {
       content: {
         "application/json": {
-          schema: ErrorSchema,
+          schema: InternalServerErrorSchema,
         },
       },
       description: "Internal server error",
