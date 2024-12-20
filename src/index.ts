@@ -21,6 +21,23 @@ app
     "/swagger",
     swaggerUI({
       url: "/openapi",
+      manuallySwaggerUIHtml: (asset) => `
+         <div>
+           <div id="swagger-ui"></div>
+           ${asset.css.map((url) => `<link rel="stylesheet" href="${url}" />`)}
+           <link rel="stylesheet" href="/SwaggerDark.css" />
+           ${asset.js.map(
+             (url) => `<script src="${url}" crossorigin="anonymous"></script>`
+           )}
+           <script>
+             window.onload = () => {
+               window.ui = SwaggerUIBundle({
+                 dom_id: '#swagger-ui',
+                 url: '/openapi',
+               })
+             }
+           </script>
+         </div>`,
     })
   );
 
