@@ -22,3 +22,7 @@ export const SessionsSchema = z
     })
   )
   .openapi("Sessions");
+
+export const ClearSessionParamsSchema = z.object({
+  sessionId: zodRequiredString(),
+});

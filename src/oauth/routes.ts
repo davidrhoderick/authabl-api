@@ -4,7 +4,11 @@ import {
   NotFoundSchema,
   UnauthorizedSchema,
 } from "../common/schemas";
-import { SessionsSchema, TokenBodySchema } from "./schemas";
+import {
+  ClearSessionParamsSchema,
+  SessionsSchema,
+  TokenBodySchema,
+} from "./schemas";
 
 export const tokenRoute = createRoute({
   tags: ["OAuth"],
@@ -148,6 +152,9 @@ export const clearSession = createRoute({
   tags: ["OAuth"],
   method: "delete",
   path: "/oauth/sessions/{sessionId}",
+  request: {
+    params: ClearSessionParamsSchema,
+  },
   responses: {
     200: {
       description: "Clear a specific session",
