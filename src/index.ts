@@ -12,7 +12,15 @@ import {
 } from "./clients/routes";
 import { ClientMetadata, ClientValue } from "./clients/types";
 import { combineMetadata, splitMetadata } from "./clients/utils";
-import { logoutRoute, refreshRoute, tokenRoute } from "./oauth/routes";
+import {
+  clearSession,
+  clearSessions,
+  listSessions,
+  logoutRoute,
+  refreshRoute,
+  tokenRoute,
+  validateRoute,
+} from "./oauth/routes";
 
 type Bindings = {
   OAUTHABL: KVNamespace;
@@ -150,6 +158,18 @@ app
     return c.json({ code: 200, message: "Success" }, 200);
   })
   .openapi(logoutRoute, async (c) => {
+    return c.json({ code: 200, message: "Success" }, 200);
+  })
+  .openapi(validateRoute, async (c) => {
+    return c.json({ code: 200, message: "Success" }, 200);
+  })
+  .openapi(listSessions, async (c) => {
+    return c.json([], 200);
+  })
+  .openapi(clearSession, async (c) => {
+    return c.json({ code: 200, message: "Success" }, 200);
+  })
+  .openapi(clearSessions, async (c) => {
     return c.json({ code: 200, message: "Success" }, 200);
   });
 

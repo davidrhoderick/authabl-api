@@ -10,3 +10,15 @@ export const TokenBodySchema = z
   })
   .openapi("TokenRequest");
 
+export const SessionsSchema = z
+  .array(
+    z.object({
+      id: zodRequiredString(),
+      userAgent: zodRequiredString(),
+      loggedInAt: z.string().datetime(),
+      ip: z.string().ip(),
+      expiresAt: z.string().datetime(),
+      currentSession: z.boolean(),
+    })
+  )
+  .openapi("Sessions");
