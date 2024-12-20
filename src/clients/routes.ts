@@ -6,12 +6,12 @@ import {
   CreateClientBodySchema,
   UpdateClientBodySchema,
 } from "./schemas";
-import { InternalServerErrorSchema, NotFoundSchema } from "../schemas";
+import { InternalServerErrorSchema, NotFoundSchema } from "../common/schemas";
 
 export const getClientRoute = createRoute({
   tags: ["Clients"],
   method: "get",
-  path: "/clients/{clientId}",
+  path: "/{clientId}",
   request: {
     params: ClientParamsSchema,
   },
@@ -46,7 +46,7 @@ export const getClientRoute = createRoute({
 export const listClientRoute = createRoute({
   tags: ["Clients"],
   method: "get",
-  path: "/clients",
+  path: "/",
   responses: {
     200: {
       content: {
@@ -70,7 +70,7 @@ export const listClientRoute = createRoute({
 export const createClientRoute = createRoute({
   tags: ["Clients"],
   method: "post",
-  path: "/clients",
+  path: "/",
   request: {
     body: {
       content: { "application/json": { schema: CreateClientBodySchema } },
@@ -99,7 +99,7 @@ export const createClientRoute = createRoute({
 export const updateClientRoute = createRoute({
   tags: ["Clients"],
   method: "patch",
-  path: "/clients/{clientId}",
+  path: "/{clientId}",
   request: {
     params: ClientParamsSchema,
     body: {
@@ -137,7 +137,7 @@ export const updateClientRoute = createRoute({
 export const deleteClientRoute = createRoute({
   tags: ["Clients"],
   method: "delete",
-  path: "/clients/{clientId}",
+  path: "/{clientId}",
   request: {
     params: ClientParamsSchema,
   },

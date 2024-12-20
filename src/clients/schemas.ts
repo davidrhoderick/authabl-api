@@ -1,5 +1,5 @@
 import { z } from "@hono/zod-openapi";
-import { zodRequiredString } from "../schemas";
+import { zodRequiredString } from "../common/schemas";
 
 export const ClientSchema = z
   .object({

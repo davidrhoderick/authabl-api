@@ -3,7 +3,7 @@ import {
   InternalServerErrorSchema,
   NotFoundSchema,
   UnauthorizedSchema,
-} from "../schemas";
+} from "../common/schemas";
 import { SessionsSchema, TokenBodySchema } from "./schemas";
 
 export const tokenRoute = createRoute({
