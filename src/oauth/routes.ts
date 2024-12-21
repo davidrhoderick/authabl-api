@@ -13,7 +13,7 @@ import {
   TokenBodySchema,
 } from "./schemas";
 
-const tags = ["OAuth"];
+const tags = ["Oauth"];
 
 export const tokenRoute = createRoute({
   tags,

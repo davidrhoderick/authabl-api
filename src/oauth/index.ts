@@ -23,8 +23,8 @@ app
     const resend = new Resend(c.env.RESEND_API_KEY);
 
     await resend.emails.send({
-      from: "Acme <onboarding@resend.dev>",
-      to: ["delivered@resend.dev"],
+      from: "Authentication <oauthabl@afabl.com>",
+      to: [email],
       subject: "hello world",
       html: "<p>it works!</p>",
     });

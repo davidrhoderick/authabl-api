@@ -9,6 +9,8 @@
     "@hono/zod-openapi": "^0.18.3",
     "hono": "^4.6.14",
     "hyperid": "^3.3.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "resend": "^4.0.1"
   },
   "devDependencies": {
