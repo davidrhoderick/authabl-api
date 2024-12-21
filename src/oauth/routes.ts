@@ -1,17 +1,22 @@
 import { createRoute } from "@hono/zod-openapi";
 import {
+  BadRequestSchema,
   InternalServerErrorSchema,
   NotFoundSchema,
   UnauthorizedSchema,
 } from "../common/schemas";
 import {
   ClearSessionParamsSchema,
+  EmailVerificationSchema,
+  RegistrationBodySchema,
   SessionsSchema,
   TokenBodySchema,
 } from "./schemas";
 
+const tags = ["OAuth"];
+
 export const tokenRoute = createRoute({
-  tags: ["OAuth"],
+  tags,
   method: "post",
   path: "/oauth/token",
   request: {
@@ -48,7 +53,7 @@ export const tokenRoute = createRoute({
 });
 
 export const refreshRoute = createRoute({
-  tags: ["OAuth"],
+  tags,
   method: "post",
   path: "/oauth/refresh",
   responses: {
@@ -76,7 +81,7 @@ export const refreshRoute = createRoute({
 });
 
 export const logoutRoute = createRoute({
-  tags: ["OAuth"],
+  tags,
   method: "post",
   path: "/oauth/logout",
   responses: {
@@ -94,8 +99,8 @@ export const logoutRoute = createRoute({
   },
 });
 
-export const validateRoute = createRoute({
-  tags: ["OAuth"],
+export const validationRoute = createRoute({
+  tags,
   method: "get",
   path: "/oauth/validate",
   responses: {
@@ -121,8 +126,8 @@ export const validateRoute = createRoute({
   },
 });
 
-export const clearSessions = createRoute({
-  tags: ["OAuth"],
+export const clearSessionsRoute = createRoute({
+  tags,
   method: "delete",
   path: "/oauth/sessions",
   responses: {
@@ -148,8 +153,8 @@ export const clearSessions = createRoute({
   },
 });
 
-export const clearSession = createRoute({
-  tags: ["OAuth"],
+export const clearSessionRoute = createRoute({
+  tags,
   method: "delete",
   path: "/oauth/sessions/{sessionId}",
   request: {
@@ -186,8 +191,8 @@ export const clearSession = createRoute({
   },
 });
 
-export const listSessions = createRoute({
-  tags: ["OAuth"],
+export const listSessionsRoute = createRoute({
+  tags,
   method: "get",
   path: "/oauth/sessions",
   responses: {
@@ -198,6 +203,94 @@ export const listSessions = createRoute({
           schema: SessionsSchema,
         },
       },
+    },
+    401: {
+      content: {
+        "application/json": {
+          schema: UnauthorizedSchema,
+        },
+      },
+      description: "Unauthorized",
+    },
+    500: {
+      content: {
+        "application/json": {
+          schema: InternalServerErrorSchema,
+        },
+      },
+      description: "Internal server error",
+    },
+  },
+});
+
+export const registrationRoute = createRoute({
+  tags,
+  method: "post",
+  path: "/register",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: RegistrationBodySchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "User created",
+    },
+    400: {
+      content: {
+        "application/json": {
+          schema: BadRequestSchema,
+        },
+      },
+      description: "Bad Request",
+    },
+    401: {
+      content: {
+        "application/json": {
+          schema: UnauthorizedSchema,
+        },
+      },
+      description: "Unauthorized",
+    },
+    500: {
+      content: {
+        "application/json": {
+          schema: InternalServerErrorSchema,
+        },
+      },
+      description: "Internal server error",
+    },
+  },
+});
+
+export const emailVerificationRoute = createRoute({
+  tags,
+  method: "post",
+  path: "/verify/email",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: EmailVerificationSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "User created",
+    },
+    400: {
+      content: {
+        "application/json": {
+          schema: BadRequestSchema,
+        },
+      },
+      description: "Bad Request",
     },
     401: {
       content: {

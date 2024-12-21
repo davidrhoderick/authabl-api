@@ -1,18 +1,36 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { Bindings } from "../common/types";
 import {
-  clearSession,
-  clearSessions,
-  listSessions,
+  clearSessionRoute,
+  clearSessionsRoute,
+  listSessionsRoute,
   logoutRoute,
   refreshRoute,
+  registrationRoute,
   tokenRoute,
-  validateRoute,
+  validationRoute,
 } from "./routes";
+import { Resend } from "resend";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 
 app
+  .openapi(registrationRoute, async (c) => {
+    const { clientId, clientSecret, email, password } = c.req.valid("json");
+
+    console.log(clientId, clientSecret, email, password);
+
+    const resend = new Resend(c.env.RESEND_API_KEY);
+
+    await resend.emails.send({
+      from: "Acme <onboarding@resend.dev>",
+      to: ["delivered@resend.dev"],
+      subject: "hello world",
+      html: "<p>it works!</p>",
+    });
+
+    return c.json({ code: 200, message: "Success" });
+  })
   .openapi(tokenRoute, async (c) => {
     const { clientId, clientSecret, email, password } = c.req.valid("json");
 
@@ -26,16 +44,16 @@ app
   .openapi(logoutRoute, async (c) => {
     return c.json({ code: 200, message: "Success" }, 200);
   })
-  .openapi(validateRoute, async (c) => {
+  .openapi(validationRoute, async (c) => {
     return c.json({ code: 200, message: "Success" }, 200);
   })
-  .openapi(listSessions, async (c) => {
+  .openapi(listSessionsRoute, async (c) => {
     return c.json([], 200);
   })
-  .openapi(clearSession, async (c) => {
+  .openapi(clearSessionRoute, async (c) => {
     return c.json({ code: 200, message: "Success" }, 200);
   })
-  .openapi(clearSessions, async (c) => {
+  .openapi(clearSessionsRoute, async (c) => {
     return c.json({ code: 200, message: "Success" }, 200);
   });
 
