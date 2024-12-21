@@ -8,8 +8,10 @@ import {
 } from "./schemas";
 import { InternalServerErrorSchema, NotFoundSchema } from "../common/schemas";
 
+const tags = ["Clients"];
+
 export const getClientRoute = createRoute({
-  tags: ["Clients"],
+  tags,
   method: "get",
   path: "/{clientId}",
   request: {
@@ -44,7 +46,7 @@ export const getClientRoute = createRoute({
 });
 
 export const listClientRoute = createRoute({
-  tags: ["Clients"],
+  tags,
   method: "get",
   path: "/",
   responses: {
@@ -68,7 +70,7 @@ export const listClientRoute = createRoute({
 });
 
 export const createClientRoute = createRoute({
-  tags: ["Clients"],
+  tags,
   method: "post",
   path: "/",
   request: {
@@ -97,7 +99,7 @@ export const createClientRoute = createRoute({
 });
 
 export const updateClientRoute = createRoute({
-  tags: ["Clients"],
+  tags,
   method: "patch",
   path: "/{clientId}",
   request: {
@@ -135,7 +137,7 @@ export const updateClientRoute = createRoute({
 });
 
 export const deleteClientRoute = createRoute({
-  tags: ["Clients"],
+  tags,
   method: "delete",
   path: "/{clientId}",
   request: {
