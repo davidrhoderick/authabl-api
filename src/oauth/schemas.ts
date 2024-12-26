@@ -14,7 +14,7 @@ export const ClientIdParamSchema = z.object({
   clientId: zodRequiredString(),
 });
 
-export const RegistrationBodySchema = z
+export const RegistrationTokenBodySchema = z
   .object({
     email: z.string().email(),
     password: zodPassword,
@@ -24,32 +24,17 @@ export const RegistrationBodySchema = z
       username: zodRequiredString({ length: 5 }),
       password: zodPassword,
     })
-  );
+  ).openapi('RegistrationToken');
 
-export const RegistrationResponseSchema = z.object({
+export const RegistrationTokenResponseSchema = z.object({
   id: zodRequiredString(),
   emailAddresses: z.array(z.string().email().or(z.null())),
   usernames: z.array(zodRequiredString({ length: 5 }).or(z.null())),
-});
+}).openapi("User");
 
 export const UsersListResponseSchema = z.array(
-  z.object({
-    id: zodRequiredString(),
-    emailAddresses: z.array(z.string().email()),
-    usernames: z.array(zodRequiredString({ length: 5 })),
-  })
-);
-
-export const ApiKeyHeaderSchema = z.object({
-  "X-OAUTHABL-API-KEY": zodRequiredString(),
-});
-
-export const TokenBodySchema = z
-  .object({
-    email: zodRequiredString(),
-    password: zodRequiredString(),
-  })
-  .openapi("TokenRequest");
+  RegistrationTokenResponseSchema
+).openapi("Users");
 
 export const SessionsSchema = z
   .array(

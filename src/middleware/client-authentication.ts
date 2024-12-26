@@ -8,9 +8,6 @@ export const clientAuthentication = createMiddleware<{ Bindings: Bindings }>(
     const clientId = c.req.param("clientId");
     const clientSecret = c.req.header("X-OAUTHABL-API-Key");
 
-    console.log("clientId", clientId);
-    console.log("clientSecret", clientSecret);
-
     try {
       const response = await c.env.OAUTHABL.getWithMetadata<
         ClientValue,

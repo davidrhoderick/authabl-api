@@ -17,13 +17,12 @@ import {
 } from "./routes";
 import { Resend } from "resend";
 import {
-  CLIENT_PREFIX,
   EMAIL_PREFIX,
   USER_PREFIX,
   USERNAME_PREFIX,
 } from "../common/constants";
 import hyperid from "hyperid";
-import { hashPassword } from "./utilities";
+import { hashPassword, loginVerification } from "./utilities";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 
@@ -38,20 +37,33 @@ app
     const options = { metadata: { usernames, emailAddresses } };
 
     try {
+      const resend = new Resend(c.env.RESEND_API_KEY);
       const password = await hashPassword(rawPassword);
 
       await c.env.OAUTHABL.put(
         `${USER_PREFIX}${clientId}:${id}`,
-        JSON.stringify({ password }),
+        JSON.stringify({ password, emailVerified: false }),
         options
       );
 
-      if (emailAddresses.length) {
+      if (
+        emailAddresses.length &&
+        emailAddresses.some((emailAddress) => emailAddress?.length)
+      ) {
         await c.env.OAUTHABL.put(
           `${EMAIL_PREFIX}${clientId}:${emailAddresses[0]}`,
           id
         );
-      } else {
+        await resend.emails.send({
+          from: "oauthabl <no-reply@afabl.com>",
+          to: emailAddresses as Array<string>,
+          subject: "Verification code",
+          html: "<p>CODE</p>",
+        });
+      } else if (
+        usernames.length &&
+        usernames.some((username) => username?.length)
+      ) {
         await c.env.OAUTHABL.put(
           `${USERNAME_PREFIX}${clientId}:${usernames[0]}`,
           id
@@ -70,6 +82,9 @@ app
       console.error(error);
       return c.json({ code: 500, message: "Internal server error" }, 500);
     }
+  })
+  .openapi(emailVerificationRoute, async (c) => {
+    return c.json({ code: 200, message: "Email sent" }, 200);
   })
   .openapi(listUsersRoute, async (c) => {
     const clientId = c.req.param("clientId");
@@ -96,18 +111,44 @@ app
     }
   })
   .openapi(mobileTokenRoute, async (c) => {
-    const { email, password } = c.req.valid("json");
+    const { password, ...emailUsername } = c.req.valid("json");
+    const clientId = c.req.param("clientId");
 
-    console.log(email, password);
+    try {
+      const result = await loginVerification({
+        kv: c.env.OAUTHABL,
+        password,
+        clientId,
+        ...emailUsername,
+      });
 
-    return c.json({ code: 200, message: "Success" }, 200);
+      if (!result) return c.json({ code: 401, message: "Unauthorized" }, 401);
+
+      return c.json(result, 200);
+    } catch (error) {
+      console.error(error);
+      return c.json({ code: 500, message: "Internal server error" }, 500);
+    }
   })
   .openapi(webTokenRoute, async (c) => {
-    const { email, password } = c.req.valid("json");
+    const { password, ...emailUsername } = c.req.valid("json");
+    const clientId = c.req.param("clientId");
 
-    console.log(email, password);
+    try {
+      const result = await loginVerification({
+        kv: c.env.OAUTHABL,
+        password,
+        clientId,
+        ...emailUsername,
+      });
 
-    return c.json({ code: 200, message: "Success" }, 200);
+      if (!result) return c.json({ code: 401, message: "Unauthorized" }, 401);
+
+      return c.json(result, 200);
+    } catch (error) {
+      console.error(error);
+      return c.json({ code: 500, message: "Internal server error" }, 500);
+    }
   })
   .openapi(refreshRoute, async (c) => {
     return c.json({ code: 200, message: "Success" }, 200);
@@ -126,9 +167,6 @@ app
   })
   .openapi(clearSessionsRoute, async (c) => {
     return c.json({ code: 200, message: "Success" }, 200);
-  })
-  .openapi(emailVerificationRoute, async (c) => {
-    return c.json({ code: 200, message: "Email sent" }, 200);
   })
   .openapi(forgottenPasswordRoute, async (c) => {
     return c.json({ code: 200, message: "Email sent" }, 200);

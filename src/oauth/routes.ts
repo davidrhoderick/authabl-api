@@ -9,11 +9,10 @@ import {
   ClearSessionParamsSchema,
   ClientIdParamSchema,
   EmailVerificationBodySchema,
-  RegistrationBodySchema,
-  RegistrationResponseSchema,
+  RegistrationTokenBodySchema,
+  RegistrationTokenResponseSchema,
   ResendVerificationEmailBodySchema,
   SessionsSchema,
-  TokenBodySchema,
   UsersListResponseSchema,
 } from "./schemas";
 
@@ -27,7 +26,7 @@ export const registrationRoute = createRoute({
     body: {
       content: {
         "application/json": {
-          schema: RegistrationBodySchema,
+          schema: RegistrationTokenBodySchema,
         },
       },
     },
@@ -42,7 +41,7 @@ export const registrationRoute = createRoute({
     200: {
       content: {
         "application/json": {
-          schema: RegistrationResponseSchema,
+          schema: RegistrationTokenResponseSchema,
         },
       },
       description: "User created",
@@ -112,16 +111,26 @@ export const webTokenRoute = createRoute({
     body: {
       content: {
         "application/json": {
-          schema: TokenBodySchema,
+          schema: RegistrationTokenBodySchema,
         },
       },
     },
     params: ClientIdParamSchema,
   },
+  security: [
+    {
+      Client: [],
+    },
+  ],
   responses: {
     200: {
       description:
         "Returns an access &, if configured, refresh token as JWT cookies",
+      content: {
+        "application/json": {
+          schema: RegistrationTokenResponseSchema,
+        },
+      },
     },
     401: {
       content: {
@@ -150,7 +159,7 @@ export const mobileTokenRoute = createRoute({
     body: {
       content: {
         "application/json": {
-          schema: TokenBodySchema,
+          schema: RegistrationTokenBodySchema,
         },
       },
     },
