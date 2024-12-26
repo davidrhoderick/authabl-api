@@ -10,7 +10,7 @@ assets = { directory = "public" }
 
 [[kv_namespaces]]
 binding = "OAUTHABL"
-id = "2e912562ac3f4f999093552b063d9cc3"
+id = "062715e6f04e4bcabd6f372589a52a32"
 
 # [[r2_buckets]]
 # binding = "MY_BUCKET"

@@ -10,9 +10,35 @@ const zodPassword = z
   .regex(/[\W_]/, "Password must contain at least one special character")
   .regex(/^\S*$/, "Password must not contain spaces");
 
-export const ClientIdSchema = z.object({
+export const ClientIdParamSchema = z.object({
   clientId: zodRequiredString(),
 });
+
+export const RegistrationBodySchema = z
+  .object({
+    email: z.string().email(),
+    password: zodPassword,
+  })
+  .or(
+    z.object({
+      username: zodRequiredString({ length: 5 }),
+      password: zodPassword,
+    })
+  );
+
+export const RegistrationResponseSchema = z.object({
+  id: zodRequiredString(),
+  emailAddresses: z.array(z.string().email().or(z.null())),
+  usernames: z.array(zodRequiredString({ length: 5 }).or(z.null())),
+});
+
+export const UsersListResponseSchema = z.array(
+  z.object({
+    id: zodRequiredString(),
+    emailAddresses: z.array(z.string().email()),
+    usernames: z.array(zodRequiredString({ length: 5 })),
+  })
+);
 
 export const ApiKeyHeaderSchema = z.object({
   "X-OAUTHABL-API-KEY": zodRequiredString(),
@@ -40,11 +66,6 @@ export const SessionsSchema = z
 
 export const ClearSessionParamsSchema = z.object({
   sessionId: zodRequiredString(),
-});
-
-export const RegistrationBodySchema = z.object({
-  email: z.string().email(),
-  password: zodPassword,
 });
 
 export const EmailVerificationBodySchema = z.object({

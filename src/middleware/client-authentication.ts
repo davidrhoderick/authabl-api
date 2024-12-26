@@ -1,17 +1,21 @@
 import { createMiddleware } from "hono/factory";
 import { ClientMetadata, ClientValue } from "../clients/types";
 import { Bindings } from "../common/types";
+import { CLIENT_PREFIX } from "../common/constants";
 
 export const clientAuthentication = createMiddleware<{ Bindings: Bindings }>(
   async (c, next) => {
     const clientId = c.req.param("clientId");
     const clientSecret = c.req.header("X-OAUTHABL-API-Key");
 
+    console.log("clientId", clientId);
+    console.log("clientSecret", clientSecret);
+
     try {
       const response = await c.env.OAUTHABL.getWithMetadata<
         ClientValue,
         ClientMetadata
-      >(`client:${clientId}`, "json");
+      >(`${CLIENT_PREFIX}${clientId}`, "json");
 
       if (
         response.value === null ||

@@ -1,7 +1,13 @@
 import { z } from "@hono/zod-openapi";
 
-export const zodRequiredString = (message = "Required") =>
-  z.string({ required_error: message }).trim().min(1, { message });
+export const zodRequiredString = (options?: {
+  length?: number;
+  message?: string;
+}) =>
+  z
+    .string({ required_error: options?.message ?? "Required" })
+    .trim()
+    .min(options?.length ?? 1, { message: options?.message ?? "Required" });
 
 export const BadRequestSchema = z
   .object({

@@ -7,15 +7,102 @@ import {
 } from "../common/schemas";
 import {
   ClearSessionParamsSchema,
-  ClientIdSchema,
+  ClientIdParamSchema,
   EmailVerificationBodySchema,
   RegistrationBodySchema,
+  RegistrationResponseSchema,
   ResendVerificationEmailBodySchema,
   SessionsSchema,
   TokenBodySchema,
+  UsersListResponseSchema,
 } from "./schemas";
 
 const tags = ["OAuth"];
+
+export const registrationRoute = createRoute({
+  tags,
+  method: "post",
+  path: "/{clientId}/register",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: RegistrationBodySchema,
+        },
+      },
+    },
+    params: ClientIdParamSchema,
+  },
+  security: [
+    {
+      Client: [],
+    },
+  ],
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: RegistrationResponseSchema,
+        },
+      },
+      description: "User created",
+    },
+    400: {
+      content: {
+        "application/json": {
+          schema: BadRequestSchema,
+        },
+      },
+      description: "Bad Request",
+    },
+    401: {
+      content: {
+        "application/json": {
+          schema: UnauthorizedSchema,
+        },
+      },
+      description: "Unauthorized",
+    },
+    500: {
+      content: {
+        "application/json": {
+          schema: InternalServerErrorSchema,
+        },
+      },
+      description: "Internal server error",
+    },
+  },
+});
+
+export const listUsersRoute = createRoute({
+  tags,
+  method: "get",
+  path: "/{clientId}/users",
+  request: {
+    params: ClientIdParamSchema,
+  },
+  security: [
+    {
+      Client: [],
+    },
+  ],
+  responses: {
+    200: {
+      content: {
+        "application/json": { schema: UsersListResponseSchema },
+      },
+      description: "List all users for a client",
+    },
+    500: {
+      content: {
+        "application/json": {
+          schema: InternalServerErrorSchema,
+        },
+      },
+      description: "Internal server error",
+    },
+  },
+});
 
 export const webTokenRoute = createRoute({
   tags,
@@ -29,6 +116,7 @@ export const webTokenRoute = createRoute({
         },
       },
     },
+    params: ClientIdParamSchema,
   },
   responses: {
     200: {
@@ -95,8 +183,7 @@ export const refreshRoute = createRoute({
   tags,
   method: "post",
   path: "/{clientId}/refresh",
-  request: {
-  },
+  request: {},
   responses: {
     200: {
       description:
@@ -125,8 +212,7 @@ export const logoutRoute = createRoute({
   tags,
   method: "post",
   path: "/{clientId}/logout",
-  request: {
-  },
+  request: {},
   responses: {
     200: {
       description: "Log a user out by clearing JWT cookies",
@@ -146,8 +232,7 @@ export const validationRoute = createRoute({
   tags,
   method: "get",
   path: "/{clientId}/validate",
-  request: {
-  },
+  request: {},
   responses: {
     200: {
       description: "Confirm that the access token is valid",
@@ -175,8 +260,7 @@ export const clearSessionsRoute = createRoute({
   tags,
   method: "delete",
   path: "/{clientId}/sessions",
-  request: {
-  },
+  request: {},
   responses: {
     200: {
       description: "Clear all logged in sessions",
@@ -242,8 +326,7 @@ export const listSessionsRoute = createRoute({
   tags,
   method: "get",
   path: "/{clientId}/sessions",
-  request: {
-  },
+  request: {},
   responses: {
     200: {
       description: "List all sessions",
@@ -252,56 +335,6 @@ export const listSessionsRoute = createRoute({
           schema: SessionsSchema,
         },
       },
-    },
-    401: {
-      content: {
-        "application/json": {
-          schema: UnauthorizedSchema,
-        },
-      },
-      description: "Unauthorized",
-    },
-    500: {
-      content: {
-        "application/json": {
-          schema: InternalServerErrorSchema,
-        },
-      },
-      description: "Internal server error",
-    },
-  },
-});
-
-export const registrationRoute = createRoute({
-  tags,
-  method: "post",
-  path: "/{clientId}/register",
-  request: {
-    body: {
-      content: {
-        "application/json": {
-          schema: RegistrationBodySchema,
-        },
-      },
-    },
-    params: ClientIdSchema,
-  },
-  security: [
-    {
-      Client: [],
-    },
-  ],
-  responses: {
-    200: {
-      description: "User created",
-    },
-    400: {
-      content: {
-        "application/json": {
-          schema: BadRequestSchema,
-        },
-      },
-      description: "Bad Request",
     },
     401: {
       content: {
