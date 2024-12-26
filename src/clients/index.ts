@@ -11,6 +11,7 @@ import {
 import { ClientMetadata, ClientValue } from "./types";
 import hyperid from "hyperid";
 import { splitMetadata } from "./utils";
+import { getClient } from "../oauth/utilities";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 
@@ -19,16 +20,11 @@ app
     const { clientId } = c.req.valid("param");
 
     try {
-      const response = await c.env.OAUTHABL.getWithMetadata<
-        ClientValue,
-        ClientMetadata
-      >(`${CLIENT_PREFIX}${clientId}`, "json");
+      const result = await getClient({ kv: c.env.OAUTHABL, clientId });
 
-      if (response.value === null || response.metadata === null)
-        return c.json({ code: 404, message: "Not found" }, 404);
+      if (!result) return c.json({ code: 404, message: "Not found" }, 404);
 
-      // @ts-expect-error these have to not be null by now
-      return c.json(combineMetadata(response), 200);
+      return c.json(result, 200);
     } catch (error) {
       console.error(error);
       return c.json({ code: 500, message: "Internal server error" }, 500);

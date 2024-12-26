@@ -241,7 +241,14 @@ export const validationRoute = createRoute({
   tags,
   method: "get",
   path: "/{clientId}/validate",
-  request: {},
+  request: {
+    params: ClientIdParamSchema,
+  },
+  security: [
+    {
+      Client: [],
+    },
+  ],
   responses: {
     200: {
       description: "Confirm that the access token is valid",

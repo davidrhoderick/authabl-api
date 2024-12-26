@@ -1,10 +1,31 @@
 import { compareSync, hashSync } from "bcrypt-edge";
 import {
+  CLIENT_PREFIX,
   EMAIL_PREFIX,
   USER_PREFIX,
   USERNAME_PREFIX,
 } from "../common/constants";
 import { User, UserMetadata, UserValue } from "./types";
+import { ClientMetadata, ClientValue } from "../clients/types";
+import { combineMetadata } from "../clients/utils";
+
+export const getClient = async ({
+  kv,
+  clientId,
+}: {
+  kv: KVNamespace;
+  clientId: string;
+}) => {
+  const response = await kv.getWithMetadata<ClientValue, ClientMetadata>(
+    `${CLIENT_PREFIX}${clientId}`,
+    "json"
+  );
+
+  if (response?.value === null || response?.metadata === null) return false;
+
+  // @ts-expect-error We know this isn't null now
+  return combineMetadata(response);
+};
 
 export const hashPassword = async (password: string) => {
   try {
