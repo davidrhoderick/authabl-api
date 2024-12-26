@@ -1,5 +1,6 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
-import { type Bindings, CLIENT_PREFIX } from "../common/types";
+import { type Bindings } from "../common/types";
+import { CLIENT_PREFIX } from "../common/constants";
 import {
   createClientRoute,
   deleteClientRoute,
@@ -21,7 +22,7 @@ app
       const response = await c.env.OAUTHABL.getWithMetadata<
         ClientValue,
         ClientMetadata
-      >(`client:${clientId}`, "json");
+      >(`${CLIENT_PREFIX}${clientId}`, "json");
 
       if (response.value === null || response.metadata === null)
         return c.json({ code: 404, message: "Not found" }, 404);
@@ -43,7 +44,7 @@ app
 
     try {
       const { value, options } = splitMetadata(newClient);
-      await c.env.OAUTHABL.put(`client:${id}`, value, options);
+      await c.env.OAUTHABL.put(`${CLIENT_PREFIX}${id}`, value, options);
 
       return c.json(newClient, 200);
     } catch (error) {
@@ -81,7 +82,7 @@ app
       const response = await c.env.OAUTHABL.getWithMetadata<
         ClientValue,
         ClientMetadata
-      >(`client:${clientId}`, "json");
+      >(`${CLIENT_PREFIX}${clientId}`, "json");
 
       if (response.value === null || response.metadata === null)
         return c.json({ code: 404, message: "Not found" }, 404);
@@ -97,7 +98,7 @@ app
 
         const { value, options } = splitMetadata(newClient);
 
-        await c.env.OAUTHABL.put(`client:${clientId}`, value, options);
+        await c.env.OAUTHABL.put(`${CLIENT_PREFIX}${clientId}`, value, options);
 
         return c.json(newClient, 200);
       } catch (error) {
@@ -112,7 +113,7 @@ app
   .openapi(deleteClientRoute, async (c) => {
     const { clientId } = c.req.valid("param");
     try {
-      await c.env.OAUTHABL.delete(`client:${clientId}`);
+      await c.env.OAUTHABL.delete(`${CLIENT_PREFIX}${clientId}`);
 
       return c.json({ code: 200, message: "Client deleted" });
     } catch (error) {

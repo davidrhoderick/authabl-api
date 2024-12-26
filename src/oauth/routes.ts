@@ -6,8 +6,8 @@ import {
   UnauthorizedSchema,
 } from "../common/schemas";
 import {
-  AuthorizationHeadersSchema,
   ClearSessionParamsSchema,
+  ClientIdSchema,
   EmailVerificationBodySchema,
   RegistrationBodySchema,
   ResendVerificationEmailBodySchema,
@@ -22,7 +22,6 @@ export const webTokenRoute = createRoute({
   method: "post",
   path: "/{clientId}/token/web",
   request: {
-    headers: AuthorizationHeadersSchema,
     body: {
       content: {
         "application/json": {
@@ -60,7 +59,6 @@ export const mobileTokenRoute = createRoute({
   method: "post",
   path: "/{clientId}/token/mobile",
   request: {
-    headers: AuthorizationHeadersSchema,
     body: {
       content: {
         "application/json": {
@@ -98,7 +96,6 @@ export const refreshRoute = createRoute({
   method: "post",
   path: "/{clientId}/refresh",
   request: {
-    headers: AuthorizationHeadersSchema,
   },
   responses: {
     200: {
@@ -129,7 +126,6 @@ export const logoutRoute = createRoute({
   method: "post",
   path: "/{clientId}/logout",
   request: {
-    headers: AuthorizationHeadersSchema,
   },
   responses: {
     200: {
@@ -151,7 +147,6 @@ export const validationRoute = createRoute({
   method: "get",
   path: "/{clientId}/validate",
   request: {
-    headers: AuthorizationHeadersSchema,
   },
   responses: {
     200: {
@@ -181,7 +176,6 @@ export const clearSessionsRoute = createRoute({
   method: "delete",
   path: "/{clientId}/sessions",
   request: {
-    headers: AuthorizationHeadersSchema,
   },
   responses: {
     200: {
@@ -211,7 +205,6 @@ export const clearSessionRoute = createRoute({
   method: "delete",
   path: "/{clientId}/sessions/{sessionId}",
   request: {
-    headers: AuthorizationHeadersSchema,
     params: ClearSessionParamsSchema,
   },
   responses: {
@@ -250,7 +243,6 @@ export const listSessionsRoute = createRoute({
   method: "get",
   path: "/{clientId}/sessions",
   request: {
-    headers: AuthorizationHeadersSchema,
   },
   responses: {
     200: {
@@ -285,7 +277,6 @@ export const registrationRoute = createRoute({
   method: "post",
   path: "/{clientId}/register",
   request: {
-    headers: AuthorizationHeadersSchema,
     body: {
       content: {
         "application/json": {
@@ -293,7 +284,13 @@ export const registrationRoute = createRoute({
         },
       },
     },
+    params: ClientIdSchema,
   },
+  security: [
+    {
+      Client: [],
+    },
+  ],
   responses: {
     200: {
       description: "User created",
@@ -330,7 +327,6 @@ export const emailVerificationRoute = createRoute({
   method: "post",
   path: "/{clientId}/verify-email",
   request: {
-    headers: AuthorizationHeadersSchema,
     body: {
       content: {
         "application/json": {
@@ -375,7 +371,6 @@ export const forgottenPasswordRoute = createRoute({
   method: "post",
   path: "/{clientId}/forgotten-password",
   request: {
-    headers: AuthorizationHeadersSchema,
     body: {
       content: {
         "application/json": {
@@ -420,7 +415,6 @@ export const resendVerificationEmailRoute = createRoute({
   method: "post",
   path: "/{clientId}/resend-email-verification",
   request: {
-    headers: AuthorizationHeadersSchema,
     body: {
       content: {
         "application/json": {

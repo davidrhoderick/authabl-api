@@ -3,4 +3,3 @@ export type Bindings = {
   RESEND_API_KEY: string;
 };
 
-export const CLIENT_PREFIX = "client:";

@@ -21,9 +21,8 @@ const app = new OpenAPIHono<{ Bindings: Bindings }>();
 app
   .openapi(registrationRoute, async (c) => {
     const { email, password } = c.req.valid("json");
-    const { client_id, client_secret } = c.req.valid("header");
 
-    console.log(client_id, client_secret, email, password);
+    console.log(email, password);
 
     const resend = new Resend(c.env.RESEND_API_KEY);
 
@@ -38,17 +37,15 @@ app
   })
   .openapi(mobileTokenRoute, async (c) => {
     const { email, password } = c.req.valid("json");
-    const { client_id, client_secret } = c.req.valid("header");
 
-    console.log(client_id, client_secret, email, password);
+    console.log(email, password);
 
     return c.json({ code: 200, message: "Success" }, 200);
   })
   .openapi(webTokenRoute, async (c) => {
     const { email, password } = c.req.valid("json");
-    const { client_id, client_secret } = c.req.valid("header");
 
-    console.log(client_id, client_secret, email, password);
+    console.log(email, password);
 
     return c.json({ code: 200, message: "Success" }, 200);
   })

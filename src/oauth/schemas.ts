@@ -10,9 +10,12 @@ const zodPassword = z
   .regex(/[\W_]/, "Password must contain at least one special character")
   .regex(/^\S*$/, "Password must not contain spaces");
 
-export const AuthorizationHeadersSchema = z.object({
-  client_id: zodRequiredString(),
-  client_secret: zodRequiredString(),
+export const ClientIdSchema = z.object({
+  clientId: zodRequiredString(),
+});
+
+export const ApiKeyHeaderSchema = z.object({
+  "X-OAUTHABL-API-KEY": zodRequiredString(),
 });
 
 export const TokenBodySchema = z

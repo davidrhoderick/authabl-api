@@ -4,14 +4,21 @@ import { cors } from "hono/cors";
 
 import clients from "./clients";
 import oauth from "./oauth";
+import { clientAuthentication } from "./middleware/client-authentication";
 
 const app = new OpenAPIHono();
 
-app.use("*", cors()).route("/clients", clients).route("/oauth", oauth);
+app
+  .use("*", cors())
+  .route("/clients", clients)
+  .use("/oauth/:clientId/*", clientAuthentication)
+  .route("/oauth", oauth);
 
 app.openAPIRegistry.registerComponent("securitySchemes", "Client", {
   type: "apiKey",
-})
+  in: "header",
+  name: "X-OAUTHABL-API-KEY",
+});
 
 app.openAPIRegistry.registerComponent("securitySchemes", "User", {
   type: "oauth2",
@@ -19,11 +26,14 @@ app.openAPIRegistry.registerComponent("securitySchemes", "User", {
   flows: {
     password: {
       tokenUrl: "/oauth/token",
-      scopes: {},
+      scopes: {
+        admin: "Can create new clients",
+        user: "Is authenticated within a client",
+      },
     },
   },
   in: "cookie",
-  name: 'oauthabl'
+  name: "oauthabl",
 });
 
 app
