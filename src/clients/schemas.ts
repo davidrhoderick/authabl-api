@@ -6,7 +6,7 @@ export const ClientSchema = z
     id: zodRequiredString(),
     secret: zodRequiredString(),
     name: zodRequiredString(),
-    redirectUris: z.array(zodRequiredString().url()).nonempty(),
+    allowedOrigins: z.array(zodRequiredString().url()).nonempty(),
     accessTokenValidity: z.number().min(60).default(3600),
     refreshTokenValidity: z.number().min(60).default(1209600),
     disableRefreshToken: z.boolean().default(false),
