@@ -10,10 +10,13 @@ const zodPassword = z
   .regex(/[\W_]/, "Password must contain at least one special character")
   .regex(/^\S*$/, "Password must not contain spaces");
 
+export const AuthorizationHeadersSchema = z.object({
+  client_id: zodRequiredString(),
+  client_secret: zodRequiredString(),
+});
+
 export const TokenBodySchema = z
   .object({
-    clientId: zodRequiredString(),
-    clientSecret: zodRequiredString(),
     email: zodRequiredString(),
     password: zodRequiredString(),
   })
@@ -37,13 +40,40 @@ export const ClearSessionParamsSchema = z.object({
 });
 
 export const RegistrationBodySchema = z.object({
-  clientId: zodRequiredString(),
-  clientSecret: zodRequiredString(),
   email: z.string().email(),
   password: zodPassword,
 });
 
-export const EmailVerificationSchema = z.object({
+export const EmailVerificationBodySchema = z.object({
   verificationCode: zodRequiredString(),
+  email: z.object({
+    to: z.string().email(),
+    from: z.string().email(),
+    content: zodRequiredString(),
+  }),
+});
+
+export const ResendVerificationEmailBodySchema = z.object({
   email: z.string().email(),
+});
+
+export const ForgottenPasswordBodySchema = z.object({
+  email: z.object({
+    to: z.string().email(),
+    from: z.string().email(),
+    content: zodRequiredString(),
+  }),
+});
+
+export const ResetPasswordBodySchema = z.object({
+  password: zodPassword,
+  email: z.object({
+    to: z.string().email(),
+    from: z.string().email(),
+    content: zodRequiredString(),
+  }),
+});
+
+export const UserDeletionParamsSchema = z.object({
+  email: zodRequiredString(),
 });

@@ -3,10 +3,13 @@ import { Bindings } from "../common/types";
 import {
   clearSessionRoute,
   clearSessionsRoute,
+  emailVerificationRoute,
+  forgottenPasswordRoute,
   listSessionsRoute,
   logoutRoute,
   refreshRoute,
   registrationRoute,
+  resendVerificationEmailRoute,
   tokenRoute,
   validationRoute,
 } from "./routes";
@@ -16,9 +19,10 @@ const app = new OpenAPIHono<{ Bindings: Bindings }>();
 
 app
   .openapi(registrationRoute, async (c) => {
-    const { clientId, clientSecret, email, password } = c.req.valid("json");
+    const { email, password } = c.req.valid("json");
+    const { client_id, client_secret } = c.req.valid("header");
 
-    console.log(clientId, clientSecret, email, password);
+    console.log(client_id, client_secret, email, password);
 
     const resend = new Resend(c.env.RESEND_API_KEY);
 
@@ -32,9 +36,10 @@ app
     return c.json({ code: 200, message: "Success" });
   })
   .openapi(tokenRoute, async (c) => {
-    const { clientId, clientSecret, email, password } = c.req.valid("json");
+    const { email, password } = c.req.valid("json");
+    const { client_id, client_secret } = c.req.valid("header");
 
-    console.log(clientId, clientSecret, email, password);
+    console.log(client_id, client_secret, email, password);
 
     return c.json({ code: 200, message: "Success" }, 200);
   })
@@ -55,6 +60,15 @@ app
   })
   .openapi(clearSessionsRoute, async (c) => {
     return c.json({ code: 200, message: "Success" }, 200);
+  })
+  .openapi(emailVerificationRoute, async (c) => {
+    return c.json({ code: 200, message: "Email sent" }, 200);
+  })
+  .openapi(forgottenPasswordRoute, async (c) => {
+    return c.json({ code: 200, message: "Email sent" }, 200);
+  })
+  .openapi(resendVerificationEmailRoute, async (c) => {
+    return c.json({ code: 200, message: "Code resent" }, 200);
   });
 
 export default app;

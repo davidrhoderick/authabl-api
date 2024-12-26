@@ -6,20 +6,23 @@ import {
   UnauthorizedSchema,
 } from "../common/schemas";
 import {
+  AuthorizationHeadersSchema,
   ClearSessionParamsSchema,
-  EmailVerificationSchema,
+  EmailVerificationBodySchema,
   RegistrationBodySchema,
+  ResendVerificationEmailBodySchema,
   SessionsSchema,
   TokenBodySchema,
 } from "./schemas";
 
-const tags = ["Oauth"];
+const tags = ["OAuth"];
 
 export const tokenRoute = createRoute({
   tags,
   method: "post",
-  path: "/oauth/token",
+  path: "/{clientId}/token",
   request: {
+    headers: AuthorizationHeadersSchema,
     body: {
       content: {
         "application/json": {
@@ -55,7 +58,10 @@ export const tokenRoute = createRoute({
 export const refreshRoute = createRoute({
   tags,
   method: "post",
-  path: "/oauth/refresh",
+  path: "/{clientId}/refresh",
+  request: {
+    headers: AuthorizationHeadersSchema,
+  },
   responses: {
     200: {
       description:
@@ -83,7 +89,10 @@ export const refreshRoute = createRoute({
 export const logoutRoute = createRoute({
   tags,
   method: "post",
-  path: "/oauth/logout",
+  path: "/{clientId}/logout",
+  request: {
+    headers: AuthorizationHeadersSchema,
+  },
   responses: {
     200: {
       description: "Log a user out by clearing JWT cookies",
@@ -102,7 +111,10 @@ export const logoutRoute = createRoute({
 export const validationRoute = createRoute({
   tags,
   method: "get",
-  path: "/oauth/validate",
+  path: "/{clientId}/validate",
+  request: {
+    headers: AuthorizationHeadersSchema,
+  },
   responses: {
     200: {
       description: "Confirm that the access token is valid",
@@ -129,7 +141,10 @@ export const validationRoute = createRoute({
 export const clearSessionsRoute = createRoute({
   tags,
   method: "delete",
-  path: "/oauth/sessions",
+  path: "/{clientId}/sessions",
+  request: {
+    headers: AuthorizationHeadersSchema,
+  },
   responses: {
     200: {
       description: "Clear all logged in sessions",
@@ -156,8 +171,9 @@ export const clearSessionsRoute = createRoute({
 export const clearSessionRoute = createRoute({
   tags,
   method: "delete",
-  path: "/oauth/sessions/{sessionId}",
+  path: "/{clientId}/sessions/{sessionId}",
   request: {
+    headers: AuthorizationHeadersSchema,
     params: ClearSessionParamsSchema,
   },
   responses: {
@@ -194,7 +210,10 @@ export const clearSessionRoute = createRoute({
 export const listSessionsRoute = createRoute({
   tags,
   method: "get",
-  path: "/oauth/sessions",
+  path: "/{clientId}/sessions",
+  request: {
+    headers: AuthorizationHeadersSchema,
+  },
   responses: {
     200: {
       description: "List all sessions",
@@ -226,8 +245,9 @@ export const listSessionsRoute = createRoute({
 export const registrationRoute = createRoute({
   tags,
   method: "post",
-  path: "/register",
+  path: "/{clientId}/register",
   request: {
+    headers: AuthorizationHeadersSchema,
     body: {
       content: {
         "application/json": {
@@ -270,19 +290,110 @@ export const registrationRoute = createRoute({
 export const emailVerificationRoute = createRoute({
   tags,
   method: "post",
-  path: "/verify/email",
+  path: "/{clientId}/verify-email",
   request: {
+    headers: AuthorizationHeadersSchema,
     body: {
       content: {
         "application/json": {
-          schema: EmailVerificationSchema,
+          schema: EmailVerificationBodySchema,
         },
       },
     },
   },
   responses: {
     200: {
-      description: "User created",
+      description: "Email sent",
+    },
+    400: {
+      content: {
+        "application/json": {
+          schema: BadRequestSchema,
+        },
+      },
+      description: "Bad Request",
+    },
+    401: {
+      content: {
+        "application/json": {
+          schema: UnauthorizedSchema,
+        },
+      },
+      description: "Unauthorized",
+    },
+    500: {
+      content: {
+        "application/json": {
+          schema: InternalServerErrorSchema,
+        },
+      },
+      description: "Internal server error",
+    },
+  },
+});
+
+export const forgottenPasswordRoute = createRoute({
+  tags,
+  method: "post",
+  path: "/{clientId}/forgotten-password",
+  request: {
+    headers: AuthorizationHeadersSchema,
+    body: {
+      content: {
+        "application/json": {
+          schema: EmailVerificationBodySchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Email sent",
+    },
+    400: {
+      content: {
+        "application/json": {
+          schema: BadRequestSchema,
+        },
+      },
+      description: "Bad Request",
+    },
+    401: {
+      content: {
+        "application/json": {
+          schema: UnauthorizedSchema,
+        },
+      },
+      description: "Unauthorized",
+    },
+    500: {
+      content: {
+        "application/json": {
+          schema: InternalServerErrorSchema,
+        },
+      },
+      description: "Internal server error",
+    },
+  },
+});
+
+export const resendVerificationEmailRoute = createRoute({
+  tags,
+  method: "post",
+  path: "/{clientId}/resend-email-verification",
+  request: {
+    headers: AuthorizationHeadersSchema,
+    body: {
+      content: {
+        "application/json": {
+          schema: ResendVerificationEmailBodySchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Code resent",
     },
     400: {
       content: {

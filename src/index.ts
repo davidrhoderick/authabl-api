@@ -9,6 +9,23 @@ const app = new OpenAPIHono();
 
 app.use("*", cors()).route("/clients", clients).route("/oauth", oauth);
 
+app.openAPIRegistry.registerComponent("securitySchemes", "Client", {
+  type: "apiKey",
+})
+
+app.openAPIRegistry.registerComponent("securitySchemes", "User", {
+  type: "oauth2",
+  scheme: "password",
+  flows: {
+    password: {
+      tokenUrl: "/oauth/token",
+      scopes: {},
+    },
+  },
+  in: "cookie",
+  name: 'oauthabl'
+});
+
 app
   .doc("/openapi", {
     openapi: "3.0.0",
@@ -21,6 +38,7 @@ app
     "/swagger",
     swaggerUI({
       url: "/openapi",
+      title: "oauthabl API",
       manuallySwaggerUIHtml: (asset) => `
          <div>
            <div id="swagger-ui"></div>
