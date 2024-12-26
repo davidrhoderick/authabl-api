@@ -17,10 +17,48 @@ import {
 
 const tags = ["OAuth"];
 
-export const tokenRoute = createRoute({
+export const webTokenRoute = createRoute({
   tags,
   method: "post",
-  path: "/{clientId}/token",
+  path: "/{clientId}/token/web",
+  request: {
+    headers: AuthorizationHeadersSchema,
+    body: {
+      content: {
+        "application/json": {
+          schema: TokenBodySchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description:
+        "Returns an access &, if configured, refresh token as JWT cookies",
+    },
+    401: {
+      content: {
+        "application/json": {
+          schema: UnauthorizedSchema,
+        },
+      },
+      description: "Unauthorized",
+    },
+    500: {
+      content: {
+        "application/json": {
+          schema: InternalServerErrorSchema,
+        },
+      },
+      description: "Internal server error",
+    },
+  },
+});
+
+export const mobileTokenRoute = createRoute({
+  tags,
+  method: "post",
+  path: "/{clientId}/token/mobile",
   request: {
     headers: AuthorizationHeadersSchema,
     body: {

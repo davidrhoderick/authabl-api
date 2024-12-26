@@ -7,11 +7,12 @@ import {
   forgottenPasswordRoute,
   listSessionsRoute,
   logoutRoute,
+  mobileTokenRoute,
   refreshRoute,
   registrationRoute,
   resendVerificationEmailRoute,
-  tokenRoute,
   validationRoute,
+  webTokenRoute,
 } from "./routes";
 import { Resend } from "resend";
 
@@ -35,7 +36,15 @@ app
 
     return c.json({ code: 200, message: "Success" });
   })
-  .openapi(tokenRoute, async (c) => {
+  .openapi(mobileTokenRoute, async (c) => {
+    const { email, password } = c.req.valid("json");
+    const { client_id, client_secret } = c.req.valid("header");
+
+    console.log(client_id, client_secret, email, password);
+
+    return c.json({ code: 200, message: "Success" }, 200);
+  })
+  .openapi(webTokenRoute, async (c) => {
     const { email, password } = c.req.valid("json");
     const { client_id, client_secret } = c.req.valid("header");
 
