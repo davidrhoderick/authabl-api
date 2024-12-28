@@ -4,6 +4,7 @@ import {
   EMAIL_PREFIX,
   USER_PREFIX,
   USERNAME_PREFIX,
+  VERIFICATIONCODE_PREFIX,
 } from "../common/constants";
 import { User, UserMetadata, UserValue } from "./types";
 import { ClientMetadata, ClientValue } from "../clients/types";
@@ -50,6 +51,34 @@ export const verifyPassword = async (
   }
 };
 
+export const getUser = async ({
+  kv,
+  clientId,
+  email,
+  username,
+}: {
+  kv: KVNamespace;
+  clientId: string;
+  email?: string;
+  username?: string;
+}) => {
+  const id = email
+    ? await kv.get(`${EMAIL_PREFIX}${clientId}:${email}`, "text")
+    : username
+    ? await kv.get(`${USERNAME_PREFIX}${clientId}:${username}`, "text")
+    : false;
+
+  if (!id) return undefined;
+
+  return {
+    id,
+    ...(await kv.getWithMetadata<UserValue, UserMetadata>(
+      `${USER_PREFIX}${clientId}:${id}`,
+      "json"
+    )),
+  };
+};
+
 export const loginVerification = async ({
   kv,
   email,
@@ -63,18 +92,7 @@ export const loginVerification = async ({
   clientId: string;
   password: string;
 }) => {
-  const id = email
-    ? await kv.get(`${EMAIL_PREFIX}${clientId}:${email}`, "text")
-    : username
-    ? await kv.get(`${USERNAME_PREFIX}${clientId}:${username}`, "text")
-    : false;
-
-  if (!id) return false;
-
-  const userResponse = await kv.getWithMetadata<UserValue, UserMetadata>(
-    `${USER_PREFIX}${clientId}:${id}`,
-    "json"
-  );
+  const userResponse = await getUser({ kv, email, username, clientId });
 
   if (!userResponse?.value?.password) return false;
 
@@ -82,5 +100,29 @@ export const loginVerification = async ({
 
   if (!valid) return false;
 
-  return { id, ...userResponse.metadata } as User;
+  return { id: userResponse.id, ...userResponse.metadata } as User;
+};
+
+export const generateEmailVerificationCode = async ({
+  kv,
+  clientId,
+  id,
+}: {
+  kv: KVNamespace;
+  clientId: string;
+  id: string;
+}) => {
+  let verificationCode = "";
+
+  for (let i = 0; i < 6; i++) {
+    verificationCode += Math.floor(Math.random() * 9);
+  }
+
+  await kv.put(
+    `${VERIFICATIONCODE_PREFIX}${clientId}:${id}`,
+    verificationCode,
+    { expirationTtl: 60 * 15 }
+  );
+
+  return verificationCode;
 };

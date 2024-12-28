@@ -8,11 +8,14 @@ import {
 import {
   ClearSessionParamsSchema,
   ClientIdParamSchema,
+  DeleteUserParams,
   EmailVerificationBodySchema,
-  RegistrationTokenBodySchema,
-  RegistrationTokenResponseSchema,
+  RegistrationBodySchema,
+  RegistrationResponse,
   ResendVerificationEmailBodySchema,
   SessionsSchema,
+  TokenBodySchema,
+  User,
   UsersListResponseSchema,
 } from "./schemas";
 
@@ -26,7 +29,7 @@ export const registrationRoute = createRoute({
     body: {
       content: {
         "application/json": {
-          schema: RegistrationTokenBodySchema,
+          schema: RegistrationBodySchema,
         },
       },
     },
@@ -41,10 +44,60 @@ export const registrationRoute = createRoute({
     200: {
       content: {
         "application/json": {
-          schema: RegistrationTokenResponseSchema,
+          schema: RegistrationResponse,
         },
       },
       description: "User created",
+    },
+    400: {
+      content: {
+        "application/json": {
+          schema: BadRequestSchema,
+        },
+      },
+      description: "Bad Request",
+    },
+    401: {
+      content: {
+        "application/json": {
+          schema: UnauthorizedSchema,
+        },
+      },
+      description: "Unauthorized",
+    },
+    500: {
+      content: {
+        "application/json": {
+          schema: InternalServerErrorSchema,
+        },
+      },
+      description: "Internal server error",
+    },
+  },
+});
+
+export const emailVerificationRoute = createRoute({
+  tags,
+  method: "post",
+  path: "/{clientId}/verify-email",
+  request: {
+    params: ClientIdParamSchema,
+    body: {
+      content: {
+        "application/json": {
+          schema: EmailVerificationBodySchema,
+        },
+      },
+    },
+  },
+  security: [
+    {
+      Client: [],
+    },
+  ],
+  responses: {
+    200: {
+      description: "Email sent",
     },
     400: {
       content: {
@@ -103,6 +156,28 @@ export const listUsersRoute = createRoute({
   },
 });
 
+export const deleteUserRoute = createRoute({
+  tags,
+  method: "delete",
+  path: "/{clientId}/users/{userId}",
+  request: {
+    params: DeleteUserParams,
+  },
+  security: [
+    {
+      Client: [],
+    },
+  ],
+  responses: {
+    200: {
+      description: "Deleted user successfully",
+    },
+    500: {
+      description: "Internal Server Error",
+    },
+  },
+});
+
 export const webTokenRoute = createRoute({
   tags,
   method: "post",
@@ -111,7 +186,7 @@ export const webTokenRoute = createRoute({
     body: {
       content: {
         "application/json": {
-          schema: RegistrationTokenBodySchema,
+          schema: TokenBodySchema,
         },
       },
     },
@@ -128,7 +203,7 @@ export const webTokenRoute = createRoute({
         "Returns an access &, if configured, refresh token as JWT cookies",
       content: {
         "application/json": {
-          schema: RegistrationTokenResponseSchema,
+          schema: User,
         },
       },
     },
@@ -159,7 +234,7 @@ export const mobileTokenRoute = createRoute({
     body: {
       content: {
         "application/json": {
-          schema: RegistrationTokenBodySchema,
+          schema: TokenBodySchema,
         },
       },
     },
@@ -371,50 +446,6 @@ export const listSessionsRoute = createRoute({
   },
 });
 
-export const emailVerificationRoute = createRoute({
-  tags,
-  method: "post",
-  path: "/{clientId}/verify-email",
-  request: {
-    body: {
-      content: {
-        "application/json": {
-          schema: EmailVerificationBodySchema,
-        },
-      },
-    },
-  },
-  responses: {
-    200: {
-      description: "Email sent",
-    },
-    400: {
-      content: {
-        "application/json": {
-          schema: BadRequestSchema,
-        },
-      },
-      description: "Bad Request",
-    },
-    401: {
-      content: {
-        "application/json": {
-          schema: UnauthorizedSchema,
-        },
-      },
-      description: "Unauthorized",
-    },
-    500: {
-      content: {
-        "application/json": {
-          schema: InternalServerErrorSchema,
-        },
-      },
-      description: "Internal server error",
-    },
-  },
-});
-
 export const forgottenPasswordRoute = createRoute({
   tags,
   method: "post",
@@ -464,6 +495,7 @@ export const resendVerificationEmailRoute = createRoute({
   method: "post",
   path: "/{clientId}/resend-email-verification",
   request: {
+    params: ClientIdParamSchema,
     body: {
       content: {
         "application/json": {
@@ -472,6 +504,11 @@ export const resendVerificationEmailRoute = createRoute({
       },
     },
   },
+  security: [
+    {
+      Client: [],
+    },
+  ],
   responses: {
     200: {
       description: "Code resent",
