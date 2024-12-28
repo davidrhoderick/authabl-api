@@ -15,7 +15,6 @@ import {
   validationRoute,
   webTokenRoute,
 } from "./routes";
-import { Resend } from "resend";
 import {
   ACCESSTOKEN_PREFIX,
   EMAIL_PREFIX,
@@ -41,7 +40,6 @@ app
     const options = { metadata: { usernames, emailAddresses } };
 
     try {
-      const resend = new Resend(c.env.RESEND_API_KEY);
       const password = await hashPassword(rawPassword);
 
       await c.env.OAUTHABL.put(
@@ -58,12 +56,6 @@ app
           `${EMAIL_PREFIX}${clientId}:${emailAddresses[0]}`,
           id
         );
-        await resend.emails.send({
-          from: "oauthabl <no-reply@afabl.com>",
-          to: emailAddresses as Array<string>,
-          subject: "Verification code",
-          html: "<p>CODE</p>",
-        });
       } else if (
         usernames.length &&
         usernames.some((username) => username?.length)
