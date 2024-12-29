@@ -6,7 +6,7 @@ import { CLIENT_PREFIX } from "../common/constants";
 export const clientAuthentication = createMiddleware<{ Bindings: Bindings }>(
   async (c, next) => {
     const clientId = c.req.param("clientId");
-    const clientSecret = c.req.header("X-OAUTHABL-API-Key");
+    const clientSecret = c.req.header("X-OAUTHABL-API-KEY");
 
     try {
       const response = await c.env.OAUTHABL.getWithMetadata<

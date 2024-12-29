@@ -12,7 +12,7 @@ import { clientAuthentication } from "../middleware/client-authentication";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 
-app.use("*", clientAuthentication);
+app.use("/:clientId/*", clientAuthentication);
 
 app
   .openapi(emailVerificationRoute, async (c) => {
