@@ -12,17 +12,8 @@ import {
   USERNAME_PREFIX,
 } from "../common/constants";
 import hyperid from "hyperid";
-import {
-  generateEmailVerificationCode,
-  hashPassword,
-} from "../common/utils";
-import {
-  EmailBody,
-  User,
-  UserMetadata,
-  UsernameBody,
-  UserValue,
-} from "./types";
+import { generateEmailVerificationCode, hashPassword } from "../common/utils";
+import { User, UserMetadata, UserValue } from "./types";
 import { clientAuthentication } from "../middleware/client-authentication";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
@@ -40,7 +31,7 @@ app
 
     const response: {
       id: string;
-      usernames?: Array<string>;
+      username?: string;
       emailAddresses?: Array<string>;
       code?: string;
       emailVerified: boolean;
@@ -48,17 +39,20 @@ app
 
     const options: {
       metadata: {
-        usernames?: Array<string>;
+        username?: string;
         emailAddresses?: Array<string>;
         emailVerified: boolean;
       };
     } = { metadata: { emailVerified } };
 
+    if (!rest.username?.length && !rest.email?.length)
+      return c.json({ code: 400, message: "Bad Request" }, 400);
+
     try {
       const password = await hashPassword(rawPassword);
 
-      if ((rest as EmailBody).email) {
-        const { email } = rest as EmailBody;
+      if (rest.email) {
+        const { email } = rest;
         const emailAddresses = [email];
         response.emailAddresses = emailAddresses;
         options.metadata.emailAddresses = emailAddresses;
@@ -66,18 +60,17 @@ app
           metadata: { emailVerified },
         });
 
-        if ((rest as EmailBody).verifyEmail) {
+        if (rest.verifyEmail) {
           response.code = await generateEmailVerificationCode({
             kv: c.env.OAUTHABL,
             clientId,
             id,
           });
         }
-      } else if ((rest as UsernameBody).username) {
-        const { username } = rest as UsernameBody;
-        const usernames = [username];
-        response.usernames = usernames;
-        options.metadata.usernames = usernames;
+      } else if (rest.username) {
+        const { username } = rest;
+        response.username = username;
+        options.metadata.username = username;
         await c.env.OAUTHABL.put(
           `${USERNAME_PREFIX}:${clientId}:${username}`,
           id
@@ -109,17 +102,14 @@ app
         (users.keys as Array<{ name: string; metadata: UserMetadata }>).map(
           ({
             name: id,
-            metadata: { emailAddresses, usernames, emailVerified },
+            metadata: { emailAddresses, username, emailVerified },
           }) => {
             return {
               emailAddresses: (emailAddresses ?? []).filter(
                 (emailAddress) =>
                   typeof emailAddress !== "undefined" || emailAddress !== null
               ),
-              usernames: (usernames ?? []).filter(
-                (username) =>
-                  typeof username !== "undefined" || username !== null
-              ),
+              username,
               id: id.substring(prefix.length),
               emailVerified,
             };
@@ -151,13 +141,9 @@ app
         );
       }
 
-      if (userResponse.value?.usernames?.length) {
-        await Promise.all(
-          userResponse.value.usernames.map(async (username) => {
-            await c.env.OAUTHABL.delete(
-              `${USERNAME_PREFIX}:${clientId}:${username}`
-            );
-          })
+      if (userResponse.value?.username?.length) {
+        await c.env.OAUTHABL.delete(
+          `${USERNAME_PREFIX}:${clientId}:${userResponse.value.username}`
         );
       }
 

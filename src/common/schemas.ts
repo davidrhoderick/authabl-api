@@ -1,6 +1,6 @@
 import { z } from "@hono/zod-openapi";
 
-export const zodUsername = z.string().regex(/[a-zA-Z0-9_]{5,32}/);
+export const zodUsername = z.string().regex(/\w{5,32}/);
 
 export const zodPassword = z
   .string()
@@ -68,7 +68,7 @@ export const User = z
   .object({
     id: z.string().trim().min(1),
     emailAddresses: z.array(z.string().email().regex(/[^:]*/)).optional(),
-    usernames: z.array(zodUsername).optional(),
+    username: zodUsername.optional(),
     emailVerified: z.boolean(),
   })
   .openapi("User");

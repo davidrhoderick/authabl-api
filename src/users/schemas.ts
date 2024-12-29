@@ -5,19 +5,12 @@ import {
   zodUsername,
 } from "../common/schemas";
 
-export const EmailRegistration = z.object({
-  email: z.string().email().regex(/[^:]*/),
+export const RegistrationBodySchema =z.object({
+  email: z.string().email().regex(/[^:]*/).optional(),
+  username: zodUsername.optional(),
   password: zodPassword,
   verifyEmail: z.boolean().optional(),
-});
-
-export const UsernameRegistration = z.object({
-  username: zodUsername,
-  password: zodPassword,
-});
-
-export const RegistrationBodySchema = z
-  .union([EmailRegistration, UsernameRegistration])
+})
   .openapi("RegistrationRequest");
 
 export const RegistrationResponse = User.extend({

@@ -21,13 +21,13 @@ yarn deploy
    - Replace the existing session with a new one if a user logs in again from the same device/browser.
 
 2. **Implement Logout**
-   - Add a `POST /oauth/logout` endpoint to clear tokens (stored as cookies) and terminate the current session.
+   - Add `DELETE /tokens/{clientId}` endpoint to clear tokens (stored as cookies) and terminate the current session.
 
 3. **Add Functionality to Clear All Sessions**
-   - Add a route (e.g., `POST /oauth/sessions/clear`) to log out and terminate all active sessions for a user.
+   - Add route `DELETE /sessions/{clientId}` to log out and terminate all active sessions for a user.
 
 4. **Add Functionality to Clear a Single Session**
-   - Add a route (e.g., `POST /oauth/sessions/{sessionId}/clear`) to log out and terminate a specific session.
+   - Add route `DELETE /sessions/{clientId}/{sessionId}` to log out and terminate a specific session.
 
 5. **Implement Cookie Security**
    - **OpenAPI Security Strategy:**
@@ -39,16 +39,12 @@ yarn deploy
        - The `role` in the JWT matches `admin` or `superadmin` for admin-level access.
 
 6. **Add User Metadata Endpoint**
-   - Add a `GET /users/{userId}` endpoint to retrieve user metadata like verified email addresses and profile details.
+   - Add a `GET /users/{clientId}/{userId}` endpoint to retrieve user metadata like verified email addresses and profile details.
 
 7. **Implement Forgotten Password Flow**
    - Add endpoints for requesting and confirming password resets.
 
-8. **Support Email and Username Management**
-   - Enforce a rule that users can only have **one username**.
-   - Allow users to associate **multiple email addresses** with their account.
-
-9. **Add Roles or Permissions**
+8. **Add Roles or Permissions**
    - Implement role-based access control by adding a `role` field and role-checking middleware.
 
 ### Future Enhancements
