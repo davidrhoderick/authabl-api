@@ -6,7 +6,7 @@ const TokenPassword = z.object({
 });
 
 export const EmailToken = TokenPassword.extend({
-  email: z.string().email(),
+  email: z.string().email().regex(/[^:]*/),
 });
 
 export const UsernameToken = TokenPassword.extend({

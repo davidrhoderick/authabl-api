@@ -6,7 +6,7 @@ import {
   USER_PREFIX,
   VERIFICATIONCODE_PREFIX,
 } from "../common/constants";
-import { generateEmailVerificationCode, getUser } from "../common/utilities";
+import { generateEmailVerificationCode, getUser } from "../common/utils";
 import { UserMetadata, UserValue } from "../users/types";
 import { clientAuthentication } from "../middleware/client-authentication";
 
@@ -22,13 +22,13 @@ app
 
     try {
       const id = await c.env.OAUTHABL.get(
-        `${EMAIL_PREFIX}${clientId}:${email}`,
+        `${EMAIL_PREFIX}:${clientId}:${email}`,
         "text"
       );
 
       if (!id) return c.json({ code: 404, message: "Not found" }, 404);
 
-      const verificationCodeKey = `${VERIFICATIONCODE_PREFIX}${clientId}:${id}`;
+      const verificationCodeKey = `${VERIFICATIONCODE_PREFIX}:${clientId}:${id}`;
 
       const verificationCode = await c.env.OAUTHABL.get(verificationCodeKey);
 
@@ -36,17 +36,17 @@ app
         const userResponse = await c.env.OAUTHABL.getWithMetadata<
           UserValue,
           UserMetadata
-        >(`${USER_PREFIX}${clientId}:${id}`, "json");
+        >(`${USER_PREFIX}:${clientId}:${id}`, "json");
 
         await c.env.OAUTHABL.put(
-          `${USER_PREFIX}${clientId}:${id}`,
+          `${USER_PREFIX}:${clientId}:${id}`,
           JSON.stringify(userResponse.value),
           { metadata: { ...userResponse.metadata, emailVerified: true } }
         );
 
         await c.env.OAUTHABL.delete(verificationCodeKey);
 
-        await c.env.OAUTHABL.put(`${EMAIL_PREFIX}${clientId}:${email}`, id, {
+        await c.env.OAUTHABL.put(`${EMAIL_PREFIX}:${clientId}:${email}`, id, {
           metadata: { emailVerified: true },
         });
 

@@ -1,5 +1,6 @@
 import { createRoute } from "@hono/zod-openapi";
 import {
+  ClientIdUserIdParamSchema,
   InternalServerErrorSchema,
   NotFoundSchema,
   UnauthorizedSchema,
@@ -11,8 +12,15 @@ const tags = ["OAuth"];
 export const listSessionsRoute = createRoute({
   tags,
   method: "get",
-  path: "/{clientId}",
-  request: {},
+  path: "/{clientId}/{userId}",
+  request: {
+    params: ClientIdUserIdParamSchema,
+  },
+  security: [
+    {
+      Client: [],
+    },
+  ],
   responses: {
     200: {
       description: "List all sessions",

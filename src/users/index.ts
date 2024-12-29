@@ -15,7 +15,7 @@ import hyperid from "hyperid";
 import {
   generateEmailVerificationCode,
   hashPassword,
-} from "../common/utilities";
+} from "../common/utils";
 import {
   EmailBody,
   User,
@@ -62,7 +62,7 @@ app
         const emailAddresses = [email];
         response.emailAddresses = emailAddresses;
         options.metadata.emailAddresses = emailAddresses;
-        await c.env.OAUTHABL.put(`${EMAIL_PREFIX}${clientId}:${email}`, id, {
+        await c.env.OAUTHABL.put(`${EMAIL_PREFIX}:${clientId}:${email}`, id, {
           metadata: { emailVerified },
         });
 
@@ -79,13 +79,13 @@ app
         response.usernames = usernames;
         options.metadata.usernames = usernames;
         await c.env.OAUTHABL.put(
-          `${USERNAME_PREFIX}${clientId}:${username}`,
+          `${USERNAME_PREFIX}:${clientId}:${username}`,
           id
         );
       }
 
       await c.env.OAUTHABL.put(
-        `${USER_PREFIX}${clientId}:${id}`,
+        `${USER_PREFIX}:${clientId}:${id}`,
         JSON.stringify({ password }),
         options
       );
@@ -98,7 +98,7 @@ app
   })
   .openapi(listUsersRoute, async (c) => {
     const clientId = c.req.param("clientId");
-    const prefix = `${USER_PREFIX}${clientId}:`;
+    const prefix = `${USER_PREFIX}:${clientId}:`;
 
     try {
       const users = await c.env.OAUTHABL.list<UserMetadata>({
@@ -161,7 +161,7 @@ app
         );
       }
 
-      await c.env.OAUTHABL.delete(`${USER_PREFIX}${clientId}:${userId}`);
+      await c.env.OAUTHABL.delete(`${USER_PREFIX}:${clientId}:${userId}`);
 
       return c.json({ code: 200, message: "User deleted successfully" }, 200);
     } catch (error) {

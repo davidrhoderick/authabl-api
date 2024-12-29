@@ -18,7 +18,7 @@ export const getClient = async ({
   clientId: string;
 }) => {
   const response = await kv.getWithMetadata<ClientValue, ClientMetadata>(
-    `${CLIENT_PREFIX}${clientId}`,
+    `${CLIENT_PREFIX}:${clientId}`,
     "json"
   );
 
@@ -63,9 +63,9 @@ export const getUser = async ({
   username?: string;
 }) => {
   const id = email
-    ? await kv.get(`${EMAIL_PREFIX}${clientId}:${email}`, "text")
+    ? await kv.get(`${EMAIL_PREFIX}:${clientId}:${email}`, "text")
     : username
-    ? await kv.get(`${USERNAME_PREFIX}${clientId}:${username}`, "text")
+    ? await kv.get(`${USERNAME_PREFIX}:${clientId}:${username}`, "text")
     : false;
 
   if (!id) return undefined;
@@ -73,7 +73,7 @@ export const getUser = async ({
   return {
     id,
     ...(await kv.getWithMetadata<UserValue, UserMetadata>(
-      `${USER_PREFIX}${clientId}:${id}`,
+      `${USER_PREFIX}:${clientId}:${id}`,
       "json"
     )),
   };
@@ -119,7 +119,7 @@ export const generateEmailVerificationCode = async ({
   }
 
   await kv.put(
-    `${VERIFICATIONCODE_PREFIX}${clientId}:${id}`,
+    `${VERIFICATIONCODE_PREFIX}:${clientId}:${id}`,
     verificationCode,
     { expirationTtl: 60 * 15 }
   );

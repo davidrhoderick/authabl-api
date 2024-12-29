@@ -162,7 +162,6 @@ export const logoutRoute = createRoute({
   tags,
   method: "delete",
   path: "/{clientId}",
-  request: {},
   responses: {
     200: {
       description: "Log a user out by clearing JWT cookies",

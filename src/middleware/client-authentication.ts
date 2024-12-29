@@ -12,7 +12,7 @@ export const clientAuthentication = createMiddleware<{ Bindings: Bindings }>(
       const response = await c.env.OAUTHABL.getWithMetadata<
         ClientValue,
         ClientMetadata
-      >(`${CLIENT_PREFIX}${clientId}`, "json");
+      >(`${CLIENT_PREFIX}:${clientId}`, "json");
 
       if (
         response.value === null ||

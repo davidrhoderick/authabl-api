@@ -11,7 +11,7 @@ import {
 import { ClientMetadata, ClientValue } from "./types";
 import hyperid from "hyperid";
 import { combineMetadata, splitMetadata } from "./utils";
-import { getClient } from "../common/utilities";
+import { getClient } from "../common/utils";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 
@@ -40,7 +40,7 @@ app
 
     try {
       const { value, options } = splitMetadata(newClient);
-      await c.env.OAUTHABL.put(`${CLIENT_PREFIX}${id}`, value, options);
+      await c.env.OAUTHABL.put(`${CLIENT_PREFIX}:${id}`, value, options);
 
       return c.json(newClient, 200);
     } catch (error) {
@@ -51,17 +51,19 @@ app
   .openapi(listClientRoute, async (c) => {
     try {
       const clients = await c.env.OAUTHABL.list<ClientMetadata>({
-        prefix: CLIENT_PREFIX,
+        prefix: `${CLIENT_PREFIX}:`,
       });
 
       return c.json(
-        clients.keys.map(({ name: id, metadata }) => ({
-          // @ts-expect-error metadata.name is always defined
-          name: metadata.name,
-          id: id.substring(CLIENT_PREFIX.length),
-          // @ts-expect-error metadata.secret is always defined
-          secret: metadata.secret,
-        })),
+        clients.keys.length
+          ? clients.keys.map(({ name: id, metadata }) => ({
+              id: id.substring(CLIENT_PREFIX.length + 1),
+              // @ts-expect-error metadata.name is always defined
+              name: metadata.name,
+              // @ts-expect-error metadata.secret is always defined
+              secret: metadata.secret,
+            }))
+          : [],
         200
       );
     } catch (error) {
@@ -78,7 +80,7 @@ app
       const response = await c.env.OAUTHABL.getWithMetadata<
         ClientValue,
         ClientMetadata
-      >(`${CLIENT_PREFIX}${clientId}`, "json");
+      >(`${CLIENT_PREFIX}:${clientId}`, "json");
 
       if (response.value === null || response.metadata === null)
         return c.json({ code: 404, message: "Not found" }, 404);
@@ -94,7 +96,11 @@ app
 
         const { value, options } = splitMetadata(newClient);
 
-        await c.env.OAUTHABL.put(`${CLIENT_PREFIX}${clientId}`, value, options);
+        await c.env.OAUTHABL.put(
+          `${CLIENT_PREFIX}:${clientId}`,
+          value,
+          options
+        );
 
         return c.json(newClient, 200);
       } catch (error) {
@@ -109,7 +115,7 @@ app
   .openapi(deleteClientRoute, async (c) => {
     const { clientId } = c.req.valid("param");
     try {
-      await c.env.OAUTHABL.delete(`${CLIENT_PREFIX}${clientId}`);
+      await c.env.OAUTHABL.delete(`${CLIENT_PREFIX}:${clientId}`);
 
       return c.json({ code: 200, message: "Client deleted" });
     } catch (error) {

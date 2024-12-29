@@ -4,9 +4,9 @@ import {
   InternalServerErrorSchema,
   UnauthorizedSchema,
   ClientIdParamSchema,
+  ClientIdUserIdParamSchema
 } from "../common/schemas";
 import {
-  DeleteUserParams,
   RegistrationBodySchema,
   RegistrationResponse,
   UsersListResponseSchema,
@@ -104,7 +104,7 @@ export const deleteUserRoute = createRoute({
   method: "delete",
   path: "/{clientId}/{userId}",
   request: {
-    params: DeleteUserParams,
+    params: ClientIdUserIdParamSchema,
   },
   security: [
     {
