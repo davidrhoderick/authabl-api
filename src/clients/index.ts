@@ -10,7 +10,7 @@ import {
 } from "./routes";
 import { ClientMetadata, ClientValue } from "./types";
 import hyperid from "hyperid";
-import { splitMetadata } from "./utils";
+import { combineMetadata, splitMetadata } from "./utils";
 import { getClient } from "../common/utilities";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
