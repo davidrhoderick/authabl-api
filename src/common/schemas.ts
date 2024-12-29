@@ -1,13 +1,15 @@
 import { z } from "@hono/zod-openapi";
 
-export const zodRequiredString = (options?: {
-  length?: number;
-  message?: string;
-}) =>
-  z
-    .string({ required_error: options?.message ?? "Required" })
-    .trim()
-    .min(options?.length ?? 1, { message: options?.message ?? "Required" });
+export const zodUsername = z.string().regex(/[a-zA-Z0-9_]{5,32}/);
+
+export const zodPassword = z
+  .string()
+  .min(8, "Password must be at least 8 characters long")
+  .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+  .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+  .regex(/\d/, "Password must contain at least one number")
+  .regex(/[\W_]/, "Password must contain at least one special character")
+  .regex(/^\S*$/, "Password must not contain spaces");
 
 export const BadRequestSchema = z
   .object({
@@ -52,3 +54,16 @@ export const InternalServerErrorSchema = z
     }),
   })
   .openapi("Error");
+
+export const ClientIdParamSchema = z.object({
+  clientId: z.string().trim().min(1),
+});
+
+export const User = z
+  .object({
+    id: z.string().trim().min(1),
+    emailAddresses: z.array(z.string().email()).optional(),
+    usernames: z.array(zodUsername).optional(),
+    emailVerified: z.boolean(),
+  })
+  .openapi("User");

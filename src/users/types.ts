@@ -1,5 +1,6 @@
 import { z } from "@hono/zod-openapi";
-import { EmailRegistration, User, UsernameRegistration } from "./schemas";
+import { User } from "../common/schemas";
+import { EmailRegistration, UsernameRegistration } from "./schemas";
 
 export type User = z.infer<typeof User>;
 

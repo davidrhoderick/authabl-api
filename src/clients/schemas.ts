@@ -1,12 +1,11 @@
 import { z } from "@hono/zod-openapi";
-import { zodRequiredString } from "../common/schemas";
 
 export const ClientSchema = z
   .object({
-    id: zodRequiredString(),
-    secret: zodRequiredString(),
-    name: zodRequiredString(),
-    allowedOrigins: z.array(zodRequiredString().url()).nonempty(),
+    id: z.string().trim().min(1),
+    secret: z.string().trim().min(1),
+    name: z.string().trim().min(1),
+    allowedOrigins: z.array(z.string().url()).nonempty(),
     accessTokenValidity: z.number().min(60).default(3600),
     refreshTokenValidity: z.number().min(60).default(1209600),
     disableRefreshToken: z.boolean().default(false),
@@ -24,16 +23,16 @@ export const UpdateClientBodySchema =
 
 export const ClientParamsSchema = z
   .object({
-    clientId: zodRequiredString(),
+    clientId: z.string().trim().min(1),
   })
   .openapi("ClientId");
 
 export const ClientsSchema = z
   .array(
     z.object({
-      name: zodRequiredString(),
-      id: zodRequiredString(),
-      secret: zodRequiredString(),
+      name: z.string().trim().min(1),
+      id: z.string().trim().min(1),
+      secret: z.string().trim().min(1),
     })
   )
   .openapi("Clients");

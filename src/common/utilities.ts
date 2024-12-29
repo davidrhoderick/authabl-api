@@ -5,8 +5,8 @@ import {
   USER_PREFIX,
   USERNAME_PREFIX,
   VERIFICATIONCODE_PREFIX,
-} from "../common/constants";
-import { User, UserMetadata, UserValue } from "./types";
+} from "./constants";
+import { User, UserMetadata, UserValue } from "../users/types";
 import { ClientMetadata, ClientValue } from "../clients/types";
 import { combineMetadata } from "../clients/utils";
 

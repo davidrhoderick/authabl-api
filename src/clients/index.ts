@@ -11,7 +11,7 @@ import {
 import { ClientMetadata, ClientValue } from "./types";
 import hyperid from "hyperid";
 import { splitMetadata } from "./utils";
-import { getClient } from "../oauth/utilities";
+import { getClient } from "../common/utilities";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 

@@ -3,16 +3,25 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { cors } from "hono/cors";
 
 import clients from "./clients";
-import oauth from "./oauth";
-import { clientAuthentication } from "./middleware/client-authentication";
+import users from "./users";
+import emails from "./emails";
+import tokens from "./tokens";
+import sessions from "./sessions";
 
 const app = new OpenAPIHono();
 
 app
   .use("*", cors())
+  // Client applications
   .route("/clients", clients)
-  .use("/oauth/:clientId/*", clientAuthentication)
-  .route("/oauth", oauth);
+  // Users on clients
+  .route("/users", users)
+  // Emails and email addresses for users
+  .route("/emails", emails)
+  // Token management for users
+  .route("/tokens", tokens)
+  // Session management for users
+  .route("/sessions", sessions);
 
 app.openAPIRegistry.registerComponent("securitySchemes", "Client", {
   type: "apiKey",
