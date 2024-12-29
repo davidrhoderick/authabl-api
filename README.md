@@ -51,8 +51,6 @@ yarn deploy
 9. **Add Roles or Permissions**
    - Implement role-based access control by adding a `role` field and role-checking middleware.
 
----
-
 ### Future Enhancements
 
 - **Session Archival**
@@ -61,6 +59,3 @@ yarn deploy
 - **Archived Sessions Endpoint**
   - Add a route to retrieve a list of archived sessions with filtering options, such as by date range.
 
----
-
-This roadmap outlines the tasks and features in progress or planned for the OAuth2 server. Contributions and feedback are welcome!
