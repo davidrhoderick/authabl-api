@@ -30,7 +30,8 @@ export const createSession = async ({
   env: Bindings;
 }): Promise<CreateSessionResult | false> => {
   // Start a new hyperid instance
-  const idInstance = hyperid();
+  const sessionIdInstance = hyperid({urlSafe: true})
+  const tokenIdInstance = hyperid();
 
   // Get the client settings
   const client = await getClient({ kv: env.OAUTHABL, clientId });
@@ -39,7 +40,7 @@ export const createSession = async ({
     client;
 
   // Create the session ID
-  const sessionId = idInstance();
+  const sessionId = sessionIdInstance();
 
   // Create the access token data
   const accessTokenData = {
@@ -52,7 +53,7 @@ export const createSession = async ({
 
   // Create the access token with an index
   const accessTokenIndexKey = `${ACCESSTOKENINDEX_PREFIX}:${accessToken}`;
-  const accessTokenKeyId = idInstance();
+  const accessTokenKeyId = tokenIdInstance();
   const accessTokenKey = `${ACCESSTOKEN_PREFIX}:${clientId}:${userId}:${accessTokenKeyId}`;
   await env.OAUTHABL.put(accessTokenIndexKey, accessTokenKey, {
     expirationTtl: accessTokenValidity,
@@ -89,7 +90,7 @@ export const createSession = async ({
 
     // Create the refresh token with an index
     const refreshTokenIndexKey = `${REFRESHTOKENINDEX_PREFIX}:${refreshToken}`;
-    const refreshTokenKeyId = idInstance();
+    const refreshTokenKeyId = tokenIdInstance();
     const refreshTokenKey = `${REFRESHTOKEN_PREFIX}:${clientId}:${userId}:${refreshTokenKeyId}`;
     await env.OAUTHABL.put(refreshTokenIndexKey, refreshTokenKey, {
       expirationTtl: refreshTokenValidity,

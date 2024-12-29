@@ -5,7 +5,12 @@ import {
   NotFoundSchema,
   UnauthorizedSchema,
 } from "../common/schemas";
-import { ClearSessionParamsSchema, SessionsSchema } from "./schemas";
+import {
+  ClearSessionParamsSchema,
+  GetSessionParamsSchema,
+  GetSessionResponseSchema,
+  SessionsSchema,
+} from "./schemas";
 
 const tags = ["OAuth"];
 
@@ -37,6 +42,54 @@ export const listSessionsRoute = createRoute({
         },
       },
       description: "Unauthorized",
+    },
+    500: {
+      content: {
+        "application/json": {
+          schema: InternalServerErrorSchema,
+        },
+      },
+      description: "Internal server error",
+    },
+  },
+});
+
+export const getSessionRoute = createRoute({
+  tags,
+  method: "get",
+  path: "/{clientId}/{userId}/{sessionId}",
+  request: {
+    params: GetSessionParamsSchema,
+  },
+  security: [
+    {
+      Client: [],
+    },
+  ],
+  responses: {
+    200: {
+      description: "Get a specific session and all it's tokens",
+      content: {
+        "application/json": {
+          schema: GetSessionResponseSchema,
+        },
+      },
+    },
+    401: {
+      content: {
+        "application/json": {
+          schema: UnauthorizedSchema,
+        },
+      },
+      description: "Unauthorized",
+    },
+    404: {
+      content: {
+        "application/json": {
+          schema: NotFoundSchema,
+        },
+      },
+      description: "Not found",
     },
     500: {
       content: {
