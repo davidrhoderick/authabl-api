@@ -26,22 +26,21 @@ yarn deploy
 3. **Add Functionality to Clear a Single Session**
    - Add route `DELETE /sessions/{clientId}/{sessionId}` to log out and terminate a specific session.
 
-4. **Implement Cookie Security**
-   - **OpenAPI Security Strategy:**
-     - Specify that user-specific endpoints require cookies containing secure JWTs.
-   - **Middleware in Hono:**
-     - Validate the JWT token in cookies.
-     - Check if:
-       - The `userId` in the URL matches the `userId` in the JWT.
-       - The `role` in the JWT matches `admin` or `superadmin` for admin-level access.
+4. **Implement refresh token endpoint**
+   - Update to have web and mobile endpoints.
+   - Generate a new access token and invalidate the previous one.
+   - Renew the refresh token if it exists.
 
-5. **Add User Metadata Endpoint**
+5. **Implement Cookie Security**
+   - Implement `detectAccessToken` in middleware
+
+6. **Add User Metadata Endpoint**
    - Add a `GET /users/{clientId}/{userId}` endpoint to retrieve user metadata like verified email addresses and profile details.
 
-6. **Implement Forgotten Password Flow**
+7. **Implement Forgotten Password Flow**
    - Add endpoints for requesting and confirming password resets.
 
-7. **Add Roles or Permissions**
+8. **Add Roles or Permissions**
    - Implement role-based access control by adding a `role` field and role-checking middleware.
 
 ### Future Enhancements
