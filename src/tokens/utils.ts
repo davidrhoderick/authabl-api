@@ -50,6 +50,7 @@ export const createSession = async ({
     userId,
     clientId,
     expiresAt: Date.now() + accessTokenValidity * 1000,
+    sessionId,
   };
   const accessTokenString = JSON.stringify(accessTokenData);
   const accessToken = await sign(accessTokenData, env.ACCESSTOKEN_SECRET);
@@ -87,6 +88,7 @@ export const createSession = async ({
       userId,
       clientId,
       expiresAt: Date.now() + refreshTokenValidity * 1000,
+      sessionId,
     };
     const refreshTokenString = JSON.stringify(refreshTokenData);
     const refreshToken = await sign(refreshTokenData, env.REFRESHTOKEN_SECRET);
@@ -124,7 +126,20 @@ export const createSession = async ({
   return result;
 };
 
-export const detectSession = async (c: Context<{ Bindings: Bindings }>) => {
+export const detectAccessToken = async (
+  c: Context<{ Bindings: Bindings }>,
+  returnToken?: boolean
+): Promise<
+  | false
+  | {
+      userId: string;
+      clientId: string;
+      expiresAt: number;
+      sessionId: string;
+      accessTokenIndexKey?: string;
+      accessTokenKey?: string;
+    }
+> => {
   const now = Date.now();
 
   const accessTokenCookie = getCookie(c, ACCESSTOKEN_COOKIE);
@@ -142,9 +157,9 @@ export const detectSession = async (c: Context<{ Bindings: Bindings }>) => {
 
   if (!accessTokenPayload) return false;
 
-  const accessTokenKey = await c.env.OAUTHABL.get(
-    `${ACCESSTOKENINDEX_PREFIX}:${accessToken}`
-  );
+  const accessTokenIndexKey = `${ACCESSTOKENINDEX_PREFIX}:${accessToken}`;
+
+  const accessTokenKey = await c.env.OAUTHABL.get(accessTokenIndexKey);
 
   if (!accessTokenKey) return false;
 
@@ -152,6 +167,7 @@ export const detectSession = async (c: Context<{ Bindings: Bindings }>) => {
     userId: string;
     clientId: string;
     expiresAt: number;
+    sessionId: string;
   }>(accessTokenKey, "json");
 
   if (!accessTokenItem) return false;
@@ -161,8 +177,52 @@ export const detectSession = async (c: Context<{ Bindings: Bindings }>) => {
     accessTokenPayload.payload.userId === accessTokenItem.userId &&
     accessTokenPayload.payload.expiresAt === accessTokenItem.expiresAt &&
     now < accessTokenPayload.payload.expiresAt
-  )
-    return accessTokenPayload.payload;
+  ) {
+    if (returnToken)
+      return {
+        ...accessTokenItem,
+        accessTokenIndexKey,
+        accessTokenKey,
+      };
+    return accessTokenItem;
+  }
 
   return false;
+};
+
+export const deleteSession = async (c: Context<{ Bindings: Bindings }>) => {
+  const accessTokenResult = await detectAccessToken(c, true);
+
+  const deletions: Array<Promise<void>> = []
+
+  if (accessTokenResult) {
+    deletions.push(
+      c.env.OAUTHABL.delete(accessTokenResult.accessTokenKey!),
+      c.env.OAUTHABL.delete(accessTokenResult.accessTokenIndexKey!),
+      c.env.OAUTHABL.delete(
+        `${SESSIONACCESSTOKEN_PREFIX}:${accessTokenResult.clientId}:${accessTokenResult.userId}:${
+          accessTokenResult.sessionId
+        }:${accessTokenResult.accessTokenKey!.split(":")[3]}`
+      ),
+      c.env.OAUTHABL.delete(
+        `${SESSION_PREFIX}:${accessTokenResult.clientId}:${accessTokenResult.userId}:${accessTokenResult.sessionId}`
+      ),
+    );
+  }
+
+  // const refreshTokenResult = await detectRefreshToken(c, true)
+
+  // if(refreshTokenResult) {
+  //   deletions.push(
+      // c.env.OAUTHABL.delete(`${REFRESHTOKENINDEX_PREFIX}:${refreshToken}`),
+      // c.env.OAUTHABL.delete(
+      //   `${REFRESHTOKEN_PREFIX}:${clientId}:${userId}:${refreshTokenKeyId}`
+      // ),
+      //  c.env.OAUTHABL.delete(
+      //   `${SESSIONREFRESHTOKEN_PREFIX}:${clientId}:${userId}:${sessionId}:${refreshTokenKeyId}`
+      // ),
+  //   )
+  // }
+
+  await Promise.all(deletions)
 };

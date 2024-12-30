@@ -111,9 +111,9 @@ export const validationRoute = createRoute({
       description: "Confirm that the access token is valid",
       content: {
         "application/json": {
-          schema: ValidationResponseSchema
-        }
-      }
+          schema: ValidationResponseSchema,
+        },
+      },
     },
     401: {
       content: {
@@ -167,6 +167,14 @@ export const logoutRoute = createRoute({
   tags,
   method: "delete",
   path: "/{clientId}",
+  request: {
+    params: ClientIdParamSchema,
+  },
+  security: [
+    {
+      Client: [],
+    },
+  ],
   responses: {
     200: {
       description: "Log a user out by clearing JWT cookies",

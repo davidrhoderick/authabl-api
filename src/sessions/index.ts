@@ -14,6 +14,7 @@ import {
   SESSIONACCESSTOKEN_PREFIX,
   SESSIONREFRESHTOKEN_PREFIX,
 } from "../common/constants";
+import { detectAccessToken } from "../tokens/utils";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 
@@ -25,22 +26,36 @@ app
 
     const prefix = `${SESSION_PREFIX}:${clientId}:${userId}`;
 
-    const sessions = await c.env.OAUTHABL.list({
-      prefix,
-    });
+    try {
+      const result = await detectAccessToken(c);
 
-    return c.json(
-      sessions.keys.map(({ name, ...rest }) => ({
-        id: name.substring(prefix.length + 1),
-        ...rest,
-      })),
-      200
-    );
+      const sessions = await c.env.OAUTHABL.list({
+        prefix,
+      });
+
+      return c.json(
+        sessions.keys.map(({ name, ...rest }) => {
+          const id = name.substring(prefix.length + 1);
+
+          return {
+            id,
+            current: result && id === result.sessionId,
+            ...rest,
+          };
+        }),
+        200
+      );
+    } catch (error) {
+      console.error(error);
+      return c.json({ code: 500, message: "Internal Server Error" }, 500);
+    }
   })
   .openapi(getSessionRoute, async (c) => {
     const { clientId, userId, sessionId } = c.req.param();
 
     try {
+      const result = await detectAccessToken(c, true);
+
       const session = await c.env.OAUTHABL.getWithMetadata<
         { accessTokenKeyId: string; refreshTokenKeyId: string },
         { createdAt: number }
@@ -71,7 +86,10 @@ app
           current: false,
         };
 
-        if (accessToken.id === session.value!.accessTokenKeyId)
+        if (
+          result &&
+          sessionAccessToken.metadata!.accessTokenKey === result.accessTokenKey
+        )
           accessToken.current = true;
 
         accessTokens.push(accessToken);

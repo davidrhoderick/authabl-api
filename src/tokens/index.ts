@@ -11,7 +11,7 @@ import { ACCESSTOKEN_COOKIE, REFRESHTOKEN_COOKIE } from "../common/constants";
 import { loginVerification } from "../common/utils";
 import { getCookie, setCookie } from "hono/cookie";
 import { clientAuthentication } from "../middleware/client-authentication";
-import { createSession, detectSession } from "./utils";
+import { createSession, deleteSession, detectAccessToken } from "./utils";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 
@@ -87,20 +87,44 @@ app
     }
   })
   .openapi(validationRoute, async (c) => {
-    const result = await detectSession(c);
+    try {
+      const result = await detectAccessToken(c);
 
-    if (!result) return c.json({ code: 401, message: "Unauthorized" }, 401);
+      if (!result) return c.json({ code: 401, message: "Unauthorized" }, 401);
 
-    return c.json(result, 200);
+      return c.json(result, 200);
+    } catch (error) {
+      console.error(error);
+      return c.json({ code: 500, message: "Internal Server Error" }, 500);
+    }
   })
   .openapi(refreshRoute, async (c) => {
     return c.json({ code: 200, message: "Success" }, 200);
   })
   .openapi(logoutRoute, async (c) => {
-    const accessTokenCookie = getCookie(c, ACCESSTOKEN_COOKIE);
-    const refreshTokenCookie = getCookie(c, REFRESHTOKEN_COOKIE);
+    try {
+      await deleteSession(c);
 
-    return c.json({ code: 200, message: "Success" }, 200);
+      const path = "/";
+
+      setCookie(c, ACCESSTOKEN_COOKIE, "", {
+        path,
+        httpOnly: true,
+        maxAge: 0,
+        sameSite: "lax",
+      });
+
+      setCookie(c, REFRESHTOKEN_COOKIE, "", {
+        path,
+        httpOnly: true,
+        maxAge: 0,
+        sameSite: "lax",
+      });
+
+      return c.json({ code: 200, message: "Success" }, 200);
+    } catch (error) {
+      return c.json({ code: 500, message: "Internal Server Error" }, 500);
+    }
   });
 
 export default app;
