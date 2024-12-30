@@ -193,6 +193,7 @@ export const detectAccessToken = async (
 
 export const detectRefreshToken = async (
   c: Context<{ Bindings: Bindings }>,
+  refreshTokenBody?: string,
   returnToken?: boolean
 ): Promise<
   | false
@@ -209,9 +210,13 @@ export const detectRefreshToken = async (
 
   const refreshTokenCookie = getCookie(c, REFRESHTOKEN_COOKIE);
 
-  if (!refreshTokenCookie?.length) return false;
+  if (!refreshTokenCookie?.length && !refreshTokenBody?.length) return false;
 
-  const refreshTokenPayload = decode(refreshTokenCookie);
+  const refreshToken = refreshTokenCookie?.length
+    ? refreshTokenCookie
+    : refreshTokenBody;
+
+  const refreshTokenPayload = decode(refreshToken!);
 
   if (!refreshTokenPayload) return false;
 
@@ -248,7 +253,10 @@ export const detectRefreshToken = async (
   return false;
 };
 
-export const deleteSession = async (c: Context<{ Bindings: Bindings }>) => {
+export const deleteSession = async (
+  c: Context<{ Bindings: Bindings }>,
+  refreshToken?: string
+) => {
   const accessTokenResult = await detectAccessToken(c, true);
 
   const deletions: Array<Promise<void>> = [];
@@ -258,30 +266,34 @@ export const deleteSession = async (c: Context<{ Bindings: Bindings }>) => {
       c.env.OAUTHABL.delete(accessTokenResult.accessTokenKey!),
       c.env.OAUTHABL.delete(accessTokenResult.accessTokenIndexKey!),
       c.env.OAUTHABL.delete(
-        `${SESSIONACCESSTOKEN_PREFIX}:${accessTokenResult.clientId}:${
-          accessTokenResult.userId
-        }:${accessTokenResult.sessionId}:${
-          accessTokenResult.accessTokenKey!.split(":")[3]
-        }`
-      ),
-      c.env.OAUTHABL.delete(
         `${SESSION_PREFIX}:${accessTokenResult.clientId}:${accessTokenResult.userId}:${accessTokenResult.sessionId}`
       )
     );
+
+    const sessionAccessTokens = await c.env.OAUTHABL.list({
+      prefix: `${SESSIONACCESSTOKEN_PREFIX}:${accessTokenResult.clientId}:${accessTokenResult.userId}:${accessTokenResult.sessionId}`,
+    });
+
+    deletions.push(
+      ...sessionAccessTokens.keys.map(({ name }) => c.env.OAUTHABL.delete(name))
+    );
   }
 
-  const refreshTokenResult = await detectRefreshToken(c, true);
+  const refreshTokenResult = await detectRefreshToken(c, refreshToken, true);
 
   if (refreshTokenResult) {
     deletions.push(
       c.env.OAUTHABL.delete(refreshTokenResult.refreshTokenKey!),
-      c.env.OAUTHABL.delete(refreshTokenResult.refreshTokenIndexKey!),
-      c.env.OAUTHABL.delete(
-        `${SESSIONREFRESHTOKEN_PREFIX}:${refreshTokenResult.clientId}:${
-          refreshTokenResult.userId
-        }:${refreshTokenResult.sessionId}:${
-          refreshTokenResult.refreshTokenKey!.split(":")[3]
-        }`
+      c.env.OAUTHABL.delete(refreshTokenResult.refreshTokenIndexKey!)
+    );
+
+    const sessionRefreshTokens = await c.env.OAUTHABL.list({
+      prefix: `${SESSIONREFRESHTOKEN_PREFIX}:${refreshTokenResult.clientId}:${refreshTokenResult.userId}:${refreshTokenResult.sessionId}`,
+    });
+
+    deletions.push(
+      ...sessionRefreshTokens.keys.map(({ name }) =>
+        c.env.OAUTHABL.delete(name)
       )
     );
   }

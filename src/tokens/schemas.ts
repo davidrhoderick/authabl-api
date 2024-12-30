@@ -22,3 +22,7 @@ export const ValidationResponseSchema = z.object({
   clientId: z.string().trim().min(1),
   expiresAt: z.number().int(),
 });
+
+export const LogoutBodySchema = z.object({
+  refreshToken: z.string().trim().min(1),
+});

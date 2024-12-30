@@ -1,10 +1,11 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { Bindings } from "../common/types";
 import {
-  logoutRoute,
+  mobileLogoutRoute,
   mobileTokenRoute,
   refreshRoute,
   validationRoute,
+  webLogoutRoute,
   webTokenRoute,
 } from "./routes";
 import { ACCESSTOKEN_COOKIE, REFRESHTOKEN_COOKIE } from "../common/constants";
@@ -101,7 +102,7 @@ app
   .openapi(refreshRoute, async (c) => {
     return c.json({ code: 200, message: "Success" }, 200);
   })
-  .openapi(logoutRoute, async (c) => {
+  .openapi(webLogoutRoute, async (c) => {
     try {
       await deleteSession(c);
 
@@ -120,6 +121,17 @@ app
         maxAge: 0,
         sameSite: "lax",
       });
+
+      return c.json({ code: 200, message: "Success" }, 200);
+    } catch (error) {
+      return c.json({ code: 500, message: "Internal Server Error" }, 500);
+    }
+  })
+  .openapi(mobileLogoutRoute, async (c) => {
+    const { refreshToken } = c.req.valid("json");
+
+    try {
+      await deleteSession(c, refreshToken);
 
       return c.json({ code: 200, message: "Success" }, 200);
     } catch (error) {

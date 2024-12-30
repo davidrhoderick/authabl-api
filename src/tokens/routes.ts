@@ -5,7 +5,11 @@ import {
   ClientIdParamSchema,
   User,
 } from "../common/schemas";
-import { TokenBodySchema, ValidationResponseSchema } from "./schemas";
+import {
+  LogoutBodySchema,
+  TokenBodySchema,
+  ValidationResponseSchema,
+} from "./schemas";
 
 const tags = ["OAuth"];
 
@@ -163,7 +167,7 @@ export const refreshRoute = createRoute({
   },
 });
 
-export const logoutRoute = createRoute({
+export const webLogoutRoute = createRoute({
   tags,
   method: "delete",
   path: "/{clientId}",
@@ -178,6 +182,40 @@ export const logoutRoute = createRoute({
   responses: {
     200: {
       description: "Log a user out by clearing JWT cookies",
+    },
+    500: {
+      content: {
+        "application/json": {
+          schema: InternalServerErrorSchema,
+        },
+      },
+      description: "Internal server error",
+    },
+  },
+});
+
+export const mobileLogoutRoute = createRoute({
+  tags,
+  method: "delete",
+  path: "/{clientId}",
+  request: {
+    params: ClientIdParamSchema,
+    body: {
+      content: {
+        "application/json": {
+          schema: LogoutBodySchema,
+        },
+      },
+    },
+  },
+  security: [
+    {
+      Client: [],
+    },
+  ],
+  responses: {
+    200: {
+      description: "Log a user out by clearing refresh & access tokens",
     },
     500: {
       content: {
