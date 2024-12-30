@@ -15,5 +15,8 @@
     "@cloudflare/workers-types": "^4.20241216.0",
     "wrangler": "^3.99.0"
   },
-  "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"
+  "engines": {
+    "node": "22.12.0"
+  },
+  "packageManager": "yarn@4.6.0"
 }
