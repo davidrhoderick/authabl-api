@@ -20,16 +20,13 @@ yarn deploy
 1. **Replace Sessions When Logging In Twice**
    - Replace the existing session with a new one if a user logs in again from the same device/browser.
 
-2. **Implement Logout**
-   - Add `DELETE /tokens/{clientId}` endpoint to clear tokens (stored as cookies) and terminate the current session.
-
-3. **Add Functionality to Clear All Sessions**
+2. **Add Functionality to Clear All Sessions**
    - Add route `DELETE /sessions/{clientId}` to log out and terminate all active sessions for a user.
 
-4. **Add Functionality to Clear a Single Session**
+3. **Add Functionality to Clear a Single Session**
    - Add route `DELETE /sessions/{clientId}/{sessionId}` to log out and terminate a specific session.
 
-5. **Implement Cookie Security**
+4. **Implement Cookie Security**
    - **OpenAPI Security Strategy:**
      - Specify that user-specific endpoints require cookies containing secure JWTs.
    - **Middleware in Hono:**
@@ -38,13 +35,13 @@ yarn deploy
        - The `userId` in the URL matches the `userId` in the JWT.
        - The `role` in the JWT matches `admin` or `superadmin` for admin-level access.
 
-6. **Add User Metadata Endpoint**
+5. **Add User Metadata Endpoint**
    - Add a `GET /users/{clientId}/{userId}` endpoint to retrieve user metadata like verified email addresses and profile details.
 
-7. **Implement Forgotten Password Flow**
+6. **Implement Forgotten Password Flow**
    - Add endpoints for requesting and confirming password resets.
 
-8. **Add Roles or Permissions**
+7. **Add Roles or Permissions**
    - Implement role-based access control by adding a `role` field and role-checking middleware.
 
 ### Future Enhancements
