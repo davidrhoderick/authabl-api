@@ -5,6 +5,7 @@ import {
   ACCESSTOKEN_COOKIE,
   ACCESSTOKEN_PREFIX,
   ACCESSTOKENINDEX_PREFIX,
+  REFRESHTOKEN_COOKIE,
   REFRESHTOKEN_PREFIX,
   REFRESHTOKENINDEX_PREFIX,
   SESSION_PREFIX,
@@ -190,39 +191,100 @@ export const detectAccessToken = async (
   return false;
 };
 
+export const detectRefreshToken = async (
+  c: Context<{ Bindings: Bindings }>,
+  returnToken?: boolean
+): Promise<
+  | false
+  | {
+      userId: string;
+      clientId: string;
+      expiresAt: number;
+      sessionId: string;
+      refreshTokenIndexKey?: string;
+      refreshTokenKey?: string;
+    }
+> => {
+  const now = Date.now();
+
+  const refreshTokenCookie = getCookie(c, REFRESHTOKEN_COOKIE);
+
+  if (!refreshTokenCookie?.length) return false;
+
+  const refreshTokenPayload = decode(refreshTokenCookie);
+
+  if (!refreshTokenPayload) return false;
+
+  const refreshTokenIndexKey = `${REFRESHTOKENINDEX_PREFIX}:${refreshTokenCookie}`;
+
+  const refreshTokenKey = await c.env.OAUTHABL.get(refreshTokenIndexKey);
+
+  if (!refreshTokenKey) return false;
+
+  const refreshTokenItem = await c.env.OAUTHABL.get<{
+    userId: string;
+    clientId: string;
+    expiresAt: number;
+    sessionId: string;
+  }>(refreshTokenKey, "json");
+
+  if (!refreshTokenItem) return false;
+
+  if (
+    refreshTokenPayload.payload.clientId === refreshTokenItem.clientId &&
+    refreshTokenPayload.payload.userId === refreshTokenItem.userId &&
+    refreshTokenPayload.payload.expiresAt === refreshTokenItem.expiresAt &&
+    now < refreshTokenPayload.payload.expiresAt
+  ) {
+    if (returnToken)
+      return {
+        ...refreshTokenItem,
+        refreshTokenIndexKey,
+        refreshTokenKey,
+      };
+    return refreshTokenItem;
+  }
+
+  return false;
+};
+
 export const deleteSession = async (c: Context<{ Bindings: Bindings }>) => {
   const accessTokenResult = await detectAccessToken(c, true);
 
-  const deletions: Array<Promise<void>> = []
+  const deletions: Array<Promise<void>> = [];
 
   if (accessTokenResult) {
     deletions.push(
       c.env.OAUTHABL.delete(accessTokenResult.accessTokenKey!),
       c.env.OAUTHABL.delete(accessTokenResult.accessTokenIndexKey!),
       c.env.OAUTHABL.delete(
-        `${SESSIONACCESSTOKEN_PREFIX}:${accessTokenResult.clientId}:${accessTokenResult.userId}:${
-          accessTokenResult.sessionId
-        }:${accessTokenResult.accessTokenKey!.split(":")[3]}`
+        `${SESSIONACCESSTOKEN_PREFIX}:${accessTokenResult.clientId}:${
+          accessTokenResult.userId
+        }:${accessTokenResult.sessionId}:${
+          accessTokenResult.accessTokenKey!.split(":")[3]
+        }`
       ),
       c.env.OAUTHABL.delete(
         `${SESSION_PREFIX}:${accessTokenResult.clientId}:${accessTokenResult.userId}:${accessTokenResult.sessionId}`
-      ),
+      )
     );
   }
 
-  // const refreshTokenResult = await detectRefreshToken(c, true)
+  const refreshTokenResult = await detectRefreshToken(c, true);
 
-  // if(refreshTokenResult) {
-  //   deletions.push(
-      // c.env.OAUTHABL.delete(`${REFRESHTOKENINDEX_PREFIX}:${refreshToken}`),
-      // c.env.OAUTHABL.delete(
-      //   `${REFRESHTOKEN_PREFIX}:${clientId}:${userId}:${refreshTokenKeyId}`
-      // ),
-      //  c.env.OAUTHABL.delete(
-      //   `${SESSIONREFRESHTOKEN_PREFIX}:${clientId}:${userId}:${sessionId}:${refreshTokenKeyId}`
-      // ),
-  //   )
-  // }
+  if (refreshTokenResult) {
+    deletions.push(
+      c.env.OAUTHABL.delete(refreshTokenResult.refreshTokenKey!),
+      c.env.OAUTHABL.delete(refreshTokenResult.refreshTokenIndexKey!),
+      c.env.OAUTHABL.delete(
+        `${SESSIONREFRESHTOKEN_PREFIX}:${refreshTokenResult.clientId}:${
+          refreshTokenResult.userId
+        }:${refreshTokenResult.sessionId}:${
+          refreshTokenResult.refreshTokenKey!.split(":")[3]
+        }`
+      )
+    );
+  }
 
-  await Promise.all(deletions)
+  await Promise.all(deletions);
 };

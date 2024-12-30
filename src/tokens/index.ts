@@ -9,7 +9,7 @@ import {
 } from "./routes";
 import { ACCESSTOKEN_COOKIE, REFRESHTOKEN_COOKIE } from "../common/constants";
 import { loginVerification } from "../common/utils";
-import { getCookie, setCookie } from "hono/cookie";
+import { setCookie } from "hono/cookie";
 import { clientAuthentication } from "../middleware/client-authentication";
 import { createSession, deleteSession, detectAccessToken } from "./utils";
 
