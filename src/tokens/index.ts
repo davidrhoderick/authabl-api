@@ -9,10 +9,9 @@ import {
 } from "./routes";
 import { ACCESSTOKEN_COOKIE, REFRESHTOKEN_COOKIE } from "../common/constants";
 import { loginVerification } from "../common/utils";
-import { decode } from "hono/jwt";
 import { getCookie, setCookie } from "hono/cookie";
 import { clientAuthentication } from "../middleware/client-authentication";
-import { createSession } from "./utils";
+import { createSession, detectSession } from "./utils";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 
@@ -43,19 +42,21 @@ app
 
       const { accessToken, accessTokenValidity, disableRefreshToken } = result;
 
+      const path = `/`;
+
       setCookie(c, ACCESSTOKEN_COOKIE, accessToken, {
-        path: `/oauth/${clientId}`,
+        path,
         httpOnly: true,
         maxAge: accessTokenValidity,
-        sameSite: "strict",
+        sameSite: "lax",
       });
 
       if (!disableRefreshToken) {
         setCookie(c, REFRESHTOKEN_COOKIE, result.refreshToken!, {
-          path: `/oauth/${clientId}`,
+          path,
           httpOnly: true,
           maxAge: result.refreshTokenValidity!,
-          sameSite: "strict",
+          sameSite: "lax",
         });
       }
 
@@ -86,16 +87,11 @@ app
     }
   })
   .openapi(validationRoute, async (c) => {
-    const accessTokenCookie = getCookie(c, ACCESSTOKEN_COOKIE);
+    const result = await detectSession(c);
 
-    if (!accessTokenCookie)
-      return c.json({ code: 401, message: "Unauthorized" }, 401);
+    if (!result) return c.json({ code: 401, message: "Unauthorized" }, 401);
 
-    const accessTokenPayload = decode(accessTokenCookie);
-
-    console.log("accessTokenPayload", accessTokenPayload);
-
-    return c.json({ code: 200, message: "Success" }, 200);
+    return c.json(result, 200);
   })
   .openapi(refreshRoute, async (c) => {
     return c.json({ code: 200, message: "Success" }, 200);

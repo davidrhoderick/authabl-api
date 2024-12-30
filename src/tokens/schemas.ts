@@ -16,3 +16,9 @@ export const UsernameToken = TokenPassword.extend({
 export const TokenBodySchema = z
   .union([EmailToken, UsernameToken])
   .openapi("TokenRequest");
+
+export const ValidationResponseSchema = z.object({
+  userId: z.string().trim().min(1),
+  clientId: z.string().trim().min(1),
+  expiresAt: z.number().int(),
+});

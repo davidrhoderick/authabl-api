@@ -5,7 +5,7 @@ import {
   ClientIdParamSchema,
   User,
 } from "../common/schemas";
-import { TokenBodySchema } from "./schemas";
+import { TokenBodySchema, ValidationResponseSchema } from "./schemas";
 
 const tags = ["OAuth"];
 
@@ -109,6 +109,11 @@ export const validationRoute = createRoute({
   responses: {
     200: {
       description: "Confirm that the access token is valid",
+      content: {
+        "application/json": {
+          schema: ValidationResponseSchema
+        }
+      }
     },
     401: {
       content: {

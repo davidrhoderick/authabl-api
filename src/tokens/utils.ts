@@ -1,7 +1,8 @@
-import { sign } from "hono/jwt";
+import { decode, sign } from "hono/jwt";
 import { Bindings } from "../common/types";
 import { getClient } from "../common/utils";
 import {
+  ACCESSTOKEN_COOKIE,
   ACCESSTOKEN_PREFIX,
   ACCESSTOKENINDEX_PREFIX,
   REFRESHTOKEN_PREFIX,
@@ -11,6 +12,8 @@ import {
   SESSIONREFRESHTOKEN_PREFIX,
 } from "../common/constants";
 import hyperid from "hyperid";
+import { Context } from "hono";
+import { getCookie } from "hono/cookie";
 
 type CreateSessionResult = {
   accessToken: string;
@@ -30,7 +33,7 @@ export const createSession = async ({
   env: Bindings;
 }): Promise<CreateSessionResult | false> => {
   // Start a new hyperid instance
-  const sessionIdInstance = hyperid({urlSafe: true})
+  const sessionIdInstance = hyperid({ urlSafe: true });
   const tokenIdInstance = hyperid();
 
   // Get the client settings
@@ -119,4 +122,47 @@ export const createSession = async ({
   });
 
   return result;
+};
+
+export const detectSession = async (c: Context<{ Bindings: Bindings }>) => {
+  const now = Date.now();
+
+  const accessTokenCookie = getCookie(c, ACCESSTOKEN_COOKIE);
+
+  const accessTokenHeader = c.req.header("Authorization");
+
+  if (!accessTokenCookie?.length && !accessTokenHeader?.startsWith("Bearer "))
+    return false;
+
+  const accessToken = accessTokenCookie?.length
+    ? accessTokenCookie
+    : accessTokenHeader!.split(" ")[1];
+
+  const accessTokenPayload = decode(accessToken);
+
+  if (!accessTokenPayload) return false;
+
+  const accessTokenKey = await c.env.OAUTHABL.get(
+    `${ACCESSTOKENINDEX_PREFIX}:${accessToken}`
+  );
+
+  if (!accessTokenKey) return false;
+
+  const accessTokenItem = await c.env.OAUTHABL.get<{
+    userId: string;
+    clientId: string;
+    expiresAt: number;
+  }>(accessTokenKey, "json");
+
+  if (!accessTokenItem) return false;
+
+  if (
+    accessTokenPayload.payload.clientId === accessTokenItem.clientId &&
+    accessTokenPayload.payload.userId === accessTokenItem.userId &&
+    accessTokenPayload.payload.expiresAt === accessTokenItem.expiresAt &&
+    now < accessTokenPayload.payload.expiresAt
+  )
+    return accessTokenPayload.payload;
+
+  return false;
 };
