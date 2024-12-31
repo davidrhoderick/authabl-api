@@ -56,13 +56,13 @@ app
         const emailAddresses = [email];
         response.emailAddresses = emailAddresses;
         options.metadata.emailAddresses = emailAddresses;
-        await c.env.OAUTHABL.put(`${EMAIL_PREFIX}:${clientId}:${email}`, id, {
+        await c.env.KV.put(`${EMAIL_PREFIX}:${clientId}:${email}`, id, {
           metadata: { emailVerified },
         });
 
         if (rest.verifyEmail) {
           response.code = await generateEmailVerificationCode({
-            kv: c.env.OAUTHABL,
+            kv: c.env.KV,
             clientId,
             id,
           });
@@ -71,13 +71,13 @@ app
         const { username } = rest;
         response.username = username;
         options.metadata.username = username;
-        await c.env.OAUTHABL.put(
+        await c.env.KV.put(
           `${USERNAME_PREFIX}:${clientId}:${username}`,
           id
         );
       }
 
-      await c.env.OAUTHABL.put(
+      await c.env.KV.put(
         `${USER_PREFIX}:${clientId}:${id}`,
         JSON.stringify({ password }),
         options
@@ -94,7 +94,7 @@ app
     const prefix = `${USER_PREFIX}:${clientId}:`;
 
     try {
-      const users = await c.env.OAUTHABL.list<UserMetadata>({
+      const users = await c.env.KV.list<UserMetadata>({
         prefix,
       });
 
@@ -126,7 +126,7 @@ app
     const { clientId, userId } = c.req.param();
 
     try {
-      const userResponse = await c.env.OAUTHABL.getWithMetadata<
+      const userResponse = await c.env.KV.getWithMetadata<
         UserMetadata,
         UserValue
       >(`${USER_PREFIX}:${clientId}:${userId}`, "json");
@@ -134,7 +134,7 @@ app
       if (userResponse.value?.emailAddresses?.length) {
         await Promise.all(
           userResponse.value.emailAddresses.map(async (emailAddress) => {
-            await c.env.OAUTHABL.delete(
+            await c.env.KV.delete(
               `${EMAIL_PREFIX}:${clientId}:${emailAddress}`
             );
           })
@@ -142,12 +142,12 @@ app
       }
 
       if (userResponse.value?.username?.length) {
-        await c.env.OAUTHABL.delete(
+        await c.env.KV.delete(
           `${USERNAME_PREFIX}:${clientId}:${userResponse.value.username}`
         );
       }
 
-      await c.env.OAUTHABL.delete(`${USER_PREFIX}:${clientId}:${userId}`);
+      await c.env.KV.delete(`${USER_PREFIX}:${clientId}:${userId}`);
 
       return c.json({ code: 200, message: "User deleted successfully" }, 200);
     } catch (error) {

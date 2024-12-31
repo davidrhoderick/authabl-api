@@ -29,7 +29,7 @@ app
     try {
       const result = await detectAccessToken(c);
 
-      const sessions = await c.env.OAUTHABL.list({
+      const sessions = await c.env.KV.list({
         prefix,
       });
 
@@ -56,14 +56,14 @@ app
     try {
       const result = await detectAccessToken(c, true);
 
-      const session = await c.env.OAUTHABL.getWithMetadata<
+      const session = await c.env.KV.getWithMetadata<
         { accessTokenKeyId: string; refreshTokenKeyId: string },
         { createdAt: number }
       >(`${SESSION_PREFIX}:${clientId}:${userId}:${sessionId}`, "json");
 
       if (!session) return c.json({ code: 404, message: "Not found" }, 404);
 
-      const sessionAccessTokens = await c.env.OAUTHABL.list<{
+      const sessionAccessTokens = await c.env.KV.list<{
         accessTokenKey: string;
       }>({
         prefix: `${SESSIONACCESSTOKEN_PREFIX}:${clientId}:${userId}:${sessionId}`,
@@ -72,7 +72,7 @@ app
       const accessTokens = [];
 
       for (const sessionAccessToken of sessionAccessTokens.keys) {
-        const { value, metadata } = await c.env.OAUTHABL.getWithMetadata<
+        const { value, metadata } = await c.env.KV.getWithMetadata<
           { userId: string; clientId: string; expiresAt: number },
           { accessTokenValidity: number }
         >(sessionAccessToken.metadata!.accessTokenKey, "json");
@@ -95,7 +95,7 @@ app
         accessTokens.push(accessToken);
       }
 
-      const sessionRefreshTokens = await c.env.OAUTHABL.list<{
+      const sessionRefreshTokens = await c.env.KV.list<{
         refreshTokenKey: string;
       }>({
         prefix: `${SESSIONREFRESHTOKEN_PREFIX}:${clientId}:${userId}:${sessionId}`,
@@ -104,7 +104,7 @@ app
       const refreshTokens = [];
 
       for (const sessionRefreshToken of sessionRefreshTokens.keys) {
-        const { value, metadata } = await c.env.OAUTHABL.getWithMetadata<
+        const { value, metadata } = await c.env.KV.getWithMetadata<
           { userId: string; clientId: string; expiresAt: number },
           { refreshTokenValidity: number }
         >(sessionRefreshToken.metadata!.refreshTokenKey, "json");

@@ -25,7 +25,7 @@ app
 
     try {
       const user = await loginVerification({
-        kv: c.env.OAUTHABL,
+        kv: c.env.KV,
         password,
         clientId,
         ...emailUsername,
@@ -73,7 +73,7 @@ app
 
     try {
       const result = await loginVerification({
-        kv: c.env.OAUTHABL,
+        kv: c.env.KV,
         password,
         clientId,
         ...emailUsername,

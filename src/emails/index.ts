@@ -21,7 +21,7 @@ app
     const clientId = c.req.param("clientId");
 
     try {
-      const id = await c.env.OAUTHABL.get(
+      const id = await c.env.KV.get(
         `${EMAIL_PREFIX}:${clientId}:${email}`,
         "text"
       );
@@ -30,23 +30,23 @@ app
 
       const verificationCodeKey = `${VERIFICATIONCODE_PREFIX}:${clientId}:${id}`;
 
-      const verificationCode = await c.env.OAUTHABL.get(verificationCodeKey);
+      const verificationCode = await c.env.KV.get(verificationCodeKey);
 
       if (code === verificationCode) {
-        const userResponse = await c.env.OAUTHABL.getWithMetadata<
+        const userResponse = await c.env.KV.getWithMetadata<
           UserValue,
           UserMetadata
         >(`${USER_PREFIX}:${clientId}:${id}`, "json");
 
-        await c.env.OAUTHABL.put(
+        await c.env.KV.put(
           `${USER_PREFIX}:${clientId}:${id}`,
           JSON.stringify(userResponse.value),
           { metadata: { ...userResponse.metadata, emailVerified: true } }
         );
 
-        await c.env.OAUTHABL.delete(verificationCodeKey);
+        await c.env.KV.delete(verificationCodeKey);
 
-        await c.env.OAUTHABL.put(`${EMAIL_PREFIX}:${clientId}:${email}`, id, {
+        await c.env.KV.put(`${EMAIL_PREFIX}:${clientId}:${email}`, id, {
           metadata: { emailVerified: true },
         });
 
@@ -64,12 +64,12 @@ app
     const { email } = c.req.valid("json");
 
     try {
-      const user = await getUser({ kv: c.env.OAUTHABL, email, clientId });
+      const user = await getUser({ kv: c.env.KV, email, clientId });
 
       if (!user?.id) return c.json({ code: 404, message: "Not found" }, 404);
 
       const code = await generateEmailVerificationCode({
-        kv: c.env.OAUTHABL,
+        kv: c.env.KV,
         clientId,
         id: user.id,
       });

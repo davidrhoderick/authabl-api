@@ -20,7 +20,7 @@ app
     const { clientId } = c.req.valid("param");
 
     try {
-      const result = await getClient({ kv: c.env.OAUTHABL, clientId });
+      const result = await getClient({ kv: c.env.KV, clientId });
 
       if (!result) return c.json({ code: 404, message: "Not found" }, 404);
 
@@ -40,7 +40,7 @@ app
 
     try {
       const { value, options } = splitMetadata(newClient);
-      await c.env.OAUTHABL.put(`${CLIENT_PREFIX}:${id}`, value, options);
+      await c.env.KV.put(`${CLIENT_PREFIX}:${id}`, value, options);
 
       return c.json(newClient, 200);
     } catch (error) {
@@ -50,7 +50,7 @@ app
   })
   .openapi(listClientRoute, async (c) => {
     try {
-      const clients = await c.env.OAUTHABL.list<ClientMetadata>({
+      const clients = await c.env.KV.list<ClientMetadata>({
         prefix: `${CLIENT_PREFIX}:`,
       });
 
@@ -77,7 +77,7 @@ app
     const clientUpdates = c.req.valid("json");
 
     try {
-      const response = await c.env.OAUTHABL.getWithMetadata<
+      const response = await c.env.KV.getWithMetadata<
         ClientValue,
         ClientMetadata
       >(`${CLIENT_PREFIX}:${clientId}`, "json");
@@ -96,7 +96,7 @@ app
 
         const { value, options } = splitMetadata(newClient);
 
-        await c.env.OAUTHABL.put(
+        await c.env.KV.put(
           `${CLIENT_PREFIX}:${clientId}`,
           value,
           options
@@ -115,7 +115,7 @@ app
   .openapi(deleteClientRoute, async (c) => {
     const { clientId } = c.req.valid("param");
     try {
-      await c.env.OAUTHABL.delete(`${CLIENT_PREFIX}:${clientId}`);
+      await c.env.KV.delete(`${CLIENT_PREFIX}:${clientId}`);
 
       return c.json({ code: 200, message: "Client deleted" });
     } catch (error) {

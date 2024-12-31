@@ -9,7 +9,7 @@ export const clientAuthentication = createMiddleware<{ Bindings: Bindings }>(
     const clientSecret = c.req.header("X-OAUTHABL-API-KEY");
 
     try {
-      const response = await c.env.OAUTHABL.getWithMetadata<
+      const response = await c.env.KV.getWithMetadata<
         ClientValue,
         ClientMetadata
       >(`${CLIENT_PREFIX}:${clientId}`, "json");

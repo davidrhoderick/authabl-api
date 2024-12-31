@@ -38,7 +38,7 @@ export const createSession = async ({
   const tokenIdInstance = hyperid();
 
   // Get the client settings
-  const client = await getClient({ kv: env.OAUTHABL, clientId });
+  const client = await getClient({ kv: env.KV, clientId });
   if (!client) return false;
   const { accessTokenValidity, disableRefreshToken, refreshTokenValidity } =
     client;
@@ -60,17 +60,17 @@ export const createSession = async ({
   const accessTokenIndexKey = `${ACCESSTOKENINDEX_PREFIX}:${accessToken}`;
   const accessTokenKeyId = tokenIdInstance();
   const accessTokenKey = `${ACCESSTOKEN_PREFIX}:${clientId}:${userId}:${accessTokenKeyId}`;
-  await env.OAUTHABL.put(accessTokenIndexKey, accessTokenKey, {
+  await env.KV.put(accessTokenIndexKey, accessTokenKey, {
     expirationTtl: accessTokenValidity,
   });
-  await env.OAUTHABL.put(accessTokenKey, accessTokenString, {
+  await env.KV.put(accessTokenKey, accessTokenString, {
     expirationTtl: accessTokenValidity,
     metadata: { accessTokenValidity },
   });
 
   // Create an access token -> session link
   const sessionAccessTokenKey = `${SESSIONACCESSTOKEN_PREFIX}:${clientId}:${userId}:${sessionId}:${accessTokenKeyId}`;
-  await env.OAUTHABL.put(sessionAccessTokenKey, "", {
+  await env.KV.put(sessionAccessTokenKey, "", {
     metadata: { accessTokenIndexKey, accessTokenKey },
   });
 
@@ -98,17 +98,17 @@ export const createSession = async ({
     const refreshTokenIndexKey = `${REFRESHTOKENINDEX_PREFIX}:${refreshToken}`;
     const refreshTokenKeyId = tokenIdInstance();
     const refreshTokenKey = `${REFRESHTOKEN_PREFIX}:${clientId}:${userId}:${refreshTokenKeyId}`;
-    await env.OAUTHABL.put(refreshTokenIndexKey, refreshTokenKey, {
+    await env.KV.put(refreshTokenIndexKey, refreshTokenKey, {
       expirationTtl: refreshTokenValidity,
     });
-    await env.OAUTHABL.put(refreshTokenKey, refreshTokenString, {
+    await env.KV.put(refreshTokenKey, refreshTokenString, {
       expirationTtl: refreshTokenValidity,
       metadata: { refreshTokenValidity },
     });
 
     // Create an refresh token -> session link
     const sessionRefreshTokenKey = `${SESSIONREFRESHTOKEN_PREFIX}:${clientId}:${userId}:${sessionId}:${refreshTokenKeyId}`;
-    await env.OAUTHABL.put(sessionRefreshTokenKey, "", {
+    await env.KV.put(sessionRefreshTokenKey, "", {
       metadata: { refreshTokenIndexKey, refreshTokenKey },
     });
 
@@ -120,7 +120,7 @@ export const createSession = async ({
 
   // Save the sassion with the data
   const sessionKey = `${SESSION_PREFIX}:${clientId}:${userId}:${sessionId}`;
-  await env.OAUTHABL.put(sessionKey, JSON.stringify(sessionData), {
+  await env.KV.put(sessionKey, JSON.stringify(sessionData), {
     metadata: { createdAt: Date.now().toString() },
   });
 
@@ -160,11 +160,11 @@ export const detectAccessToken = async (
 
   const accessTokenIndexKey = `${ACCESSTOKENINDEX_PREFIX}:${accessToken}`;
 
-  const accessTokenKey = await c.env.OAUTHABL.get(accessTokenIndexKey);
+  const accessTokenKey = await c.env.KV.get(accessTokenIndexKey);
 
   if (!accessTokenKey) return false;
 
-  const accessTokenItem = await c.env.OAUTHABL.get<{
+  const accessTokenItem = await c.env.KV.get<{
     userId: string;
     clientId: string;
     expiresAt: number;
@@ -222,11 +222,11 @@ export const detectRefreshToken = async (
 
   const refreshTokenIndexKey = `${REFRESHTOKENINDEX_PREFIX}:${refreshTokenCookie}`;
 
-  const refreshTokenKey = await c.env.OAUTHABL.get(refreshTokenIndexKey);
+  const refreshTokenKey = await c.env.KV.get(refreshTokenIndexKey);
 
   if (!refreshTokenKey) return false;
 
-  const refreshTokenItem = await c.env.OAUTHABL.get<{
+  const refreshTokenItem = await c.env.KV.get<{
     userId: string;
     clientId: string;
     expiresAt: number;
@@ -263,19 +263,19 @@ export const deleteSession = async (
 
   if (accessTokenResult) {
     deletions.push(
-      c.env.OAUTHABL.delete(accessTokenResult.accessTokenKey!),
-      c.env.OAUTHABL.delete(accessTokenResult.accessTokenIndexKey!),
-      c.env.OAUTHABL.delete(
+      c.env.KV.delete(accessTokenResult.accessTokenKey!),
+      c.env.KV.delete(accessTokenResult.accessTokenIndexKey!),
+      c.env.KV.delete(
         `${SESSION_PREFIX}:${accessTokenResult.clientId}:${accessTokenResult.userId}:${accessTokenResult.sessionId}`
       )
     );
 
-    const sessionAccessTokens = await c.env.OAUTHABL.list({
+    const sessionAccessTokens = await c.env.KV.list({
       prefix: `${SESSIONACCESSTOKEN_PREFIX}:${accessTokenResult.clientId}:${accessTokenResult.userId}:${accessTokenResult.sessionId}`,
     });
 
     deletions.push(
-      ...sessionAccessTokens.keys.map(({ name }) => c.env.OAUTHABL.delete(name))
+      ...sessionAccessTokens.keys.map(({ name }) => c.env.KV.delete(name))
     );
   }
 
@@ -283,17 +283,17 @@ export const deleteSession = async (
 
   if (refreshTokenResult) {
     deletions.push(
-      c.env.OAUTHABL.delete(refreshTokenResult.refreshTokenKey!),
-      c.env.OAUTHABL.delete(refreshTokenResult.refreshTokenIndexKey!)
+      c.env.KV.delete(refreshTokenResult.refreshTokenKey!),
+      c.env.KV.delete(refreshTokenResult.refreshTokenIndexKey!)
     );
 
-    const sessionRefreshTokens = await c.env.OAUTHABL.list({
+    const sessionRefreshTokens = await c.env.KV.list({
       prefix: `${SESSIONREFRESHTOKEN_PREFIX}:${refreshTokenResult.clientId}:${refreshTokenResult.userId}:${refreshTokenResult.sessionId}`,
     });
 
     deletions.push(
       ...sessionRefreshTokens.keys.map(({ name }) =>
-        c.env.OAUTHABL.delete(name)
+        c.env.KV.delete(name)
       )
     );
   }

@@ -9,12 +9,12 @@ assets = { directory = "public" }
 # MY_VAR = "my-variable"
 
 [[kv_namespaces]]
-binding = "OAUTHABL"
+binding = "KV"
 id = "dbf8308bccfd4b80936211bed77a2ac7"
 
-# [[r2_buckets]]
-# binding = "MY_BUCKET"
-# bucket_name = "my-bucket"
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "oauthabl"
 
 # [[d1_databases]]
 # binding = "DB"
