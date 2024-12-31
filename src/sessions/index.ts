@@ -61,7 +61,7 @@ app
         { createdAt: number }
       >(`${SESSION_PREFIX}:${clientId}:${userId}:${sessionId}`, "json");
 
-      if (!session) return c.json({ code: 404, message: "Not found" }, 404);
+      if (!session?.value) return c.json({ code: 404, message: "Not found" }, 404);
 
       const sessionAccessTokens = await c.env.KV.list<{
         accessTokenKey: string;
