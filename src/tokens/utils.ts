@@ -15,6 +15,13 @@ import {
 import hyperid from "hyperid";
 import { Context } from "hono";
 import { getCookie } from "hono/cookie";
+import {
+  AccessTokenResult,
+  RefreshTokenResult,
+  SessionMetadata,
+  SessionValue,
+  TokenPayload,
+} from "./types";
 
 type CreateSessionResult = {
   accessToken: string;
@@ -33,6 +40,9 @@ export const createSession = async ({
   userId: string;
   env: Bindings;
 }): Promise<CreateSessionResult | false> => {
+  // Get the current time once
+  const iat = Date.now();
+
   // Start a new hyperid instance
   const sessionIdInstance = hyperid({ urlSafe: true });
   const tokenIdInstance = hyperid();
@@ -47,11 +57,14 @@ export const createSession = async ({
   const sessionId = sessionIdInstance();
 
   // Create the access token data
-  const accessTokenData = {
-    userId,
-    clientId,
-    expiresAt: Date.now() + accessTokenValidity * 1000,
-    sessionId,
+  const accessTokenData: TokenPayload = {
+    sub: userId,
+    iss: "oauthabl",
+    aud: clientId,
+    iat,
+    type: "access",
+    exp: iat + accessTokenValidity * 1000,
+    sid: sessionId,
   };
   const accessTokenString = JSON.stringify(accessTokenData);
   const accessToken = await sign(accessTokenData, env.ACCESSTOKEN_SECRET);
@@ -80,16 +93,18 @@ export const createSession = async ({
     accessTokenValidity,
     disableRefreshToken,
   };
-  const sessionData: { accessTokenKeyId: string; refreshTokenKeyId?: string } =
-    { accessTokenKeyId };
+  const sessionData: SessionValue = { accessTokenKeyId };
 
   if (!disableRefreshToken) {
     // Create the refresh token data
-    const refreshTokenData = {
-      userId,
-      clientId,
-      expiresAt: Date.now() + refreshTokenValidity * 1000,
-      sessionId,
+    const refreshTokenData: TokenPayload = {
+      sub: userId,
+      iss: "oauthabl",
+      aud: clientId,
+      iat,
+      type: "refresh",
+      exp: iat + refreshTokenValidity * 1000,
+      sid: sessionId,
     };
     const refreshTokenString = JSON.stringify(refreshTokenData);
     const refreshToken = await sign(refreshTokenData, env.REFRESHTOKEN_SECRET);
@@ -121,7 +136,7 @@ export const createSession = async ({
   // Save the sassion with the data
   const sessionKey = `${SESSION_PREFIX}:${clientId}:${userId}:${sessionId}`;
   await env.KV.put(sessionKey, JSON.stringify(sessionData), {
-    metadata: { createdAt: Date.now().toString() },
+    metadata: { createdAt: iat },
   });
 
   return result;
@@ -130,17 +145,7 @@ export const createSession = async ({
 export const detectAccessToken = async (
   c: Context<{ Bindings: Bindings }>,
   returnToken?: boolean
-): Promise<
-  | false
-  | {
-      userId: string;
-      clientId: string;
-      expiresAt: number;
-      sessionId: string;
-      accessTokenIndexKey?: string;
-      accessTokenKey?: string;
-    }
-> => {
+): Promise<false | AccessTokenResult> => {
   const now = Date.now();
 
   const accessTokenCookie = getCookie(c, ACCESSTOKEN_COOKIE);
@@ -154,9 +159,9 @@ export const detectAccessToken = async (
     ? accessTokenCookie
     : accessTokenHeader!.split(" ")[1];
 
-  const accessTokenPayload = decode(accessToken);
+  const decodedAccessToken = decode(accessToken);
 
-  if (!accessTokenPayload) return false;
+  if (!decodedAccessToken) return false;
 
   const accessTokenIndexKey = `${ACCESSTOKENINDEX_PREFIX}:${accessToken}`;
 
@@ -164,28 +169,40 @@ export const detectAccessToken = async (
 
   if (!accessTokenKey) return false;
 
-  const accessTokenItem = await c.env.KV.get<{
-    userId: string;
-    clientId: string;
-    expiresAt: number;
-    sessionId: string;
-  }>(accessTokenKey, "json");
+  const accessTokenItem = await c.env.KV.get<TokenPayload>(
+    accessTokenKey,
+    "json"
+  );
 
   if (!accessTokenItem) return false;
 
+  const { payload } = decodedAccessToken as unknown as {
+    payload: TokenPayload;
+  };
+
   if (
-    accessTokenPayload.payload.clientId === accessTokenItem.clientId &&
-    accessTokenPayload.payload.userId === accessTokenItem.userId &&
-    accessTokenPayload.payload.expiresAt === accessTokenItem.expiresAt &&
-    now < accessTokenPayload.payload.expiresAt
+    payload.iss === "oauthabl" &&
+    payload.iss === accessTokenItem.iss &&
+    payload.sub === accessTokenItem.sub &&
+    payload.exp === accessTokenItem.exp &&
+    now < payload.exp &&
+    now > payload.iat
   ) {
+    const result: AccessTokenResult = {
+      userId: payload.sub,
+      clientId: payload.aud,
+      expiresAt: payload.exp,
+      createdAt: payload.iat,
+      sessionId: payload.sid,
+    };
+
     if (returnToken)
       return {
-        ...accessTokenItem,
+        ...result,
         accessTokenIndexKey,
         accessTokenKey,
       };
-    return accessTokenItem;
+    return result;
   }
 
   return false;
@@ -195,17 +212,7 @@ export const detectRefreshToken = async (
   c: Context<{ Bindings: Bindings }>,
   refreshTokenBody?: string,
   returnToken?: boolean
-): Promise<
-  | false
-  | {
-      userId: string;
-      clientId: string;
-      expiresAt: number;
-      sessionId: string;
-      refreshTokenIndexKey?: string;
-      refreshTokenKey?: string;
-    }
-> => {
+): Promise<false | RefreshTokenResult> => {
   const now = Date.now();
 
   const refreshTokenCookie = getCookie(c, REFRESHTOKEN_COOKIE);
@@ -216,9 +223,9 @@ export const detectRefreshToken = async (
     ? refreshTokenCookie
     : refreshTokenBody;
 
-  const refreshTokenPayload = decode(refreshToken!);
+  const decodedRefreshToken = decode(refreshToken!);
 
-  if (!refreshTokenPayload) return false;
+  if (!decodedRefreshToken) return false;
 
   const refreshTokenIndexKey = `${REFRESHTOKENINDEX_PREFIX}:${refreshTokenCookie}`;
 
@@ -226,28 +233,40 @@ export const detectRefreshToken = async (
 
   if (!refreshTokenKey) return false;
 
-  const refreshTokenItem = await c.env.KV.get<{
-    userId: string;
-    clientId: string;
-    expiresAt: number;
-    sessionId: string;
-  }>(refreshTokenKey, "json");
+  const refreshTokenItem = await c.env.KV.get<TokenPayload>(
+    refreshTokenKey,
+    "json"
+  );
 
   if (!refreshTokenItem) return false;
 
+  const { payload } = decodedRefreshToken as unknown as {
+    payload: TokenPayload;
+  };
+
   if (
-    refreshTokenPayload.payload.clientId === refreshTokenItem.clientId &&
-    refreshTokenPayload.payload.userId === refreshTokenItem.userId &&
-    refreshTokenPayload.payload.expiresAt === refreshTokenItem.expiresAt &&
-    now < refreshTokenPayload.payload.expiresAt
+    payload.iss === "oauthabl" &&
+    payload.aud === refreshTokenItem.aud &&
+    payload.sub === refreshTokenItem.sub &&
+    payload.exp === refreshTokenItem.exp &&
+    now < payload.exp &&
+    now > payload.iat
   ) {
+    const result: AccessTokenResult = {
+      userId: payload.sub,
+      clientId: payload.aud,
+      expiresAt: payload.exp,
+      createdAt: payload.iat,
+      sessionId: payload.sid,
+    };
+
     if (returnToken)
       return {
-        ...refreshTokenItem,
+        ...result,
         refreshTokenIndexKey,
         refreshTokenKey,
       };
-    return refreshTokenItem;
+    return result;
   }
 
   return false;
@@ -261,7 +280,30 @@ export const deleteSession = async (
 
   const deletions: Array<Promise<void>> = [];
 
+  let r2SessionKey: string = "";
+  const r2SessionData: {
+    id?: string;
+    createdAt?: number;
+    deletedAt: number;
+    accessTokens?: Array<TokenPayload>;
+    refreshTokens?: Array<TokenPayload>;
+  } = { deletedAt: Date.now() };
+
   if (accessTokenResult) {
+    r2SessionKey = `${accessTokenResult.clientId}/${accessTokenResult.userId}/${accessTokenResult.sessionId}`;
+
+    r2SessionData.id = accessTokenResult.sessionId;
+
+    const session = await c.env.KV.getWithMetadata<
+      SessionValue,
+      SessionMetadata
+    >(
+      `${SESSION_PREFIX}:${accessTokenResult.clientId}:${accessTokenResult.userId}:${accessTokenResult.sessionId}`,
+      "json"
+    );
+
+    r2SessionData.createdAt = session.metadata?.createdAt;
+
     deletions.push(
       c.env.KV.delete(accessTokenResult.accessTokenKey!),
       c.env.KV.delete(accessTokenResult.accessTokenIndexKey!),
@@ -274,14 +316,25 @@ export const deleteSession = async (
       prefix: `${SESSIONACCESSTOKEN_PREFIX}:${accessTokenResult.clientId}:${accessTokenResult.userId}:${accessTokenResult.sessionId}`,
     });
 
+    const accessTokenKeys =sessionAccessTokens.keys.map(({ name }) => c.env.KV.delete(name))
+
     deletions.push(
-      ...sessionAccessTokens.keys.map(({ name }) => c.env.KV.delete(name))
+      ...accessTokenKeys
     );
+
+    const accessTokens: Array<TokenPayload> = []
+
+    for(const key of accessTokenKeys) {
+      const accessToken = await c.env.KV.get(``)
+    } 
   }
 
   const refreshTokenResult = await detectRefreshToken(c, refreshToken, true);
 
   if (refreshTokenResult) {
+    if (!r2SessionKey.length)
+      r2SessionKey = `${refreshTokenResult.clientId}/${refreshTokenResult.userId}/${refreshTokenResult.sessionId}`;
+
     deletions.push(
       c.env.KV.delete(refreshTokenResult.refreshTokenKey!),
       c.env.KV.delete(refreshTokenResult.refreshTokenIndexKey!)
@@ -292,9 +345,7 @@ export const deleteSession = async (
     });
 
     deletions.push(
-      ...sessionRefreshTokens.keys.map(({ name }) =>
-        c.env.KV.delete(name)
-      )
+      ...sessionRefreshTokens.keys.map(({ name }) => c.env.KV.delete(name))
     );
   }
 
