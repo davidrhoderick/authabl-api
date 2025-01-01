@@ -1,4 +1,4 @@
-name = "hono-oath2-admin-api"
+name = "oauthabl-api"
 main = "src/index.ts"
 compatibility_date = "2024-12-17"
 assets = { directory = "public" }
