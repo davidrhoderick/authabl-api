@@ -1,13 +1,7 @@
-export type TokenPayload = {
-  sub: string;
-  iss: "oauthabl";
-  exp: number;
-  aud: string;
-  iat: number;
-  type: "access" | "refresh";
-  sid: string;
-  role?: string;
-};
+import { z } from "@hono/zod-openapi";
+import { TokenPayloadSchema } from "../sessions/schemas";
+
+export type TokenPayload = z.infer<typeof TokenPayloadSchema>;
 
 export type SessionValue = {
   accessTokenIndexKey: string;

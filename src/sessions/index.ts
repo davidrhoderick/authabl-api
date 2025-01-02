@@ -4,6 +4,7 @@ import {
   clearSessionRoute,
   clearSessionsRoute,
   getSessionRoute,
+  listArchivedSessionsRoute,
   listSessionsRoute,
 } from "./routes";
 import { clientAuthentication } from "../middleware/client-authentication";
@@ -17,10 +18,13 @@ import {
   AccessTokenMetadata,
   RefreshTokenMetadata,
   SessionAccessTokenMetadata,
+  SessionMetadata,
   SessionRefreshTokenMetadata,
+  SessionValue,
   TokenPayload,
 } from "../tokens/types";
 import { AccessToken, RefreshToken } from "./schemas";
+import { ArchivedSessions } from "./types";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 
@@ -56,6 +60,26 @@ app
       return c.json({ code: 500, message: "Internal Server Error" }, 500);
     }
   })
+  .openapi(listArchivedSessionsRoute, async (c) => {
+    const { clientId, userId } = c.req.param();
+
+    try {
+      const list = await c.env.R2.list({ prefix: `${clientId}/${userId}` });
+
+      const result: ArchivedSessions = [];
+
+      for (const listItem of list.objects) {
+        const object = await c.env.R2.get(listItem.key);
+
+        if (object) result.push(await object.json());
+      }
+
+      return c.json(result, 200);
+    } catch (error) {
+      console.error(error);
+      return c.json({ message: "Internal Server Error", code: 500 }, 500);
+    }
+  })
   .openapi(getSessionRoute, async (c) => {
     const { clientId, userId, sessionId } = c.req.param();
 
@@ -63,8 +87,8 @@ app
       const accessTokenResult = await detectAccessToken(c, true);
 
       const session = await c.env.KV.getWithMetadata<
-        { accessTokenKeyId: string; refreshTokenKeyId: string },
-        { createdAt: number }
+        SessionValue,
+        SessionMetadata
       >(`${SESSION_PREFIX}:${clientId}:${userId}:${sessionId}`, "json");
 
       if (!session?.value)

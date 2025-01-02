@@ -6,6 +6,7 @@ import {
   UnauthorizedSchema,
 } from "../common/schemas";
 import {
+  ArchivedSessionsSchema,
   ClearSessionParamsSchema,
   GetSessionParamsSchema,
   GetSessionResponseSchema,
@@ -33,6 +34,46 @@ export const listSessionsRoute = createRoute({
       content: {
         "application/json": {
           schema: SessionsSchema,
+        },
+      },
+    },
+    401: {
+      content: {
+        "application/json": {
+          schema: UnauthorizedSchema,
+        },
+      },
+      description: "Unauthorized",
+    },
+    500: {
+      content: {
+        "application/json": {
+          schema: InternalServerErrorSchema,
+        },
+      },
+      description: "Internal server error",
+    },
+  },
+});
+
+export const listArchivedSessionsRoute = createRoute({
+  tags,
+  method: "get",
+  path: "/{clientId}/{userId}/archive",
+  request: {
+    params: ClientIdUserIdParamSchema,
+  },
+  security: [
+    {
+      Client: [],
+    },
+  ],
+  responses: {
+    200: {
+      description: "List all archived sessions",
+      content: {
+        "application/json": {
+          schema: ArchivedSessionsSchema,
         },
       },
     },

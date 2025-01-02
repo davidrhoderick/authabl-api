@@ -28,13 +28,17 @@ export const TokenPayloadSchema = z.object({
   role: z.string().trim().min(1),
 });
 
-export const ArchivedSessionsSchema = z.object({
-  id: z.string().trim().min(1),
-  createdAt: z.number().int(),
-  deletedAt: z.number().int(),
-  accessTokens: z.array(TokenPayloadSchema),
-  refreshTokens: z.array(TokenPayloadSchema),
-});
+export const ArchivedSessionSchema = z
+  .object({
+    id: z.string().trim().min(1),
+    createdAt: z.number().int(),
+    deletedAt: z.number().int(),
+    accessTokens: z.array(TokenPayloadSchema),
+    refreshTokens: z.array(TokenPayloadSchema),
+  })
+  .openapi("ArchivedSession");
+
+export const ArchivedSessionsSchema = z.array(ArchivedSessionSchema);
 
 export const GetSessionParamsSchema = ClientIdUserIdParamSchema.extend({
   sessionId: z.string().trim().min(1),

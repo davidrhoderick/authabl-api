@@ -24,6 +24,7 @@ import {
   SessionValue,
   TokenPayload,
 } from "./types";
+import { ArchivedSession } from "../sessions/types";
 
 type CreateSessionResult = {
   accessToken: string;
@@ -67,6 +68,7 @@ export const createSession = async ({
     type: "access",
     exp: iat + accessTokenValidity * 1000,
     sid: sessionId,
+    role: "user",
   };
   const accessTokenString = JSON.stringify(accessTokenData);
   const accessToken = await sign(accessTokenData, env.ACCESSTOKEN_SECRET);
@@ -107,6 +109,7 @@ export const createSession = async ({
       type: "refresh",
       exp: iat + refreshTokenValidity * 1000,
       sid: sessionId,
+      role: "user",
     };
     const refreshTokenString = JSON.stringify(refreshTokenData);
     const refreshToken = await sign(refreshTokenData, env.REFRESHTOKEN_SECRET);
@@ -286,13 +289,7 @@ export const deleteSession = async (
 
   // Set up the R2 session key and data
   let r2SessionKey: string = "";
-  const r2SessionData: {
-    id?: string;
-    createdAt?: number;
-    deletedAt: number;
-    accessTokens?: Array<TokenPayload>;
-    refreshTokens?: Array<TokenPayload>;
-  } = { deletedAt: Date.now() };
+  const r2SessionData: Partial<ArchivedSession> = { deletedAt: Date.now() };
 
   // If we have an access token
   if (accessTokenResult) {
