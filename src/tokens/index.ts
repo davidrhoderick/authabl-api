@@ -124,6 +124,7 @@ app
 
       return c.json({ code: 200, message: "Success" }, 200);
     } catch (error) {
+      console.error(error);
       return c.json({ code: 500, message: "Internal Server Error" }, 500);
     }
   })

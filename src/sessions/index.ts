@@ -1,4 +1,4 @@
-import { OpenAPIHono } from "@hono/zod-openapi";
+import { OpenAPIHono, z } from "@hono/zod-openapi";
 import { Bindings } from "../common/types";
 import {
   clearSessionRoute,
@@ -8,13 +8,19 @@ import {
 } from "./routes";
 import { clientAuthentication } from "../middleware/client-authentication";
 import {
-  ACCESSTOKEN_PREFIX,
-  REFRESHTOKEN_PREFIX,
   SESSION_PREFIX,
   SESSIONACCESSTOKEN_PREFIX,
   SESSIONREFRESHTOKEN_PREFIX,
 } from "../common/constants";
-import { detectAccessToken } from "../tokens/utils";
+import { detectAccessToken, detectRefreshToken } from "../tokens/utils";
+import {
+  AccessTokenMetadata,
+  RefreshTokenMetadata,
+  SessionAccessTokenMetadata,
+  SessionRefreshTokenMetadata,
+  TokenPayload,
+} from "../tokens/types";
+import { AccessToken, RefreshToken } from "./schemas";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 
@@ -54,74 +60,78 @@ app
     const { clientId, userId, sessionId } = c.req.param();
 
     try {
-      const result = await detectAccessToken(c, true);
+      const accessTokenResult = await detectAccessToken(c, true);
 
       const session = await c.env.KV.getWithMetadata<
         { accessTokenKeyId: string; refreshTokenKeyId: string },
         { createdAt: number }
       >(`${SESSION_PREFIX}:${clientId}:${userId}:${sessionId}`, "json");
 
-      if (!session?.value) return c.json({ code: 404, message: "Not found" }, 404);
+      if (!session?.value)
+        return c.json({ code: 404, message: "Not found" }, 404);
 
-      const sessionAccessTokens = await c.env.KV.list<{
-        accessTokenKey: string;
-      }>({
-        prefix: `${SESSIONACCESSTOKEN_PREFIX}:${clientId}:${userId}:${sessionId}`,
-      });
+      const sessionAccessTokens =
+        await c.env.KV.list<SessionAccessTokenMetadata>({
+          prefix: `${SESSIONACCESSTOKEN_PREFIX}:${clientId}:${userId}:${sessionId}`,
+        });
 
       const accessTokens = [];
 
       for (const sessionAccessToken of sessionAccessTokens.keys) {
         const { value, metadata } = await c.env.KV.getWithMetadata<
-          { userId: string; clientId: string; expiresAt: number },
-          { accessTokenValidity: number }
+          TokenPayload,
+          AccessTokenMetadata
         >(sessionAccessToken.metadata!.accessTokenKey, "json");
 
-        const accessToken = {
-          ...value!,
-          ...metadata!,
-          id: sessionAccessToken.metadata!.accessTokenKey.substring(
-            `${ACCESSTOKEN_PREFIX}:${clientId}:${userId}:`.length
-          ),
-          current: false,
-        };
-
-        if (
-          result &&
-          sessionAccessToken.metadata!.accessTokenKey === result.accessTokenKey
-        )
-          accessToken.current = true;
-
-        accessTokens.push(accessToken);
+        if (value)
+          accessTokens.push({
+            ...metadata!,
+            current:
+              accessTokenResult &&
+              accessTokenResult.accessTokenIndexKey ===
+                sessionAccessToken.metadata?.accessTokenIndexKey,
+            id: value.sid,
+            clientId: value.aud,
+            userId: value.sub,
+            createdAt: value.iat,
+            expiresAt: value.exp,
+          } as z.infer<typeof AccessToken>);
       }
 
-      const sessionRefreshTokens = await c.env.KV.list<{
-        refreshTokenKey: string;
-      }>({
-        prefix: `${SESSIONREFRESHTOKEN_PREFIX}:${clientId}:${userId}:${sessionId}`,
-      });
+      const refreshTokenQuery = c.req.query("refreshToken");
+
+      const refreshTokenResult = await detectRefreshToken(
+        c,
+        refreshTokenQuery,
+        true
+      );
+
+      const sessionRefreshTokens =
+        await c.env.KV.list<SessionRefreshTokenMetadata>({
+          prefix: `${SESSIONREFRESHTOKEN_PREFIX}:${clientId}:${userId}:${sessionId}`,
+        });
 
       const refreshTokens = [];
 
       for (const sessionRefreshToken of sessionRefreshTokens.keys) {
         const { value, metadata } = await c.env.KV.getWithMetadata<
-          { userId: string; clientId: string; expiresAt: number },
-          { refreshTokenValidity: number }
+          TokenPayload,
+          RefreshTokenMetadata
         >(sessionRefreshToken.metadata!.refreshTokenKey, "json");
 
-        const refreshToken = {
-          ...value!,
-          ...metadata!,
-          id: sessionRefreshToken.metadata!.refreshTokenKey.substring(
-            `${REFRESHTOKEN_PREFIX}:${clientId}:${userId}:`.length
-          ),
-          current: false,
-        };
-
-        if (refreshToken.id === session.value!.refreshTokenKeyId)
-          refreshToken.current = true;
-
-        refreshTokens.push(refreshToken);
+        if (value)
+          refreshTokens.push({
+            ...metadata!,
+            current:
+              refreshTokenResult &&
+              refreshTokenResult.refreshTokenIndexKey ===
+                sessionRefreshToken.metadata?.refreshTokenIndexKey,
+            id: value.sid,
+            clientId: value.aud,
+            userId: value.sub,
+            createdAt: value.iat,
+            expiresAt: value.exp,
+          } as z.infer<typeof RefreshToken>);
       }
 
       return c.json(

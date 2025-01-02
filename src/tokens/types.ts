@@ -10,13 +10,23 @@ export type TokenPayload = {
 };
 
 export type SessionValue = {
-  accessTokenKeyId: string;
-  refreshTokenKeyId?: string;
+  accessTokenIndexKey: string;
+  refreshTokenIndexKey?: string;
 };
 
 export type SessionMetadata = {
-  createdAt: number
-}
+  createdAt: number;
+};
+
+export type SessionAccessTokenMetadata = {
+  accessTokenIndexKey: string;
+  accessTokenKey: string;
+};
+
+export type SessionRefreshTokenMetadata = {
+  refreshTokenIndexKey: string;
+  refreshTokenKey: string;
+};
 
 export type AccessTokenResult = {
   userId: string;
@@ -36,4 +46,12 @@ export type RefreshTokenResult = {
   sessionId: string;
   refreshTokenIndexKey?: string;
   refreshTokenKey?: string;
+};
+
+export type AccessTokenMetadata = {
+  accessTokenValidity: number;
+};
+
+export type RefreshTokenMetadata = {
+  refreshTokenValidity: number;
 };

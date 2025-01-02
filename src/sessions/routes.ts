@@ -9,6 +9,7 @@ import {
   ClearSessionParamsSchema,
   GetSessionParamsSchema,
   GetSessionResponseSchema,
+  RefreshTokenQuery,
   SessionsSchema,
 } from "./schemas";
 
@@ -60,6 +61,7 @@ export const getSessionRoute = createRoute({
   path: "/{clientId}/{userId}/{sessionId}",
   request: {
     params: GetSessionParamsSchema,
+    query: RefreshTokenQuery,
   },
   security: [
     {
@@ -109,6 +111,11 @@ export const clearSessionRoute = createRoute({
   request: {
     params: ClearSessionParamsSchema,
   },
+  security: [
+    {
+      Client: [],
+    },
+  ],
   responses: {
     200: {
       description: "Clear a specific session",
@@ -145,6 +152,11 @@ export const clearSessionsRoute = createRoute({
   method: "delete",
   path: "/{clientId}",
   request: {},
+  security: [
+    {
+      Client: [],
+    },
+  ],
   responses: {
     200: {
       description: "Clear all logged in sessions",

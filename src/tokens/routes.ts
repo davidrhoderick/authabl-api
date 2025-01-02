@@ -170,7 +170,7 @@ export const refreshRoute = createRoute({
 export const webLogoutRoute = createRoute({
   tags,
   method: "delete",
-  path: "/{clientId}",
+  path: "/{clientId}/web",
   request: {
     params: ClientIdParamSchema,
   },
@@ -197,7 +197,7 @@ export const webLogoutRoute = createRoute({
 export const mobileLogoutRoute = createRoute({
   tags,
   method: "delete",
-  path: "/{clientId}",
+  path: "/{clientId}/mobile",
   request: {
     params: ClientIdParamSchema,
     body: {
