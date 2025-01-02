@@ -13,7 +13,11 @@ import {
   SESSIONACCESSTOKEN_PREFIX,
   SESSIONREFRESHTOKEN_PREFIX,
 } from "../common/constants";
-import { detectAccessToken, detectRefreshToken } from "../tokens/utils";
+import {
+  archiveSession,
+  detectAccessToken,
+  detectRefreshToken,
+} from "../tokens/utils";
 import {
   AccessTokenMetadata,
   RefreshTokenMetadata,
@@ -175,12 +179,53 @@ app
     }
   })
   .openapi(clearSessionRoute, async (c) => {
-    // TODO
-    return c.json({ code: 200, message: "Success" }, 200);
+    const { clientId, userId, sessionId } = c.req.param();
+
+    try {
+      const session = await c.env.KV.getWithMetadata<
+        SessionValue,
+        SessionMetadata
+      >(`${SESSION_PREFIX}:${clientId}:${userId}:${sessionId}`, "json");
+
+      if (session?.value && session?.metadata)
+        await archiveSession({
+          env: c.env,
+          clientId,
+          sessionId,
+          ...session.value,
+          ...session.metadata,
+        });
+
+      return c.json({ code: 200, message: "Cleared session" }, 200);
+    } catch (error) {
+      console.error(error);
+      return c.json({ code: 500, message: "Internal Server Error" }, 500);
+    }
   })
   .openapi(clearSessionsRoute, async (c) => {
-    // TODO
-    return c.json({ code: 200, message: "Success" }, 200);
+    const { clientId, userId } = c.req.param();
+
+    try {
+      const prefix = `${SESSION_PREFIX}:${clientId}:${userId}:`;
+
+      const sessions = await c.env.KV.list<SessionMetadata>({
+        prefix,
+      });
+
+      for (const session of sessions.keys) {
+        await archiveSession({
+          env: c.env,
+          clientId,
+          userId,
+          sessionId: session.name.substring(prefix.length),
+        });
+      }
+
+      return c.json({ code: 200, message: "Success" }, 200);
+    } catch (error) {
+      console.error(error);
+      return c.json({ code: 500, message: "Internal Server Error" }, 500);
+    }
   });
 
 export default app;

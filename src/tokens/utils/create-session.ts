@@ -84,7 +84,7 @@ export const createSession = async ({
     accessTokenValidity,
     disableRefreshToken,
   };
-  const sessionData: SessionValue = { accessTokenIndexKey };
+  const sessionData: SessionValue = { accessTokenIndexKey, userId };
 
   if (!disableRefreshToken) {
     // Create the refresh token data

@@ -80,6 +80,6 @@ export const GetSessionResponseSchema = z.object({
   refreshTokens: z.array(RefreshToken),
 });
 
-export const ClearSessionParamsSchema = z.object({
+export const ClearSessionParamsSchema = ClientIdUserIdParamSchema.extend({
   sessionId: z.string().trim().min(1),
 });

@@ -148,7 +148,7 @@ export const getSessionRoute = createRoute({
 export const clearSessionRoute = createRoute({
   tags,
   method: "delete",
-  path: "/{clientId}/{sessionId}",
+  path: "/{clientId}/{userId}/{sessionId}",
   request: {
     params: ClearSessionParamsSchema,
   },
@@ -191,8 +191,10 @@ export const clearSessionRoute = createRoute({
 export const clearSessionsRoute = createRoute({
   tags,
   method: "delete",
-  path: "/{clientId}",
-  request: {},
+  path: "/{clientId}/{userId}",
+  request: {
+    params: ClientIdUserIdParamSchema,
+  },
   security: [
     {
       Client: [],

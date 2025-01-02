@@ -5,11 +5,7 @@ import {
   ClientIdParamSchema,
   User,
 } from "../common/schemas";
-import {
-  LogoutBodySchema,
-  TokenBodySchema,
-  ValidationResponseSchema,
-} from "./schemas";
+import { TokenBodySchema, ValidationResponseSchema } from "./schemas";
 
 const tags = ["OAuth"];
 

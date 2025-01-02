@@ -4,6 +4,7 @@ import { TokenPayloadSchema } from "../sessions/schemas";
 export type TokenPayload = z.infer<typeof TokenPayloadSchema>;
 
 export type SessionValue = {
+  userId: string;
   accessTokenIndexKey: string;
   refreshTokenIndexKey?: string;
 };
