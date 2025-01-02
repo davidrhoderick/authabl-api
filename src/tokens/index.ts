@@ -12,7 +12,7 @@ import { ACCESSTOKEN_COOKIE, REFRESHTOKEN_COOKIE } from "../common/constants";
 import { loginVerification } from "../common/utils";
 import { setCookie } from "hono/cookie";
 import { clientAuthentication } from "../middleware/client-authentication";
-import { createSession, deleteSession, detectAccessToken } from "./utils";
+import { createSession, archiveSession, detectAccessToken } from "./utils";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 
@@ -104,7 +104,7 @@ app
   })
   .openapi(webLogoutRoute, async (c) => {
     try {
-      await deleteSession(c);
+      await archiveSession(c);
 
       const path = "/";
 
@@ -132,7 +132,7 @@ app
     const { refreshToken } = c.req.valid("json");
 
     try {
-      await deleteSession(c, refreshToken);
+      await archiveSession(c, refreshToken);
 
       return c.json({ code: 200, message: "Success" }, 200);
     } catch (error) {
