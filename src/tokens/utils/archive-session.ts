@@ -4,7 +4,6 @@ import {
   SESSIONACCESSTOKEN_PREFIX,
   SESSIONREFRESHTOKEN_PREFIX,
 } from "../../common/constants";
-import { Context } from "hono";
 import {
   SessionAccessTokenMetadata,
   SessionMetadata,
@@ -13,16 +12,28 @@ import {
   TokenPayload,
 } from "../types";
 import { ArchivedSession } from "../../sessions/types";
-import { detectAccessToken } from "./detect-access-token";
-import { detectRefreshToken } from "./detect-refresh-token";
 
-export const archiveSession = async (
-  c: Context<{ Bindings: Bindings }>,
-  refreshToken?: string
-) => {
-  // Get the current access token
-  const accessTokenResult = await detectAccessToken(c, true);
+export type ArchiveSessionInput = {
+  env: Bindings;
+  clientId: string;
+  userId: string;
+  sessionId: string;
+  accessTokenKey?: string;
+  accessTokenIndexKey?: string;
+  refreshTokenKey?: string;
+  refreshTokenIndexKey?: string;
+};
 
+export const archiveSession = async ({
+  env,
+  clientId,
+  userId,
+  sessionId,
+  accessTokenKey,
+  accessTokenIndexKey,
+  refreshTokenKey,
+  refreshTokenIndexKey,
+}: ArchiveSessionInput) => {
   // Create an array of KV delete promises
   const deletions: Array<Promise<void>> = [];
 
@@ -30,86 +41,72 @@ export const archiveSession = async (
   let r2SessionKey: string = "";
   const r2SessionData: Partial<ArchivedSession> = { deletedAt: Date.now() };
 
-  // If we have an access token
-  if (accessTokenResult) {
-    // Set up the R2 session key
-    r2SessionKey = `${accessTokenResult.clientId}/${accessTokenResult.userId}/${accessTokenResult.sessionId}`;
+  // Set up the R2 session key
+  r2SessionKey = `${clientId}/${userId}/${sessionId}`;
 
-    r2SessionData.id = accessTokenResult.sessionId;
+  r2SessionData.id = sessionId;
 
-    const session = await c.env.KV.getWithMetadata<
-      SessionValue,
-      SessionMetadata
-    >(
-      `${SESSION_PREFIX}:${accessTokenResult.clientId}:${accessTokenResult.userId}:${accessTokenResult.sessionId}`,
-      "json"
-    );
+  const session = await env.KV.getWithMetadata<SessionValue, SessionMetadata>(
+    `${SESSION_PREFIX}:${clientId}:${userId}:${sessionId}`,
+    "json"
+  );
 
-    r2SessionData.createdAt = session.metadata?.createdAt;
+  r2SessionData.createdAt = session.metadata?.createdAt;
 
-    const sessionAccessTokens = await c.env.KV.list<SessionAccessTokenMetadata>(
-      {
-        prefix: `${SESSIONACCESSTOKEN_PREFIX}:${accessTokenResult.clientId}:${accessTokenResult.userId}:${accessTokenResult.sessionId}`,
-      }
-    );
+  const sessionAccessTokens = await env.KV.list<SessionAccessTokenMetadata>({
+    prefix: `${SESSIONACCESSTOKEN_PREFIX}:${clientId}:${userId}:${sessionId}`,
+  });
 
-    const accessTokenKeys = sessionAccessTokens.keys
-      .map(({ metadata }) => metadata?.accessTokenKey)
-      .filter((key) => typeof key !== "undefined");
+  const accessTokenKeys = sessionAccessTokens.keys
+    .map(({ metadata }) => metadata?.accessTokenKey)
+    .filter((key) => typeof key !== "undefined");
 
-    const accessTokens: Array<TokenPayload> = [];
+  const accessTokens: Array<TokenPayload> = [];
 
-    for (const key of accessTokenKeys) {
-      const accessToken = await c.env.KV.get<TokenPayload>(key, "json");
+  for (const key of accessTokenKeys) {
+    const accessToken = await env.KV.get<TokenPayload>(key, "json");
 
-      if (accessToken) accessTokens.push(accessToken);
-    }
-
-    r2SessionData.accessTokens = accessTokens;
-
-    deletions.push(
-      c.env.KV.delete(accessTokenResult.accessTokenKey!),
-      c.env.KV.delete(accessTokenResult.accessTokenIndexKey!),
-      c.env.KV.delete(
-        `${SESSION_PREFIX}:${accessTokenResult.clientId}:${accessTokenResult.userId}:${accessTokenResult.sessionId}`
-      ),
-      ...accessTokenKeys.map((key) => c.env.KV.delete(key))
-    );
+    if (accessToken) accessTokens.push(accessToken);
   }
 
-  const refreshTokenResult = await detectRefreshToken(c, refreshToken, true);
+  r2SessionData.accessTokens = accessTokens;
 
-  if (refreshTokenResult) {
-    if (!r2SessionKey.length)
-      r2SessionKey = `${refreshTokenResult.clientId}/${refreshTokenResult.userId}/${refreshTokenResult.sessionId}`;
+  if (accessTokenKey) deletions.push(env.KV.delete(accessTokenKey));
 
-    const sessionRefreshTokens =
-      await c.env.KV.list<SessionRefreshTokenMetadata>({
-        prefix: `${SESSIONREFRESHTOKEN_PREFIX}:${refreshTokenResult.clientId}:${refreshTokenResult.userId}:${refreshTokenResult.sessionId}`,
-      });
+  if (accessTokenIndexKey) deletions.push(env.KV.delete(accessTokenIndexKey));
 
-    const refreshTokenKeys = sessionRefreshTokens.keys
-      .map(({ metadata }) => metadata?.refreshTokenKey)
-      .filter((key) => typeof key !== "undefined");
+  deletions.push(
+    env.KV.delete(`${SESSION_PREFIX}:${clientId}:${userId}:${sessionId}`),
+    ...accessTokenKeys.map((key) => env.KV.delete(key))
+  );
 
-    const refreshTokens: Array<TokenPayload> = [];
+  if (!r2SessionKey.length) r2SessionKey = `${clientId}/${userId}/${sessionId}`;
 
-    for (const key of refreshTokenKeys) {
-      const refreshToken = await c.env.KV.get<TokenPayload>(key, "json");
+  const sessionRefreshTokens = await env.KV.list<SessionRefreshTokenMetadata>({
+    prefix: `${SESSIONREFRESHTOKEN_PREFIX}:${clientId}:${userId}:${sessionId}`,
+  });
 
-      if (refreshToken) refreshTokens.push(refreshToken);
-    }
+  const refreshTokenKeys = sessionRefreshTokens.keys
+    .map(({ metadata }) => metadata?.refreshTokenKey)
+    .filter((key) => typeof key !== "undefined");
 
-    r2SessionData.refreshTokens = refreshTokens;
+  const refreshTokens: Array<TokenPayload> = [];
 
-    deletions.push(
-      c.env.KV.delete(refreshTokenResult.refreshTokenKey!),
-      c.env.KV.delete(refreshTokenResult.refreshTokenIndexKey!),
-      ...refreshTokenKeys.map((key) => c.env.KV.delete(key))
-    );
+  for (const key of refreshTokenKeys) {
+    const refreshToken = await env.KV.get<TokenPayload>(key, "json");
+
+    if (refreshToken) refreshTokens.push(refreshToken);
   }
 
-  await c.env.R2.put(r2SessionKey, JSON.stringify(r2SessionData));
+  r2SessionData.refreshTokens = refreshTokens;
+
+  if (refreshTokenKey) deletions.push(env.KV.delete(refreshTokenKey));
+
+  if (refreshTokenIndexKey) deletions.push(env.KV.delete(refreshTokenIndexKey));
+
+  deletions.push(...refreshTokenKeys.map((key) => env.KV.delete(key)));
+
+  await env.R2.put(r2SessionKey, JSON.stringify(r2SessionData));
 
   await Promise.all(deletions);
 };

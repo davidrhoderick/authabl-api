@@ -167,10 +167,10 @@ export const refreshRoute = createRoute({
   },
 });
 
-export const webLogoutRoute = createRoute({
+export const logoutRoute = createRoute({
   tags,
   method: "delete",
-  path: "/{clientId}/web",
+  path: "/{clientId}",
   request: {
     params: ClientIdParamSchema,
   },
@@ -182,40 +182,6 @@ export const webLogoutRoute = createRoute({
   responses: {
     200: {
       description: "Log a user out by clearing JWT cookies",
-    },
-    500: {
-      content: {
-        "application/json": {
-          schema: InternalServerErrorSchema,
-        },
-      },
-      description: "Internal server error",
-    },
-  },
-});
-
-export const mobileLogoutRoute = createRoute({
-  tags,
-  method: "delete",
-  path: "/{clientId}/mobile",
-  request: {
-    params: ClientIdParamSchema,
-    body: {
-      content: {
-        "application/json": {
-          schema: LogoutBodySchema,
-        },
-      },
-    },
-  },
-  security: [
-    {
-      Client: [],
-    },
-  ],
-  responses: {
-    200: {
-      description: "Log a user out by clearing refresh & access tokens",
     },
     500: {
       content: {

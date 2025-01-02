@@ -1,18 +1,23 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { Bindings } from "../common/types";
 import {
-  mobileLogoutRoute,
+  logoutRoute,
   mobileTokenRoute,
   refreshRoute,
   validationRoute,
-  webLogoutRoute,
   webTokenRoute,
 } from "./routes";
 import { ACCESSTOKEN_COOKIE, REFRESHTOKEN_COOKIE } from "../common/constants";
 import { loginVerification } from "../common/utils";
 import { setCookie } from "hono/cookie";
 import { clientAuthentication } from "../middleware/client-authentication";
-import { createSession, archiveSession, detectAccessToken } from "./utils";
+import {
+  createSession,
+  archiveSession,
+  detectAccessToken,
+  detectRefreshToken,
+  ArchiveSessionInput,
+} from "./utils";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 
@@ -104,9 +109,34 @@ app
     // TODO
     return c.json({ code: 200, message: "Success" }, 200);
   })
-  .openapi(webLogoutRoute, async (c) => {
+  .openapi(logoutRoute, async (c) => {
     try {
-      await archiveSession(c);
+      // Get the current access token
+      const accessTokenResult = await detectAccessToken(c, true);
+
+      const refreshTokenResult = await detectRefreshToken(c, undefined, true);
+
+      if (accessTokenResult) {
+        const input: ArchiveSessionInput = {
+          env: c.env,
+          clientId: accessTokenResult.clientId,
+          userId: accessTokenResult.userId,
+          sessionId: accessTokenResult.sessionId,
+          accessTokenKey: accessTokenResult.accessTokenKey,
+          accessTokenIndexKey: accessTokenResult.accessTokenIndexKey,
+        };
+
+        if (refreshTokenResult) {
+          if (refreshTokenResult.refreshTokenKey)
+            input.refreshTokenKey = refreshTokenResult.refreshTokenKey;
+
+          if (refreshTokenResult.refreshTokenIndexKey)
+            input.refreshTokenIndexKey =
+              refreshTokenResult.refreshTokenIndexKey;
+        }
+
+        await archiveSession(input);
+      }
 
       const path = "/";
 
@@ -127,18 +157,6 @@ app
       return c.json({ code: 200, message: "Success" }, 200);
     } catch (error) {
       console.error(error);
-      return c.json({ code: 500, message: "Internal Server Error" }, 500);
-    }
-  })
-  .openapi(mobileLogoutRoute, async (c) => {
-    // TODO
-    const { refreshToken } = c.req.valid("json");
-
-    try {
-      await archiveSession(c, refreshToken);
-
-      return c.json({ code: 200, message: "Success" }, 200);
-    } catch (error) {
       return c.json({ code: 500, message: "Internal Server Error" }, 500);
     }
   });
