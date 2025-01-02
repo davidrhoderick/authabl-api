@@ -5,7 +5,11 @@ import {
   ClientIdParamSchema,
   User,
 } from "../common/schemas";
-import { TokenBodySchema, ValidationResponseSchema } from "./schemas";
+import {
+  MobileTokenResponseSchema,
+  TokenBodySchema,
+  ValidationResponseSchema,
+} from "./schemas";
 
 const tags = ["OAuth"];
 
@@ -70,10 +74,20 @@ export const mobileTokenRoute = createRoute({
       },
     },
   },
+  security: [
+    {
+      Client: [],
+    },
+  ],
   responses: {
     200: {
       description:
         "Returns an access &, if configured, refresh token as JWT cookies",
+      content: {
+        "application/json": {
+          schema: MobileTokenResponseSchema,
+        },
+      },
     },
     401: {
       content: {

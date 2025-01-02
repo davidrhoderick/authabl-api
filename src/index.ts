@@ -29,20 +29,10 @@ app.openAPIRegistry.registerComponent("securitySchemes", "Client", {
   name: "X-OAUTHABL-API-KEY",
 });
 
-app.openAPIRegistry.registerComponent("securitySchemes", "User", {
-  type: "oauth2",
-  scheme: "password",
-  flows: {
-    password: {
-      tokenUrl: "/oauth/token",
-      scopes: {
-        admin: "Can create new clients",
-        user: "Is authenticated within a client",
-      },
-    },
-  },
-  in: "cookie",
-  name: "oauthabl",
+app.openAPIRegistry.registerComponent("securitySchemes", "Mobile", {
+  type: "http",
+  in: "header",
+  name: "Authorization",
 });
 
 app

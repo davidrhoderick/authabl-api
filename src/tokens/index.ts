@@ -73,21 +73,37 @@ app
     }
   })
   .openapi(mobileTokenRoute, async (c) => {
-    // TODO
     const { password, ...emailUsername } = c.req.valid("json");
     const clientId = c.req.param("clientId");
 
     try {
-      const result = await loginVerification({
+      const user = await loginVerification({
         kv: c.env.KV,
         password,
         clientId,
         ...emailUsername,
       });
 
+      console.log("user", user);
+
+      if (!user) return c.json({ code: 401, message: "Unauthorized" }, 401);
+
+      const result = await createSession({
+        clientId,
+        userId: user.id,
+        env: c.env,
+      });
+
       if (!result) return c.json({ code: 401, message: "Unauthorized" }, 401);
 
-      return c.json(result, 200);
+      return c.json(
+        {
+          ...user,
+          accessToken: result.accessToken,
+          refreshToken: result.refreshToken,
+        },
+        200
+      );
     } catch (error) {
       console.error(error);
       return c.json({ code: 500, message: "Internal server error" }, 500);
@@ -98,6 +114,8 @@ app
       const result = await detectAccessToken(c);
 
       if (!result) return c.json({ code: 401, message: "Unauthorized" }, 401);
+
+      console.log("result", result);
 
       return c.json(result, 200);
     } catch (error) {
