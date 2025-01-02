@@ -175,9 +175,11 @@ app
     }
   })
   .openapi(clearSessionRoute, async (c) => {
+    // TODO
     return c.json({ code: 200, message: "Success" }, 200);
   })
   .openapi(clearSessionsRoute, async (c) => {
+    // TODO
     return c.json({ code: 200, message: "Success" }, 200);
   });
 

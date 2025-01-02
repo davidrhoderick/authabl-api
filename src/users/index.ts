@@ -71,10 +71,7 @@ app
         const { username } = rest;
         response.username = username;
         options.metadata.username = username;
-        await c.env.KV.put(
-          `${USERNAME_PREFIX}:${clientId}:${username}`,
-          id
-        );
+        await c.env.KV.put(`${USERNAME_PREFIX}:${clientId}:${username}`, id);
       }
 
       await c.env.KV.put(
@@ -155,6 +152,8 @@ app
       return c.json({ code: 500, message: "Internal server error" }, 500);
     }
   });
+// TODO get user route
+// TODO
 // .openapi(forgottenPasswordRoute, async (c) => {
 //   return c.json({ code: 200, message: "Email sent" }, 200);
 // });

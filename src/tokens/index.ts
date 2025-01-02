@@ -68,6 +68,7 @@ app
     }
   })
   .openapi(mobileTokenRoute, async (c) => {
+    // TODO
     const { password, ...emailUsername } = c.req.valid("json");
     const clientId = c.req.param("clientId");
 
@@ -100,6 +101,7 @@ app
     }
   })
   .openapi(refreshRoute, async (c) => {
+    // TODO
     return c.json({ code: 200, message: "Success" }, 200);
   })
   .openapi(webLogoutRoute, async (c) => {
@@ -129,6 +131,7 @@ app
     }
   })
   .openapi(mobileLogoutRoute, async (c) => {
+    // TODO
     const { refreshToken } = c.req.valid("json");
 
     try {
