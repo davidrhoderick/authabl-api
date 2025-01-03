@@ -9,6 +9,7 @@ import {
 } from "./routes";
 import {
   EMAIL_PREFIX,
+  SESSION_PREFIX,
   USER_PREFIX,
   USERNAME_PREFIX,
 } from "../common/constants";
@@ -16,6 +17,8 @@ import hyperid from "hyperid";
 import { generateEmailVerificationCode, hashPassword } from "../common/utils";
 import { User, UserMetadata, UserValue } from "./types";
 import { clientAuthentication } from "../middleware/client-authentication";
+import { SessionMetadata } from "../tokens/types";
+import { archiveSession } from "../tokens/utils";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 
@@ -68,7 +71,9 @@ app
             id,
           });
         }
-      } else if (rest.username) {
+      }
+
+      if (rest.username) {
         const { username } = rest;
         response.username = username;
         options.metadata.username = username;
@@ -147,7 +152,19 @@ app
 
       await c.env.KV.delete(`${USER_PREFIX}:${clientId}:${userId}`);
 
-      // TODO Delete all sessions
+      const sessions = await c.env.KV.list<SessionMetadata>({
+        prefix: `${SESSION_PREFIX}:${clientId}:${userId}`,
+      });
+
+      if (sessions.keys.length)
+        for (const session of sessions.keys) {
+          await archiveSession({
+            env: c.env,
+            clientId,
+            userId,
+            sessionId: session.name,
+          });
+        }
 
       return c.json({ code: 200, message: "User deleted successfully" }, 200);
     } catch (error) {
@@ -180,8 +197,6 @@ app
 
       if (!user.value || !user.metadata)
         return c.json({ message: "Not found", code: 404 }, 404);
-
-      console.log("user", user);
 
       return c.json(
         {
