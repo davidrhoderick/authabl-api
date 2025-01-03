@@ -27,7 +27,7 @@ export const detectRefreshToken = async (
 
   if (!decodedRefreshToken) return false;
 
-  const refreshTokenIndexKey = `${REFRESHTOKENINDEX_PREFIX}:${refreshTokenCookie}`;
+  const refreshTokenIndexKey = `${REFRESHTOKENINDEX_PREFIX}:${refreshToken}`;
 
   const refreshTokenKey = await c.env.KV.get(refreshTokenIndexKey);
 

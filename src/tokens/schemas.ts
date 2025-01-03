@@ -17,6 +17,22 @@ export const TokenBodySchema = z
   .union([EmailToken, UsernameToken])
   .openapi("TokenRequest");
 
+export const RefreshBodySchema = z.object({
+  refreshToken: z.string().trim().min(1).optional(),
+});
+
+export const RefreshTokenResponseSchema = z
+  .object({
+    accessToken: z.string().trim().min(1).optional(),
+    refreshToken: z.string().trim().min(1).optional(),
+  })
+  .or(
+    z.object({
+      code: z.number().int(),
+      message: z.string().trim().min(1),
+    })
+  );
+
 export const ValidationResponseSchema = z.object({
   userId: z.string().trim().min(1),
   clientId: z.string().trim().min(1),

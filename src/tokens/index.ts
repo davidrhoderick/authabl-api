@@ -84,8 +84,6 @@ app
         ...emailUsername,
       });
 
-      console.log("user", user);
-
       if (!user) return c.json({ code: 401, message: "Unauthorized" }, 401);
 
       const result = await createSession({
@@ -115,8 +113,6 @@ app
 
       if (!result) return c.json({ code: 401, message: "Unauthorized" }, 401);
 
-      console.log("result", result);
-
       return c.json(result, 200);
     } catch (error) {
       console.error(error);
@@ -124,8 +120,98 @@ app
     }
   })
   .openapi(refreshRoute, async (c) => {
-    // TODO
-    return c.json({ code: 200, message: "Success" }, 200);
+    // Get the refresh token from the body
+    const { refreshToken } = c.req.valid("json");
+
+    try {
+      // Detect the access token (it might not be valid)
+      const accessTokenResult = await detectAccessToken(c, true);
+
+      // Detect the refresh token
+      const refreshTokenResult = await detectRefreshToken(
+        c,
+        refreshToken,
+        true
+      );
+
+      // Return 401 if refresh token isn't available or valid
+      if (!refreshTokenResult)
+        return c.json({ code: 401, message: "Unauthorized" }, 401);
+
+      // Archive the current session tokens
+      await archiveSession({
+        env: c.env,
+        clientId: refreshTokenResult.clientId,
+        userId: refreshTokenResult.userId,
+        sessionId: refreshTokenResult.sessionId,
+        refreshTokenKey: refreshTokenResult.refreshTokenKey,
+        refreshTokenIndexKey: refreshTokenResult.refreshTokenIndexKey,
+        accessTokenKey: accessTokenResult
+          ? accessTokenResult.accessTokenKey
+          : undefined,
+        accessTokenIndexKey: accessTokenResult
+          ? accessTokenResult.accessTokenIndexKey
+          : undefined,
+      });
+
+      // Create a new session
+      const sessionCreationResult = await createSession({
+        clientId: refreshTokenResult.clientId,
+        userId: refreshTokenResult.userId,
+        env: c.env,
+      });
+
+      // If session creation fails, return 401
+      if (!sessionCreationResult)
+        return c.json({ code: 401, message: "Unauthorized" }, 401);
+
+      const { accessToken, accessTokenValidity, disableRefreshToken } =
+        sessionCreationResult;
+
+      const path = `/`;
+
+      // If refresh token is currently enabled
+      if (!disableRefreshToken) {
+        // If we received the refresh token in the body
+        if (refreshToken)
+          // Return the refresh & access tokens in the response
+          return c.json(
+            { refreshToken: sessionCreationResult.refreshToken, accessToken },
+            200
+          );
+        // Otherwise, set the refresh token as a cookie
+        else
+          setCookie(
+            c,
+            REFRESHTOKEN_COOKIE,
+            sessionCreationResult.refreshToken!,
+            {
+              path,
+              httpOnly: true,
+              maxAge: sessionCreationResult.refreshTokenValidity!,
+              sameSite: "lax",
+            }
+          );
+      }
+
+      // If we received refresh token in the body, return the access token in the response body
+      if (refreshToken) return c.json({ accessToken }, 200);
+
+      // Otherwise, set the access token as a cookie
+      setCookie(c, ACCESSTOKEN_COOKIE, accessToken, {
+        path,
+        httpOnly: true,
+        maxAge: accessTokenValidity,
+        sameSite: "lax",
+      });
+
+      // Return 200
+      return c.json({ code: 200, message: "Success" }, 200);
+    } catch (error) {
+      console.error(error);
+
+      return c.json({ code: 500, message: "Internal Server Error" }, 500);
+    }
   })
   .openapi(logoutRoute, async (c) => {
     try {

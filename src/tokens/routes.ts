@@ -7,6 +7,8 @@ import {
 } from "../common/schemas";
 import {
   MobileTokenResponseSchema,
+  RefreshBodySchema,
+  RefreshTokenResponseSchema,
   TokenBodySchema,
   ValidationResponseSchema,
 } from "./schemas";
@@ -152,11 +154,30 @@ export const refreshRoute = createRoute({
   tags,
   method: "post",
   path: "/{clientId}/refresh",
-  request: {},
+  request: {
+    params: ClientIdParamSchema,
+    body: {
+      content: {
+        "application/json": {
+          schema: RefreshBodySchema,
+        },
+      },
+    },
+  },
+  security: [
+    {
+      Client: [],
+    },
+  ],
   responses: {
     200: {
       description:
         "Refreshes an access &, if configured, refresh token as JWT cookies",
+      content: {
+        "application/json": {
+          schema: RefreshTokenResponseSchema,
+        },
+      },
     },
     401: {
       content: {
