@@ -2,6 +2,7 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { Bindings } from "../common/types";
 import {
   deleteUserRoute,
+  getUserRoute,
   // forgottenPasswordRoute,
   listUsersRoute,
   registrationRoute,
@@ -146,13 +147,56 @@ app
 
       await c.env.KV.delete(`${USER_PREFIX}:${clientId}:${userId}`);
 
+      // TODO Delete all sessions
+
       return c.json({ code: 200, message: "User deleted successfully" }, 200);
     } catch (error) {
       console.error(error);
       return c.json({ code: 500, message: "Internal server error" }, 500);
     }
+  })
+  .openapi(getUserRoute, async (c) => {
+    const { clientId, userProperty, userIdentifier } = c.req.param();
+
+    try {
+      let id: string | null = userProperty === "id" ? userIdentifier : "";
+      if (!id.length) {
+        if (userProperty === "username")
+          id = await c.env.KV.get(
+            `${USERNAME_PREFIX}:${clientId}:${userIdentifier}`
+          );
+        else
+          id = await c.env.KV.get(
+            `${EMAIL_PREFIX}:${clientId}:${userIdentifier}`
+          );
+      }
+
+      if (!id) return c.json({ message: "Not found", code: 404 }, 404);
+
+      const user = await c.env.KV.getWithMetadata<UserValue, UserMetadata>(
+        `${USER_PREFIX}:${clientId}:${id}`,
+        "json"
+      );
+
+      if (!user.value || !user.metadata)
+        return c.json({ message: "Not found", code: 404 }, 404);
+
+      console.log("user", user);
+
+      return c.json(
+        {
+          id,
+          emailAddresses: user.metadata.emailAddresses,
+          username: user.metadata.username,
+          emailVerified: user.metadata.emailVerified,
+        },
+        200
+      );
+    } catch (error) {
+      console.error(error);
+      return c.json({ code: 500, message: "Internal Server Error" }, 500);
+    }
   });
-// TODO get user route
 // TODO
 // .openapi(forgottenPasswordRoute, async (c) => {
 //   return c.json({ code: 200, message: "Email sent" }, 200);

@@ -4,13 +4,15 @@ import {
   InternalServerErrorSchema,
   UnauthorizedSchema,
   ClientIdParamSchema,
-  ClientIdUserIdParamSchema
+  ClientIdUserIdParamSchema,
+  User,
 } from "../common/schemas";
 import {
   RegistrationBodySchema,
   RegistrationResponse,
   UsersListResponseSchema,
 } from "./schemas";
+import { GetUserParamSchema } from "../tokens/schemas";
 
 const tags = ["OAuth"];
 
@@ -114,6 +116,39 @@ export const deleteUserRoute = createRoute({
   responses: {
     200: {
       description: "Deleted user successfully",
+    },
+    500: {
+      description: "Internal Server Error",
+    },
+  },
+});
+
+export const getUserRoute = createRoute({
+  tags,
+  method: "get",
+  path: "/{clientId}/{userProperty}/{userIdentifier}",
+  request: {
+    params: GetUserParamSchema,
+  },
+  security: [
+    {
+      Client: [],
+    },
+  ],
+  responses: {
+    200: {
+      description: "Retrieved user successfully",
+      content: {
+        "application/json": {
+          schema: User,
+        },
+      },
+    },
+    400: {
+      description: "Bad Request",
+    },
+    404: {
+      description: "Not found",
     },
     500: {
       description: "Internal Server Error",
