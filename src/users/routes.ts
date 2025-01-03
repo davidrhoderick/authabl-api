@@ -18,6 +18,8 @@ const tags = ["OAuth"];
 
 export const registrationRoute = createRoute({
   tags,
+  description:
+    "Registers a new user using email and/or username and a password.  Optionally triggers email verification by sending a `verifyEmail` flag.  Make sure the password is confirmed before setting.",
   method: "post",
   path: "/{clientId}",
   request: {
@@ -73,6 +75,7 @@ export const registrationRoute = createRoute({
 
 export const listUsersRoute = createRoute({
   tags,
+  description: "Lists all users for a client.",
   method: "get",
   path: "/{clientId}",
   request: {
@@ -103,6 +106,7 @@ export const listUsersRoute = createRoute({
 
 export const deleteUserRoute = createRoute({
   tags,
+  description: "Deletes a user and archives all their sessions.",
   method: "delete",
   path: "/{clientId}/{userId}",
   request: {
@@ -125,6 +129,7 @@ export const deleteUserRoute = createRoute({
 
 export const getUserRoute = createRoute({
   tags,
+  description: "Gets a single user by either id, username, or email address.",
   method: "get",
   path: "/{clientId}/{userProperty}/{userIdentifier}",
   request: {

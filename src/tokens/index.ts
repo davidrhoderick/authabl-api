@@ -154,6 +154,7 @@ app
           : undefined,
       });
 
+      // TODO Refresh the session
       // Create a new session
       const sessionCreationResult = await createSession({
         clientId: refreshTokenResult.clientId,

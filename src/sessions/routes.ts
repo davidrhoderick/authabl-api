@@ -18,6 +18,7 @@ const tags = ["OAuth"];
 
 export const listSessionsRoute = createRoute({
   tags,
+  description: "Lists all sessions for a user.  Detects the current session via either a Bearer token, if used from a mobile device, or the `oauthabl_accesstoken` cookie, if used from a web client.",
   method: "get",
   path: "/{clientId}/{userId}",
   request: {
@@ -58,6 +59,7 @@ export const listSessionsRoute = createRoute({
 
 export const listArchivedSessionsRoute = createRoute({
   tags,
+  description: "Lists all archived sessions for a user.",
   method: "get",
   path: "/{clientId}/{userId}/archive",
   request: {
@@ -98,6 +100,7 @@ export const listArchivedSessionsRoute = createRoute({
 
 export const getSessionRoute = createRoute({
   tags,
+  description: "Retrieve a session's details by its user and session IDs.",
   method: "get",
   path: "/{clientId}/{userId}/{sessionId}",
   request: {
@@ -147,6 +150,7 @@ export const getSessionRoute = createRoute({
 
 export const clearSessionRoute = createRoute({
   tags,
+  description: "Archive a singular session.",
   method: "delete",
   path: "/{clientId}/{userId}/{sessionId}",
   request: {

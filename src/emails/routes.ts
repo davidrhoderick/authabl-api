@@ -14,6 +14,7 @@ const tags = ["OAuth"];
 
 export const emailVerificationRoute = createRoute({
   tags,
+  description: "Verify an email address with a code.",
   method: "post",
   path: "/{clientId}/verify",
   request: {
@@ -64,6 +65,7 @@ export const emailVerificationRoute = createRoute({
 
 export const resendVerificationEmailRoute = createRoute({
   tags,
+  description: "Re-request an email verification code.",
   method: "post",
   path: "/{clientId}/resend",
   request: {
