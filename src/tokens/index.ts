@@ -17,6 +17,7 @@ import {
   detectAccessToken,
   detectRefreshToken,
   ArchiveSessionInput,
+  invalidateTokens,
 } from "./utils";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
@@ -139,19 +140,10 @@ app
         return c.json({ code: 401, message: "Unauthorized" }, 401);
 
       // Archive the current session tokens
-      await archiveSession({
+      await invalidateTokens({
         env: c.env,
-        clientId: refreshTokenResult.clientId,
-        userId: refreshTokenResult.userId,
-        sessionId: refreshTokenResult.sessionId,
         refreshTokenKey: refreshTokenResult.refreshTokenKey,
-        refreshTokenIndexKey: refreshTokenResult.refreshTokenIndexKey,
-        accessTokenKey: accessTokenResult
-          ? accessTokenResult.accessTokenKey
-          : undefined,
-        accessTokenIndexKey: accessTokenResult
-          ? accessTokenResult.accessTokenIndexKey
-          : undefined,
+        accessTokenKey: accessTokenResult && accessTokenResult.accessTokenKey,
       });
 
       // Create a new session
@@ -167,7 +159,7 @@ app
         return c.json({ code: 401, message: "Unauthorized" }, 401);
 
       const { accessToken, accessTokenValidity, disableRefreshToken } =
-      sessionResult;
+        sessionResult;
 
       const path = `/`;
 
@@ -182,17 +174,12 @@ app
           );
         // Otherwise, set the refresh token as a cookie
         else
-          setCookie(
-            c,
-            REFRESHTOKEN_COOKIE,
-            sessionResult.refreshToken!,
-            {
-              path,
-              httpOnly: true,
-              maxAge: sessionResult.refreshTokenValidity!,
-              sameSite: "lax",
-            }
-          );
+          setCookie(c, REFRESHTOKEN_COOKIE, sessionResult.refreshToken!, {
+            path,
+            httpOnly: true,
+            maxAge: sessionResult.refreshTokenValidity!,
+            sameSite: "lax",
+          });
       }
 
       // If we received refresh token in the body, return the access token in the response body

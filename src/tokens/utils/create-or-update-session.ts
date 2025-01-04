@@ -67,11 +67,8 @@ export const createOrUpdateSession = async ({
   const accessTokenIndexKey = `${ACCESSTOKENINDEX_PREFIX}:${accessToken}`;
   const accessTokenKeyId = tokenIdInstance();
   const accessTokenKey = `${ACCESSTOKEN_PREFIX}:${clientId}:${userId}:${accessTokenKeyId}`;
-  await env.KV.put(accessTokenIndexKey, accessTokenKey, {
-    expirationTtl: accessTokenValidity,
-  });
+  await env.KV.put(accessTokenIndexKey, accessTokenKey);
   await env.KV.put(accessTokenKey, accessTokenString, {
-    expirationTtl: accessTokenValidity,
     metadata: { accessTokenValidity },
   });
 
@@ -108,11 +105,8 @@ export const createOrUpdateSession = async ({
     const refreshTokenIndexKey = `${REFRESHTOKENINDEX_PREFIX}:${refreshToken}`;
     const refreshTokenKeyId = tokenIdInstance();
     const refreshTokenKey = `${REFRESHTOKEN_PREFIX}:${clientId}:${userId}:${refreshTokenKeyId}`;
-    await env.KV.put(refreshTokenIndexKey, refreshTokenKey, {
-      expirationTtl: refreshTokenValidity,
-    });
+    await env.KV.put(refreshTokenIndexKey, refreshTokenKey, );
     await env.KV.put(refreshTokenKey, refreshTokenString, {
-      expirationTtl: refreshTokenValidity,
       metadata: { refreshTokenValidity },
     });
 

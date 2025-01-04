@@ -6,7 +6,12 @@ import {
 } from "../../common/constants";
 import { Context } from "hono";
 import { getCookie } from "hono/cookie";
-import { AccessTokenResult, RefreshTokenResult, TokenPayload } from "../types";
+import {
+  AccessTokenResult,
+  RefreshTokenMetadata,
+  RefreshTokenResult,
+  TokenPayload,
+} from "../types";
 
 export const detectRefreshToken = async (
   c: Context<{ Bindings: Bindings }>,
@@ -33,12 +38,12 @@ export const detectRefreshToken = async (
 
   if (!refreshTokenKey) return false;
 
-  const refreshTokenItem = await c.env.KV.get<TokenPayload>(
-    refreshTokenKey,
-    "json"
-  );
+  const refreshTokenItem = await c.env.KV.getWithMetadata<
+    TokenPayload,
+    RefreshTokenMetadata
+  >(refreshTokenKey, "json");
 
-  if (!refreshTokenItem) return false;
+  if (!refreshTokenItem.value || !refreshTokenItem.metadata) return false;
 
   const { payload } = decodedRefreshToken as unknown as {
     payload: TokenPayload;
@@ -46,11 +51,13 @@ export const detectRefreshToken = async (
 
   if (
     payload.iss === "oauthabl" &&
-    payload.aud === refreshTokenItem.aud &&
-    payload.sub === refreshTokenItem.sub &&
-    payload.exp === refreshTokenItem.exp &&
+    payload.aud === refreshTokenItem.value.aud &&
+    payload.sub === refreshTokenItem.value.sub &&
+    payload.exp === refreshTokenItem.value.exp &&
     now < payload.exp &&
-    now > payload.iat
+    now > payload.iat &&
+    (!refreshTokenItem.metadata.revokedAt ||
+      now < refreshTokenItem.metadata.revokedAt)
   ) {
     const result: AccessTokenResult = {
       userId: payload.sub,

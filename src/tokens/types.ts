@@ -45,8 +45,10 @@ export type RefreshTokenResult = {
 
 export type AccessTokenMetadata = {
   accessTokenValidity: number;
+  revokedAt?: number;
 };
 
 export type RefreshTokenMetadata = {
   refreshTokenValidity: number;
+  revokedAt?: number;
 };

@@ -6,7 +6,7 @@ import {
 } from "../../common/constants";
 import { Context } from "hono";
 import { getCookie } from "hono/cookie";
-import { AccessTokenResult, TokenPayload } from "../types";
+import { AccessTokenMetadata, AccessTokenResult, TokenPayload } from "../types";
 
 export const detectAccessToken = async (
   c: Context<{ Bindings: Bindings }>,
@@ -35,12 +35,12 @@ export const detectAccessToken = async (
 
   if (!accessTokenKey) return false;
 
-  const accessTokenItem = await c.env.KV.get<TokenPayload>(
-    accessTokenKey,
-    "json"
-  );
+  const accessTokenItem = await c.env.KV.getWithMetadata<
+    TokenPayload,
+    AccessTokenMetadata
+  >(accessTokenKey, "json");
 
-  if (!accessTokenItem) return false;
+  if (!accessTokenItem.value || !accessTokenItem.metadata) return false;
 
   const { payload } = decodedAccessToken as unknown as {
     payload: TokenPayload;
@@ -48,11 +48,13 @@ export const detectAccessToken = async (
 
   if (
     payload.iss === "oauthabl" &&
-    payload.iss === accessTokenItem.iss &&
-    payload.sub === accessTokenItem.sub &&
-    payload.exp === accessTokenItem.exp &&
+    payload.iss === accessTokenItem.value.iss &&
+    payload.sub === accessTokenItem.value.sub &&
+    payload.exp === accessTokenItem.value.exp &&
     now < payload.exp &&
-    now > payload.iat
+    now > payload.iat &&
+    (!accessTokenItem.metadata.revokedAt ||
+      now < accessTokenItem.metadata.revokedAt)
   ) {
     const result: AccessTokenResult = {
       userId: payload.sub,
