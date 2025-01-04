@@ -17,37 +17,40 @@ yarn deploy
 
 ### Current Development Tasks
 
-1. **Replace Sessions When Logging In Twice**
-   - Replace the existing session with a new one if a user logs in again from the same device/browser.
-
-2. **Add Functionality to Clear All Sessions**
-   - Add route `DELETE /sessions/{clientId}` to log out and terminate all active sessions for a user.
-
-3. **Add Functionality to Clear a Single Session**
-   - Add route `DELETE /sessions/{clientId}/{sessionId}` to log out and terminate a specific session.
-
-4. **Implement refresh token endpoint**
-   - Update to have web and mobile endpoints.
-   - Generate a new access token and invalidate the previous one.
-   - Renew the refresh token if it exists.
-
-5. **Implement Cookie Security**
-   - Implement `detectAccessToken` in middleware
-
-6. **Add User Metadata Endpoint**
-   - Add a `GET /users/{clientId}/{userId}` endpoint to retrieve user metadata like verified email addresses and profile details.
-
-7. **Implement Forgotten Password Flow**
+1. **Implement Forgotten Password Flow**
    - Add endpoints for requesting and confirming password resets.
 
-8. **Add Roles or Permissions**
+2. **Add Roles or Permissions**
    - Implement role-based access control by adding a `role` field and role-checking middleware.
+     - **`superadmin`**: Full control across all clients
+     - **`clientadmin`**: Manage a singular client and associated users.
+     - **`user` (or any resource server defined value, such as `admin` or `editor`)**: Role for resource servers/client usage (user is the fallback if `undefined`).
+
+3. **Add Role-Based Endpoint Security**
+   - Ensure endpoint-level access restrictions:
+     - `superadmin`-only endpoints (e.g., creating clients, managing `superadmin` users)
+     - `clientadmin`-only endpoints (e.g., managing users for a client) via the `:clientId` URL parameter.
+     - Ensure that `users` (and all others) can only access their own resources via the `:userId` URL parameter.
+
+4. **Set up OAuthabl Admin Client**
+   - Add a special, protected admin client to manage:
+     - `superadmin` creation (manual initial setup of first user).
+     - Client creation and management
 
 ### Future Enhancements
 
-- **Session Archival**
-  - Maintain a log of cleared sessions for audit purposes, including details like `id`, `userAgent`, `ip`, `loggedInAt`, and `clearedAt`.
+- **Track User Agent and IP Address on Sessions**
+  - Enhance session tracking to store:
+    - User agent
+    - IP address
 
-- **Archived Sessions Endpoint**
-  - Add a route to retrieve a list of archived sessions with filtering options, such as by date range.
+- **Enhanced Refresh Token Security**
+  - Add IP/device validation for refresh token usage:
+    - Validate tokens against the stored user agent and IP address (or a device hash).
+    - Allow IP changes within a safe threshold (e.g., same subnet).
+
+- **Support for Access Token Request Flow**
+  - Implement the standard OAuth2 autheroization code flow for additional client use cases.
+    - Focus on a child function React component implementation that allows complete stylistic control over the inputs.
+    - Make sure to keep front-end and back-end (SDK fetch client) implementation simple (probably through dog-fooding).
 
