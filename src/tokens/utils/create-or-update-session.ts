@@ -29,7 +29,7 @@ export const createOrUpdateSession = async ({
 }: {
   clientId: string;
   userId: string;
-  sessionId?: string;
+  sessionId?: string | false;
   env: Bindings;
 }): Promise<CreateSessionResult | false> => {
   // Get the current time once
@@ -45,7 +45,7 @@ export const createOrUpdateSession = async ({
     client;
 
   // Re-use the provided session ID or create a new one
-  const sessionId = providedSessionId?.length
+  const sessionId = providedSessionId && providedSessionId?.length
     ? providedSessionId
     : hyperid({ urlSafe: true })();
 

@@ -7,8 +7,8 @@ export const invalidateTokens = async ({
   refreshTokenKey,
 }: {
   env: Bindings;
-  accessTokenKey?: string | false;
-  refreshTokenKey?: string | false;
+  accessTokenKey?: string | false | null;
+  refreshTokenKey?: string | false | null;
 }) => {
   const revokedAt = Date.now();
 

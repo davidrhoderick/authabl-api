@@ -7,7 +7,11 @@ import {
   validationRoute,
   webTokenRoute,
 } from "./routes";
-import { ACCESSTOKEN_COOKIE, REFRESHTOKEN_COOKIE } from "../common/constants";
+import {
+  ACCESSTOKEN_COOKIE,
+  REFRESHTOKEN_COOKIE,
+  SESSION_PREFIX,
+} from "../common/constants";
 import { loginVerification } from "../common/utils";
 import { setCookie } from "hono/cookie";
 import { clientAuthentication } from "../middleware/client-authentication";
@@ -19,6 +23,7 @@ import {
   ArchiveSessionInput,
   invalidateTokens,
 } from "./utils";
+import { SessionValue } from "./types";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 
@@ -39,7 +44,22 @@ app
 
       if (!user) return c.json({ code: 401, message: "Unauthorized" }, 401);
 
+      // Detect the access token
+      const accessTokenResult = await detectAccessToken(c, true);
+
+      // Detect the refresh token
+      const refreshTokenResult = await detectRefreshToken(c, undefined, true);
+
+      // Archive the current session tokens
+      await invalidateTokens({
+        env: c.env,
+        refreshTokenKey:
+          refreshTokenResult && refreshTokenResult.refreshTokenKey,
+        accessTokenKey: accessTokenResult && accessTokenResult.accessTokenKey,
+      });
+
       const result = await createOrUpdateSession({
+        sessionId: accessTokenResult && accessTokenResult.sessionId,
         clientId,
         userId: user.id,
         env: c.env,
@@ -87,7 +107,32 @@ app
 
       if (!user) return c.json({ code: 401, message: "Unauthorized" }, 401);
 
+      // Detect the access token
+      const accessTokenResult = await detectAccessToken(c, true);
+
+      let refreshTokenKey: undefined | string | null;
+
+      if (accessTokenResult) {
+        // Detect the refresh token
+        const session = await c.env.KV.get<SessionValue>(
+          `${SESSION_PREFIX}:${accessTokenResult.clientId}:${accessTokenResult.userId}:${accessTokenResult.sessionId}`,
+          "json"
+        );
+
+        if (session?.refreshTokenIndexKey) {
+          refreshTokenKey = await c.env.KV.get(session.refreshTokenIndexKey);
+        }
+      }
+
+      // Archive the current session tokens
+      await invalidateTokens({
+        env: c.env,
+        accessTokenKey: accessTokenResult && accessTokenResult.accessTokenKey,
+        refreshTokenKey,
+      });
+
       const result = await createOrUpdateSession({
+        sessionId: accessTokenResult && accessTokenResult.sessionId,
         clientId,
         userId: user.id,
         env: c.env,
