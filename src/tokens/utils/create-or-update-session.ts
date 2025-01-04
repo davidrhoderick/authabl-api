@@ -21,20 +21,21 @@ type CreateSessionResult = {
   refreshTokenValidity?: number;
 };
 
-export const createSession = async ({
+export const createOrUpdateSession = async ({
   clientId,
   userId,
+  sessionId: providedSessionId,
   env,
 }: {
   clientId: string;
   userId: string;
+  sessionId?: string;
   env: Bindings;
 }): Promise<CreateSessionResult | false> => {
   // Get the current time once
   const iat = Date.now();
 
-  // Start a new hyperid instance
-  const sessionIdInstance = hyperid({ urlSafe: true });
+  // Start a new hyperid instance for tokens
   const tokenIdInstance = hyperid();
 
   // Get the client settings
@@ -43,8 +44,10 @@ export const createSession = async ({
   const { accessTokenValidity, disableRefreshToken, refreshTokenValidity } =
     client;
 
-  // Create the session ID
-  const sessionId = sessionIdInstance();
+  // Re-use the provided session ID or create a new one
+  const sessionId = providedSessionId?.length
+    ? providedSessionId
+    : hyperid({ urlSafe: true })();
 
   // Create the access token data
   const accessTokenData: TokenPayload = {

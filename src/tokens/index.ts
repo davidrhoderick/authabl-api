@@ -12,7 +12,7 @@ import { loginVerification } from "../common/utils";
 import { setCookie } from "hono/cookie";
 import { clientAuthentication } from "../middleware/client-authentication";
 import {
-  createSession,
+  createOrUpdateSession,
   archiveSession,
   detectAccessToken,
   detectRefreshToken,
@@ -38,7 +38,7 @@ app
 
       if (!user) return c.json({ code: 401, message: "Unauthorized" }, 401);
 
-      const result = await createSession({
+      const result = await createOrUpdateSession({
         clientId,
         userId: user.id,
         env: c.env,
@@ -86,7 +86,7 @@ app
 
       if (!user) return c.json({ code: 401, message: "Unauthorized" }, 401);
 
-      const result = await createSession({
+      const result = await createOrUpdateSession({
         clientId,
         userId: user.id,
         env: c.env,
@@ -154,20 +154,20 @@ app
           : undefined,
       });
 
-      // TODO Refresh the session
       // Create a new session
-      const sessionCreationResult = await createSession({
+      const sessionResult = await createOrUpdateSession({
         clientId: refreshTokenResult.clientId,
         userId: refreshTokenResult.userId,
+        sessionId: refreshTokenResult.sessionId,
         env: c.env,
       });
 
       // If session creation fails, return 401
-      if (!sessionCreationResult)
+      if (!sessionResult)
         return c.json({ code: 401, message: "Unauthorized" }, 401);
 
       const { accessToken, accessTokenValidity, disableRefreshToken } =
-        sessionCreationResult;
+      sessionResult;
 
       const path = `/`;
 
@@ -177,7 +177,7 @@ app
         if (refreshToken)
           // Return the refresh & access tokens in the response
           return c.json(
-            { refreshToken: sessionCreationResult.refreshToken, accessToken },
+            { refreshToken: sessionResult.refreshToken, accessToken },
             200
           );
         // Otherwise, set the refresh token as a cookie
@@ -185,11 +185,11 @@ app
           setCookie(
             c,
             REFRESHTOKEN_COOKIE,
-            sessionCreationResult.refreshToken!,
+            sessionResult.refreshToken!,
             {
               path,
               httpOnly: true,
-              maxAge: sessionCreationResult.refreshTokenValidity!,
+              maxAge: sessionResult.refreshTokenValidity!,
               sameSite: "lax",
             }
           );
