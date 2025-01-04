@@ -98,9 +98,11 @@ app
       if (!session?.value)
         return c.json({ code: 404, message: "Not found" }, 404);
 
+      const sessionAccessTokenPrefix = `${SESSIONACCESSTOKEN_PREFIX}:${clientId}:${userId}:${sessionId}:`;
+
       const sessionAccessTokens =
         await c.env.KV.list<SessionAccessTokenMetadata>({
-          prefix: `${SESSIONACCESSTOKEN_PREFIX}:${clientId}:${userId}:${sessionId}`,
+          prefix: sessionAccessTokenPrefix,
         });
 
       const accessTokens = [];
@@ -118,11 +120,11 @@ app
               accessTokenResult &&
               accessTokenResult.accessTokenIndexKey ===
                 sessionAccessToken.metadata?.accessTokenIndexKey,
-            id: value.sid,
-            clientId: value.aud,
-            userId: value.sub,
             createdAt: value.iat,
             expiresAt: value.exp,
+            id: sessionAccessToken.name.substring(
+              sessionAccessTokenPrefix.length
+            ),
           } as z.infer<typeof AccessToken>);
       }
 
@@ -134,9 +136,11 @@ app
         true
       );
 
+      const sessionRefreshTokenPrefix = `${SESSIONREFRESHTOKEN_PREFIX}:${clientId}:${userId}:${sessionId}:`;
+
       const sessionRefreshTokens =
         await c.env.KV.list<SessionRefreshTokenMetadata>({
-          prefix: `${SESSIONREFRESHTOKEN_PREFIX}:${clientId}:${userId}:${sessionId}`,
+          prefix: sessionRefreshTokenPrefix,
         });
 
       const refreshTokens = [];
@@ -154,11 +158,11 @@ app
               refreshTokenResult &&
               refreshTokenResult.refreshTokenIndexKey ===
                 sessionRefreshToken.metadata?.refreshTokenIndexKey,
-            id: value.sid,
-            clientId: value.aud,
-            userId: value.sub,
             createdAt: value.iat,
             expiresAt: value.exp,
+            id: sessionRefreshToken.name.substring(
+              sessionRefreshTokenPrefix.length
+            ),
           } as z.infer<typeof RefreshToken>);
       }
 
@@ -167,6 +171,8 @@ app
           session: {
             id: sessionId,
             createdAt: session.metadata!.createdAt,
+            clientId,
+            userId,
           },
           accessTokens,
           refreshTokens,

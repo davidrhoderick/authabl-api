@@ -51,11 +51,10 @@ export const RefreshTokenQuery = z.object({
 export const AccessToken = z
   .object({
     id: z.string().trim().min(1),
-    userId: z.string().trim().min(1),
-    clientId: z.string().trim().min(1),
-    createdAt: z.number(),
-    expiresAt: z.number(),
-    accessTokenValidity: z.number(),
+    createdAt: z.number().int(),
+    expiresAt: z.number().int(),
+    revokedAt: z.number().int().optional(),
+    accessTokenValidity: z.number().int(),
     current: z.boolean(),
   })
   .openapi("AccessToken");
@@ -63,10 +62,10 @@ export const AccessToken = z
 export const RefreshToken = z
   .object({
     id: z.string().trim().min(1),
-    userId: z.string().trim().min(1),
-    clientId: z.string().trim().min(1),
-    expiresAt: z.number(),
-    refreshTokenValidity: z.number(),
+    createdAt: z.number().int(),
+    expiresAt: z.number().int(),
+    revokedAt: z.number().int().optional(),
+    refreshTokenValidity: z.number().int(),
     current: z.boolean(),
   })
   .openapi("RefreshToken");
@@ -74,6 +73,8 @@ export const RefreshToken = z
 export const GetSessionResponseSchema = z.object({
   session: z.object({
     id: z.string().trim().min(1),
+    clientId: z.string().trim().min(1),
+    userId: z.string().trim().min(1),
     createdAt: z.number(),
   }),
   accessTokens: z.array(AccessToken),
