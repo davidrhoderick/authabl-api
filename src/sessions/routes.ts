@@ -18,7 +18,8 @@ const tags = ["OAuth"];
 
 export const listSessionsRoute = createRoute({
   tags,
-  description: "Lists all sessions for a user.  Detects the current session via either a Bearer token, if used from a mobile device, or the `oauthabl_accesstoken` cookie, if used from a web client.",
+  description:
+    "Lists all sessions for a user.  Detects the current session via either a Bearer token, if used from a mobile device, or the `oauthabl_accesstoken` cookie, if used from a web client.",
   method: "get",
   path: "/{clientId}/{userId}",
   request: {
@@ -194,6 +195,7 @@ export const clearSessionRoute = createRoute({
 
 export const clearSessionsRoute = createRoute({
   tags,
+  description: "Archive all sessions for a user.",
   method: "delete",
   path: "/{clientId}/{userId}",
   request: {
