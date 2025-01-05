@@ -31,12 +31,14 @@ export const createOrUpdateSession = async ({
   refreshToken: providedRefreshToken,
   refreshTokenResult: providedRefreshTokenResult,
   c,
+  forceNew,
 }: {
   clientId: string;
   userId: string;
   refreshToken?: string;
   refreshTokenResult?: RefreshTokenResult;
   c: Context<{ Bindings: Bindings }>;
+  forceNew?: boolean;
 }): Promise<CreateSessionResult | false> => {
   // Detect the access token
   const accessTokenResult = await detectAccessToken(c, true);
@@ -85,7 +87,7 @@ export const createOrUpdateSession = async ({
 
   // Re-use the provided session ID or create a new one
   const sessionId =
-    accessTokenResult && accessTokenResult.sessionId?.length
+    !forceNew && accessTokenResult && accessTokenResult.sessionId?.length
       ? accessTokenResult.sessionId
       : hyperid({ urlSafe: true })();
 

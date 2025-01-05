@@ -9,6 +9,7 @@ import {
 import { generateEmailVerificationCode, getUser } from "../common/utils";
 import { UserMetadata, UserValue } from "../users/types";
 import { clientAuthentication } from "../middleware/client-authentication";
+import { createOrUpdateSession } from "../tokens/utils";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 
@@ -48,6 +49,13 @@ app
 
         await c.env.KV.put(`${EMAIL_PREFIX}:${clientId}:${email}`, id, {
           metadata: { emailVerified: true },
+        });
+
+        await createOrUpdateSession({
+          c,
+          userId: id,
+          clientId,
+          forceNew: true,
         });
 
         return c.json({ code: 200, message: "Email verified" }, 200);

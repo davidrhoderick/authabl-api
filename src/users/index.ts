@@ -19,7 +19,7 @@ import { generateEmailVerificationCode, hashPassword } from "../common/utils";
 import { User, UserMetadata, UserValue } from "./types";
 import { clientAuthentication } from "../middleware/client-authentication";
 import { SessionMetadata } from "../tokens/types";
-import { archiveSession } from "../tokens/utils";
+import { archiveSession, createOrUpdateSession } from "../tokens/utils";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 
@@ -104,6 +104,9 @@ app
         JSON.stringify({ password }),
         options
       );
+
+      if (!rest.verifyEmail)
+        await createOrUpdateSession({ clientId, userId: id, c, forceNew: true });
 
       return c.json(response, 200);
     } catch (error) {
