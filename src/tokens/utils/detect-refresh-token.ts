@@ -1,80 +1,82 @@
-import { decode } from "hono/jwt";
-import { Bindings } from "../../common/types";
-import {
-  REFRESHTOKEN_COOKIE,
-  REFRESHTOKENINDEX_PREFIX,
-} from "../../common/constants";
-import { Context } from "hono";
+import type { Context } from "hono";
 import { getCookie } from "hono/cookie";
+import { decode } from "hono/jwt";
 import {
-  AccessTokenResult,
-  RefreshTokenMetadata,
-  RefreshTokenResult,
-  TokenPayload,
+	REFRESHTOKENINDEX_PREFIX,
+	REFRESHTOKEN_COOKIE,
+} from "../../common/constants";
+import type { Bindings } from "../../common/types";
+import type {
+	AccessTokenResult,
+	RefreshTokenMetadata,
+	RefreshTokenResult,
+	TokenPayload,
 } from "../types";
 
 export const detectRefreshToken = async (
-  c: Context<{ Bindings: Bindings }>,
-  refreshTokenBody?: string,
-  returnToken?: boolean
-): Promise<false | RefreshTokenResult> => {
-  const now = Date.now();
+	c: Context<{ Bindings: Bindings }>,
+	refreshTokenBody?: string,
+	returnToken?: boolean,
+): Promise<undefined | RefreshTokenResult> => {
+	const now = Date.now();
 
-  const refreshTokenCookie = getCookie(c, REFRESHTOKEN_COOKIE);
+	const refreshTokenCookie = getCookie(c, REFRESHTOKEN_COOKIE);
 
-  if (!refreshTokenCookie?.length && !refreshTokenBody?.length) return false;
+	if (!refreshTokenCookie?.length && !refreshTokenBody?.length) return;
 
-  const refreshToken = refreshTokenCookie?.length
-    ? refreshTokenCookie
-    : refreshTokenBody;
+	const refreshToken = refreshTokenCookie?.length
+		? refreshTokenCookie
+		: refreshTokenBody;
 
-  const decodedRefreshToken = decode(refreshToken!);
+	if (!refreshToken) return;
 
-  if (!decodedRefreshToken) return false;
+	const decodedRefreshToken = decode(refreshToken);
 
-  const refreshTokenIndexKey = `${REFRESHTOKENINDEX_PREFIX}:${refreshToken}`;
+	if (!decodedRefreshToken) return;
 
-  const refreshTokenKey = await c.env.KV.get(refreshTokenIndexKey);
+	const refreshTokenIndexKey = `${REFRESHTOKENINDEX_PREFIX}:${refreshToken}`;
 
-  if (!refreshTokenKey) return false;
+	const refreshTokenKey = await c.env.KV.get(refreshTokenIndexKey);
 
-  const refreshTokenItem = await c.env.KV.getWithMetadata<
-    TokenPayload,
-    RefreshTokenMetadata
-  >(refreshTokenKey, "json");
+	if (!refreshTokenKey) return;
 
-  if (!refreshTokenItem.value || !refreshTokenItem.metadata) return false;
+	const refreshTokenItem = await c.env.KV.getWithMetadata<
+		TokenPayload,
+		RefreshTokenMetadata
+	>(refreshTokenKey, "json");
 
-  const { payload } = decodedRefreshToken as unknown as {
-    payload: TokenPayload;
-  };
+	if (!refreshTokenItem.value || !refreshTokenItem.metadata) return;
 
-  if (
-    payload.iss === "oauthabl" &&
-    payload.aud === refreshTokenItem.value.aud &&
-    payload.sub === refreshTokenItem.value.sub &&
-    payload.exp === refreshTokenItem.value.exp &&
-    now < payload.exp &&
-    now > payload.iat &&
-    (!refreshTokenItem.metadata.revokedAt ||
-      now < refreshTokenItem.metadata.revokedAt)
-  ) {
-    const result: AccessTokenResult = {
-      userId: payload.sub,
-      clientId: payload.aud,
-      expiresAt: payload.exp,
-      createdAt: payload.iat,
-      sessionId: payload.sid,
-    };
+	const { payload } = decodedRefreshToken as unknown as {
+		payload: TokenPayload;
+	};
 
-    if (returnToken)
-      return {
-        ...result,
-        refreshTokenIndexKey,
-        refreshTokenKey,
-      };
-    return result;
-  }
+	if (
+		payload.iss === "oauthabl" &&
+		payload.aud === refreshTokenItem.value.aud &&
+		payload.sub === refreshTokenItem.value.sub &&
+		payload.exp === refreshTokenItem.value.exp &&
+		now < payload.exp &&
+		now > payload.iat &&
+		(!refreshTokenItem.metadata.revokedAt ||
+			now < refreshTokenItem.metadata.revokedAt)
+	) {
+		const result: AccessTokenResult = {
+			userId: payload.sub,
+			clientId: payload.aud,
+			expiresAt: payload.exp,
+			createdAt: payload.iat,
+			sessionId: payload.sid,
+		};
 
-  return false;
+		if (returnToken)
+			return {
+				...result,
+				refreshTokenIndexKey,
+				refreshTokenKey,
+			};
+		return result;
+	}
+
+	return;
 };

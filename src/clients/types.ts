@@ -1,5 +1,5 @@
-import { ClientSchema } from "./schemas";
-import { z } from "@hono/zod-openapi";
+import type { z } from "@hono/zod-openapi";
+import type { ClientSchema } from "./schemas";
 
 export type Client = z.infer<typeof ClientSchema>;
 

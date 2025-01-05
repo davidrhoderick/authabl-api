@@ -1,5 +1,5 @@
-import { z } from "@hono/zod-openapi";
-import { ArchivedSessionSchema } from "./schemas";
+import type { z } from "@hono/zod-openapi";
+import type { ArchivedSessionSchema } from "./schemas";
 
 export type ArchivedSession = z.infer<typeof ArchivedSessionSchema>;
 
