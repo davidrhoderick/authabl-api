@@ -1,23 +1,26 @@
 {
-	"name": "hono-oath2-admin-api",
-	"scripts": {
-		"dev": "doppler run --mount .dev.vars --mount-format env -- wrangler dev",
-		"deploy": "wrangler deploy --minify"
-	},
-	"dependencies": {
-		"@hono/swagger-ui": "^0.5.0",
-		"@hono/zod-openapi": "^0.18.3",
-		"bcrypt-edge": "^0.1.0",
-		"hono": "^4.6.14",
-		"hyperid": "^3.3.0"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "1.9.4",
-		"@cloudflare/workers-types": "^4.20241216.0",
-		"wrangler": "^3.99.0"
-	},
-	"engines": {
-		"node": "22.12.0"
-	},
-	"packageManager": "yarn@4.6.0"
+  "name": "hono-oath2-admin-api",
+  "scripts": {
+    "dev": "doppler run --mount .dev.vars --mount-format env -- wrangler dev",
+    "deploy": "wrangler deploy --minify",
+    "test": "vitest --run --coverage"
+  },
+  "dependencies": {
+    "@hono/swagger-ui": "^0.5.0",
+    "@hono/zod-openapi": "^0.18.3",
+    "bcrypt-edge": "^0.1.0",
+    "hono": "^4.6.14",
+    "hyperid": "^3.3.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@cloudflare/vitest-pool-workers": "^0.5.40",
+    "@cloudflare/workers-types": "^4.20241216.0",
+    "vitest": "2.1.8",
+    "wrangler": "^3.99.0"
+  },
+  "engines": {
+    "node": "22.12.0"
+  },
+  "packageManager": "yarn@4.6.0"
 }
