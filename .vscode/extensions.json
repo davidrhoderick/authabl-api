@@ -1,0 +1,10 @@
+{
+	"recommendations": [
+		"biomejs.biome",
+		"ryanluker.vscode-coverage-gutters",
+		"doppler.doppler-vscode",
+		"wix.vscode-import-cost",
+		"sonarsource.sonarlint-vscode",
+		"pflannery.vscode-versionlens"
+	]
+}
