@@ -53,6 +53,24 @@ app
     if (!rest.username?.length && !rest.email?.length)
       return c.json({ code: 400, message: "Bad Request" }, 400);
 
+    if (rest.username) {
+      const existingUserByUsername = await c.env.KV.get(
+        `${USERNAME_PREFIX}:${clientId}:${rest.username}`
+      );
+
+      if (existingUserByUsername)
+        return c.json({ code: 422, message: "Unprocessable Entity" }, 422);
+    }
+
+    if (rest.email) {
+      const existingUserByEmail = await c.env.KV.get(
+        `${EMAIL_PREFIX}:${clientId}:${rest.email}`
+      );
+
+      if (existingUserByEmail)
+        return c.json({ code: 422, message: "Unprocessable Entity" }, 422);
+    }
+
     try {
       const password = await hashPassword(rawPassword);
 

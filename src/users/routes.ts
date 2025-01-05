@@ -6,6 +6,7 @@ import {
   ClientIdParamSchema,
   ClientIdUserIdParamSchema,
   User,
+  UnprocessableEntitySchema,
 } from "../common/schemas";
 import {
   RegistrationBodySchema,
@@ -62,6 +63,14 @@ export const registrationRoute = createRoute({
         },
       },
       description: "Unauthorized",
+    },
+    422: {
+      content: {
+        "application/json": {
+          schema: UnprocessableEntitySchema,
+        },
+      },
+      description: "Unprocessable Entity",
     },
     500: {
       content: {
