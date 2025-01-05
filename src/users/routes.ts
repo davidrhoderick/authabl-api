@@ -13,6 +13,7 @@ import {
   UsersListResponseSchema,
 } from "./schemas";
 import { GetUserParamSchema } from "../tokens/schemas";
+import { EmailVerificationBodySchema } from "../emails/schemas";
 
 const tags = ["OAuth"];
 
@@ -161,46 +162,47 @@ export const getUserRoute = createRoute({
   },
 });
 
-// export const forgottenPasswordRoute = createRoute({
-//   tags,
-//   method: "post",
-//   path: "/{clientId}/forgotten-password",
-//   request: {
-//     body: {
-//       content: {
-//         "application/json": {
-//           schema: EmailVerificationBodySchema,
-//         },
-//       },
-//     },
-//   },
-//   responses: {
-//     200: {
-//       description: "Email sent",
-//     },
-//     400: {
-//       content: {
-//         "application/json": {
-//           schema: BadRequestSchema,
-//         },
-//       },
-//       description: "Bad Request",
-//     },
-//     401: {
-//       content: {
-//         "application/json": {
-//           schema: UnauthorizedSchema,
-//         },
-//       },
-//       description: "Unauthorized",
-//     },
-//     500: {
-//       content: {
-//         "application/json": {
-//           schema: InternalServerErrorSchema,
-//         },
-//       },
-//       description: "Internal server error",
-//     },
-//   },
-// });
+export const forgottenPasswordRoute = createRoute({
+  tags,
+  method: "post",
+  path: "/{clientId}/forgotten-password",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          // TODO replace this
+          schema: EmailVerificationBodySchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Email sent",
+    },
+    400: {
+      content: {
+        "application/json": {
+          schema: BadRequestSchema,
+        },
+      },
+      description: "Bad Request",
+    },
+    401: {
+      content: {
+        "application/json": {
+          schema: UnauthorizedSchema,
+        },
+      },
+      description: "Unauthorized",
+    },
+    500: {
+      content: {
+        "application/json": {
+          schema: InternalServerErrorSchema,
+        },
+      },
+      description: "Internal server error",
+    },
+  },
+});

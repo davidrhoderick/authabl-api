@@ -2,6 +2,7 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { Bindings } from "../common/types";
 import {
   deleteUserRoute,
+  forgottenPasswordRoute,
   getUserRoute,
   // forgottenPasswordRoute,
   listUsersRoute,
@@ -211,10 +212,46 @@ app
       console.error(error);
       return c.json({ code: 500, message: "Internal Server Error" }, 500);
     }
+  })
+  // TODO
+  .openapi(forgottenPasswordRoute, async (c) => {
+    // Validate the input
+
+    // Look up the user by the email address
+    // Return if not found
+
+    // Create a unique code by user ID/email address
+
+    // Return it to the resource server
+    return c.json({ code: 200, message: "Email sent" }, 200);
+  })
+  // TODO Update completely for reset password
+  .openapi(forgottenPasswordRoute, async (c) => {
+    // Validate the input
+
+    // Look up the user by the email address
+    // Return if not found
+
+    // Look up the code by user ID/email address
+    // Return if not found
+
+    // Validate the code
+
+    // Update the user
+
+    // Return success
+    return c.json({ code: 200, message: "Email sent" }, 200);
+  })
+  // TODO Update completely for patch user
+  .openapi(forgottenPasswordRoute, async (c) => {
+    // Validate the input
+
+    // Look up the user ID
+
+    // Update the user data
+
+    // Return the new user
+    return c.json({ code: 200, message: "Email sent" }, 200);
   });
-// TODO
-// .openapi(forgottenPasswordRoute, async (c) => {
-//   return c.json({ code: 200, message: "Email sent" }, 200);
-// });
 
 export default app;
