@@ -163,7 +163,7 @@ describe("Clients", () => {
 		).json();
 
 		const updateResponse = await SELF.fetch(
-			`https://api.oauthabl.com/clients/${createResult.id}`,
+			`https://api.oauthabl.com/clients/${createResult.id}1`,
 			{
 				method: "patch",
 				body: JSON.stringify(updateClient),
