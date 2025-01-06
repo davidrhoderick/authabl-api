@@ -45,7 +45,7 @@ Using the "Coverage Gutters" extension might work (there's an issue with the `te
 
    - Add a new endpoint for updating user data:
      - `username`
-     - `email` (or emails)
+     - `emails`
      - `password`
    - Add a new `updatedAt` property
 
