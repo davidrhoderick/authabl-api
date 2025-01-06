@@ -21,73 +21,63 @@ app
 
 		const clientId = c.req.param("clientId");
 
-		try {
-			const id = await c.env.KV.get(
-				`${EMAIL_PREFIX}:${clientId}:${email}`,
-				"text",
+		const id = await c.env.KV.get(
+			`${EMAIL_PREFIX}:${clientId}:${email}`,
+			"text",
+		);
+
+		if (!id) return c.json({ code: 404, message: "Not found" }, 404);
+
+		const verificationCodeKey = `${VERIFICATIONCODE_PREFIX}:${clientId}:${id}`;
+
+		const verificationCode = await c.env.KV.get(verificationCodeKey);
+
+		if (code === verificationCode) {
+			const userResponse = await c.env.KV.getWithMetadata<
+				UserValue,
+				UserMetadata
+			>(`${USER_PREFIX}:${clientId}:${id}`, "json");
+
+			await c.env.KV.put(
+				`${USER_PREFIX}:${clientId}:${id}`,
+				JSON.stringify(userResponse.value),
+				{ metadata: { ...userResponse.metadata, emailVerified: true } },
 			);
 
-			if (!id) return c.json({ code: 404, message: "Not found" }, 404);
+			await c.env.KV.delete(verificationCodeKey);
 
-			const verificationCodeKey = `${VERIFICATIONCODE_PREFIX}:${clientId}:${id}`;
+			await c.env.KV.put(`${EMAIL_PREFIX}:${clientId}:${email}`, id, {
+				metadata: { emailVerified: true },
+			});
 
-			const verificationCode = await c.env.KV.get(verificationCodeKey);
+			await createOrUpdateSession({
+				c,
+				userId: id,
+				clientId,
+				forceNew: true,
+			});
 
-			if (code === verificationCode) {
-				const userResponse = await c.env.KV.getWithMetadata<
-					UserValue,
-					UserMetadata
-				>(`${USER_PREFIX}:${clientId}:${id}`, "json");
-
-				await c.env.KV.put(
-					`${USER_PREFIX}:${clientId}:${id}`,
-					JSON.stringify(userResponse.value),
-					{ metadata: { ...userResponse.metadata, emailVerified: true } },
-				);
-
-				await c.env.KV.delete(verificationCodeKey);
-
-				await c.env.KV.put(`${EMAIL_PREFIX}:${clientId}:${email}`, id, {
-					metadata: { emailVerified: true },
-				});
-
-				await createOrUpdateSession({
-					c,
-					userId: id,
-					clientId,
-					forceNew: true,
-				});
-
-				return c.json({ code: 200, message: "Email verified" }, 200);
-				// biome-ignore lint/style/noUselessElse: <explanation>
-			} else {
-				return c.json({ code: 422, message: "Unprocessable Entity" }, 422);
-			}
-		} catch (error) {
-			console.error(error);
-			return c.json({ code: 500, message: "Internal server error" }, 500);
+			return c.json({ code: 200, message: "Email verified" }, 200);
+			// biome-ignore lint/style/noUselessElse: <explanation>
+		} else {
+			return c.json({ code: 422, message: "Unprocessable Entity" }, 422);
 		}
 	})
 	.openapi(resendVerificationEmailRoute, async (c) => {
 		const clientId = c.req.param("clientId");
 		const { email } = c.req.valid("json");
 
-		try {
-			const user = await getUser({ kv: c.env.KV, email, clientId });
+		const user = await getUser({ kv: c.env.KV, email, clientId });
 
-			if (!user?.id) return c.json({ code: 404, message: "Not found" }, 404);
+		if (!user?.id) return c.json({ code: 404, message: "Not found" }, 404);
 
-			const code = await generateEmailVerificationCode({
-				kv: c.env.KV,
-				clientId,
-				id: user.id,
-			});
+		const code = await generateEmailVerificationCode({
+			kv: c.env.KV,
+			clientId,
+			id: user.id,
+		});
 
-			return c.json({ code }, 200);
-		} catch (error) {
-			console.error(error);
-			return c.json({ code: 500, message: "Internal Server Error" }, 500);
-		}
+		return c.json({ code }, 200);
 	});
 
 export default app;

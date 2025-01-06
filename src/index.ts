@@ -21,7 +21,11 @@ app
 	// Token management for users
 	.route("/tokens", tokens)
 	// Session management for users
-	.route("/sessions", sessions);
+	.route("/sessions", sessions)
+	.onError((error, c) => {
+		console.error(JSON.stringify(error));
+		return c.json({ code: 500, message: "Internal server error" }, 500);
+	});
 
 app.openAPIRegistry.registerComponent("securitySchemes", "Client", {
 	type: "apiKey",

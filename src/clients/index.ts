@@ -19,16 +19,11 @@ app
 	.openapi(getClientRoute, async (c) => {
 		const { clientId } = c.req.valid("param");
 
-		try {
-			const result = await getClient({ kv: c.env.KV, clientId });
+		const result = await getClient({ kv: c.env.KV, clientId });
 
-			if (!result) return c.json({ code: 404, message: "Not found" }, 404);
+		if (!result) return c.json({ code: 404, message: "Not found" }, 404);
 
-			return c.json(result, 200);
-		} catch (error) {
-			console.error(error);
-			return c.json({ code: 500, message: "Internal server error" }, 500);
-		}
+		return c.json(result, 200);
 	})
 	.openapi(createClientRoute, async (c) => {
 		const idInstance = hyperid({ urlSafe: true });
@@ -38,81 +33,62 @@ app
 
 		const newClient = { ...c.req.valid("json"), id, secret };
 
-		try {
-			const { value, options } = splitMetadata(newClient);
-			await c.env.KV.put(`${CLIENT_PREFIX}:${id}`, value, options);
+		const { value, options } = splitMetadata(newClient);
+		await c.env.KV.put(`${CLIENT_PREFIX}:${id}`, value, options);
 
-			return c.json(newClient, 200);
-		} catch (error) {
-			console.error(error);
-			return c.json({ code: 500, message: "Internal server error" }, 500);
-		}
+		return c.json(newClient, 200);
 	})
 	.openapi(listClientRoute, async (c) => {
-		try {
-			const clients = await c.env.KV.list<ClientMetadata>({
-				prefix: `${CLIENT_PREFIX}:`,
-			});
+		const clients = await c.env.KV.list<ClientMetadata>({
+			prefix: `${CLIENT_PREFIX}:`,
+		});
 
-			return c.json(
-				clients.keys.length
-					? clients.keys.map(({ name: id, metadata }) => ({
-							id: id.substring(CLIENT_PREFIX.length + 1),
-							// @ts-expect-error metadata.name is always defined
-							name: metadata.name,
-							// @ts-expect-error metadata.secret is always defined
-							secret: metadata.secret,
-						}))
-					: [],
-				200,
-			);
-		} catch (error) {
-			console.error(error);
-			return c.json({ code: 500, message: "Internal server error" }, 500);
-		}
+		return c.json(
+			clients.keys.length
+				? clients.keys.map(({ name: id, metadata }) => ({
+						id: id.substring(CLIENT_PREFIX.length + 1),
+						// @ts-expect-error metadata.name is always defined
+						name: metadata.name,
+						// @ts-expect-error metadata.secret is always defined
+						secret: metadata.secret,
+					}))
+				: [],
+			200,
+		);
 	})
 	.openapi(updateClientRoute, async (c) => {
 		const { clientId } = c.req.valid("param");
 
 		const clientUpdates = c.req.valid("json");
 
-		try {
-			const response = await c.env.KV.getWithMetadata<
-				ClientValue,
-				ClientMetadata
-			>(`${CLIENT_PREFIX}:${clientId}`, "json");
+		const response = await c.env.KV.getWithMetadata<
+			ClientValue,
+			ClientMetadata
+		>(`${CLIENT_PREFIX}:${clientId}`, "json");
 
-			if (response.value === null || response.metadata === null)
-				return c.json({ code: 404, message: "Not found" }, 404);
+		if (response.value === null || response.metadata === null)
+			return c.json({ code: 404, message: "Not found" }, 404);
 
-			// @ts-expect-error these have to not be null by now
-			const oldClient = combineMetadata(response);
+		// @ts-expect-error these have to not be null by now
+		const oldClient = combineMetadata(response);
 
-			const newClient = {
-				...oldClient,
-				...clientUpdates,
-			};
+		const newClient = {
+			...oldClient,
+			...clientUpdates,
+		};
 
-			const { value, options } = splitMetadata(newClient);
+		const { value, options } = splitMetadata(newClient);
 
-			await c.env.KV.put(`${CLIENT_PREFIX}:${clientId}`, value, options);
+		await c.env.KV.put(`${CLIENT_PREFIX}:${clientId}`, value, options);
 
-			return c.json(newClient, 200);
-		} catch (error) {
-			console.error(error);
-			return c.json({ code: 500, message: "Internal server error" }, 500);
-		}
+		return c.json(newClient, 200);
 	})
 	.openapi(deleteClientRoute, async (c) => {
 		const { clientId } = c.req.valid("param");
-		try {
-			await c.env.KV.delete(`${CLIENT_PREFIX}:${clientId}`);
 
-			return c.json({ code: 200, message: "Client deleted" });
-		} catch (error) {
-			console.error(error);
-			return c.json({ code: 500, message: "Internal server error" }, 500);
-		}
+		await c.env.KV.delete(`${CLIENT_PREFIX}:${clientId}`);
+
+		return c.json({ code: 200, message: "Client deleted" });
 	});
 
 export default app;
