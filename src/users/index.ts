@@ -204,6 +204,10 @@ app
 			"json",
 		);
 
+		const sessions = await c.env.KV.list<SessionMetadata>({
+			prefix: `${SESSION_PREFIX}:${clientId}:${id}`,
+		});
+
 		if (!user.value || !user.metadata)
 			return c.json({ message: "Not found", code: 404 }, 404);
 
@@ -213,6 +217,7 @@ app
 				emailAddresses: user.metadata.emailAddresses,
 				username: user.metadata.username,
 				emailVerified: user.metadata.emailVerified,
+				sessions: sessions.keys.length,
 			},
 			200,
 		);

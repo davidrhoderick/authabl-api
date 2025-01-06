@@ -70,5 +70,6 @@ export const User = z
 		emailAddresses: z.array(z.string().email().regex(/[^:]*/)).optional(),
 		username: zodUsername.optional(),
 		emailVerified: z.boolean(),
+		sessions: z.number().int().optional(),
 	})
 	.openapi("User");
