@@ -88,21 +88,16 @@ app
 			// @ts-expect-error these have to not be null by now
 			const oldClient = combineMetadata(response);
 
-			try {
-				const newClient = {
-					...oldClient,
-					...clientUpdates,
-				};
+			const newClient = {
+				...oldClient,
+				...clientUpdates,
+			};
 
-				const { value, options } = splitMetadata(newClient);
+			const { value, options } = splitMetadata(newClient);
 
-				await c.env.KV.put(`${CLIENT_PREFIX}:${clientId}`, value, options);
+			await c.env.KV.put(`${CLIENT_PREFIX}:${clientId}`, value, options);
 
-				return c.json(newClient, 200);
-			} catch (error) {
-				console.error(error);
-				return c.json({ code: 500, message: "Internal server error" }, 500);
-			}
+			return c.json(newClient, 200);
 		} catch (error) {
 			console.error(error);
 			return c.json({ code: 500, message: "Internal server error" }, 500);

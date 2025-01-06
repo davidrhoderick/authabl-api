@@ -3,7 +3,8 @@
   "scripts": {
     "dev": "doppler run --mount .dev.vars --mount-format env -- wrangler dev",
     "deploy": "wrangler deploy --minify",
-    "test": "vitest --run --coverage"
+    "test": "vitest --coverage --run",
+    "test:watch": "vitest --coverage"
   },
   "dependencies": {
     "@hono/swagger-ui": "^0.5.0",
@@ -16,6 +17,7 @@
     "@biomejs/biome": "1.9.4",
     "@cloudflare/vitest-pool-workers": "^0.5.40",
     "@cloudflare/workers-types": "^4.20241216.0",
+    "@vitest/coverage-istanbul": "2.1.8",
     "vitest": "2.1.8",
     "wrangler": "^3.99.0"
   },

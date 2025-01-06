@@ -4,5 +4,7 @@
   },
   "[typescript]": {
     "editor.defaultFormatter": "biomejs.biome"
-  }
+  },
+  "coverage-gutters.coverageBaseDir": "coverage",
+  "vitest.nodeExecutable": "/home/davidr/n/bin/node"
 }
