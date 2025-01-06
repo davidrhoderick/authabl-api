@@ -8,8 +8,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     # needs: test
+    
     steps:
       - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.12.0
+          cache: 'yarn'
+      - name: Install Yarn
+        run: npm install --global yarn@4.6
+      - name: Verify Yarn and Node versions
+        run: |
+          node -v
+          yarn -v
       - name: Build & Deploy Worker
         uses: cloudflare/wrangler-action@v3
         with:
