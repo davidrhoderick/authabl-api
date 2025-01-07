@@ -17,10 +17,6 @@ jobs:
           cache: "yarn"
       - run: yarn
       - run: yarn test
-        env:
-          ACCESSTOKEN_SECRET: ${{ secrets.ACCESSTOKEN_SECRET }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          REFRESHTOKEN_SECRET: ${{ secrets.REFRESHTOKEN_SECRET }}
 
   deploy:
     runs-on: ubuntu-latest
