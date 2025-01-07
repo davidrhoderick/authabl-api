@@ -4,6 +4,7 @@ import { cors } from "hono/cors";
 
 import clients from "./clients";
 import emails from "./emails";
+import passwords from "./passwords";
 import sessions from "./sessions";
 import tokens from "./tokens";
 import users from "./users";
@@ -16,7 +17,9 @@ app
 	.route("/clients", clients)
 	// Users on clients
 	.route("/users", users)
-	// Emails and email addresses for users
+	// Password management
+	.route("/passwords", passwords)
+	// Email addresses for users
 	.route("/emails", emails)
 	// Token management for users
 	.route("/tokens", tokens)

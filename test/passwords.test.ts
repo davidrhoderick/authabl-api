@@ -1,6 +1,6 @@
 import { SELF } from "cloudflare:test";
-import type { Client } from "../../src/clients/types";
-import type { User } from "../../src/users/types";
+import type { Client } from "../src/clients/types";
+import type { User } from "../src/users/types";
 
 const email = "test@test.com";
 const originalPassword = "Testp4ssw0rd!";
@@ -97,12 +97,12 @@ const checkNewPassword = async (
 	}
 };
 
-describe("Forgotten password", () => {
+describe("Passwords", () => {
 	it("sends a code that can be used to change a user's password", async () => {
 		const { headers, clientId } = await bootstrap();
 
 		const forgottenPasswordResponse = await SELF.fetch(
-			`https://api.oauthabl.com/users/${clientId}/forgotten-password`,
+			`https://api.oauthabl.com/passwords/${clientId}/forgot`,
 			{
 				headers,
 				method: "POST",
@@ -117,7 +117,7 @@ describe("Forgotten password", () => {
 		const forgottenPasswordResult = await forgottenPasswordResponse.json();
 
 		const passwordResetResponse = await SELF.fetch(
-			`https://api.oauthabl.com/users/${clientId}/reset-password`,
+			`https://api.oauthabl.com/passwords/${clientId}/reset`,
 			{
 				headers,
 				method: "POST",
@@ -147,7 +147,7 @@ describe("Forgotten password", () => {
 		const { headers, clientId } = await bootstrap();
 
 		const forgottenPasswordResponse = await SELF.fetch(
-			`https://api.oauthabl.com/users/${clientId}/forgotten-password`,
+			`https://api.oauthabl.com/passwords/${clientId}/forgot`,
 			{
 				headers,
 				method: "POST",
@@ -162,7 +162,7 @@ describe("Forgotten password", () => {
 		const forgottenPasswordResult = await forgottenPasswordResponse.json();
 
 		const passwordResetResponse = await SELF.fetch(
-			`https://api.oauthabl.com/users/${clientId}/reset-password`,
+			`https://api.oauthabl.com/passwords/${clientId}/reset`,
 			{
 				headers,
 				method: "POST",
@@ -184,7 +184,7 @@ describe("Forgotten password", () => {
 		const { headers, clientId } = await bootstrap();
 
 		const forgottenPasswordResponse = await SELF.fetch(
-			`https://api.oauthabl.com/users/${clientId}/forgotten-password`,
+			`https://api.oauthabl.com/passwords/${clientId}/forgot`,
 			{
 				headers,
 				method: "POST",
@@ -199,7 +199,7 @@ describe("Forgotten password", () => {
 		const forgottenPasswordResult = await forgottenPasswordResponse.json();
 
 		const passwordResetResponse = await SELF.fetch(
-			`https://api.oauthabl.com/users/${clientId}/reset-password`,
+			`https://api.oauthabl.com/passwords/${clientId}/reset`,
 			{
 				headers,
 				method: "POST",
@@ -221,7 +221,7 @@ describe("Forgotten password", () => {
 		const { headers, clientId } = await bootstrap();
 
 		const forgottenPasswordResponse1 = await SELF.fetch(
-			`https://api.oauthabl.com/users/${clientId}/forgotten-password`,
+			`https://api.oauthabl.com/passwords/${clientId}/forgot`,
 			{
 				headers,
 				method: "POST",
@@ -236,7 +236,7 @@ describe("Forgotten password", () => {
 		const forgottenPasswordResult1 = await forgottenPasswordResponse1.json();
 
 		const forgottenPasswordResponse2 = await SELF.fetch(
-			`https://api.oauthabl.com/users/${clientId}/forgotten-password`,
+			`https://api.oauthabl.com/passwords/${clientId}/forgot`,
 			{
 				headers,
 				method: "POST",
@@ -251,7 +251,7 @@ describe("Forgotten password", () => {
 		const forgottenPasswordResult2 = await forgottenPasswordResponse2.json();
 
 		const passwordResetResponse1 = await SELF.fetch(
-			`https://api.oauthabl.com/users/${clientId}/reset-password`,
+			`https://api.oauthabl.com/passwords/${clientId}/reset`,
 			{
 				headers,
 				method: "POST",
@@ -266,7 +266,7 @@ describe("Forgotten password", () => {
 		expect(passwordResetResponse1.status).toBe(401);
 
 		const passwordResetResponse2 = await SELF.fetch(
-			`https://api.oauthabl.com/users/${clientId}/reset-password`,
+			`https://api.oauthabl.com/passwords/${clientId}/reset`,
 			{
 				headers,
 				method: "POST",

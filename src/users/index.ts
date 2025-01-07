@@ -13,11 +13,10 @@ import type { SessionMetadata } from "../tokens/types";
 import { archiveSession, createOrUpdateSession } from "../tokens/utils";
 import {
 	deleteUserRoute,
-	forgottenPasswordRoute,
 	getUserRoute,
-	// forgottenPasswordRoute,
 	listUsersRoute,
 	registrationRoute,
+	updateUserRoute,
 } from "./routes";
 import type { User, UserMetadata, UserValue } from "./types";
 
@@ -222,45 +221,18 @@ app
 			200,
 		);
 	})
-	// TODO
-	.openapi(forgottenPasswordRoute, async (c) => {
-		// Validate the input
-
-		// Look up the user by the email address
-		// Return if not found
-
-		// Create a unique code by user ID/email address
-
-		// Return it to the resource server
-		return c.json({ code: 200, message: "Email sent" }, 200);
-	})
-	// TODO Update completely for reset password
-	.openapi(forgottenPasswordRoute, async (c) => {
-		// Validate the input
-
-		// Look up the user by the email address
-		// Return if not found
-
-		// Look up the code by user ID/email address
-		// Return if not found
-
-		// Validate the code
-
-		// Update the user
-
-		// Return success
-		return c.json({ code: 200, message: "Email sent" }, 200);
-	})
 	// TODO Update completely for patch user
-	.openapi(forgottenPasswordRoute, async (c) => {
+	.openapi(updateUserRoute, async (c) => {
 		// Validate the input
+
+		// Check that usernames and emails
 
 		// Look up the user ID
 
 		// Update the user data
 
 		// Return the new user
-		return c.json({ code: 200, message: "Email sent" }, 200);
+		return c.json({}, 200);
 	});
 
 export default app;

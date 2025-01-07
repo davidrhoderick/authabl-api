@@ -10,8 +10,17 @@ export const RegistrationBodySchema = z
 	})
 	.openapi("RegistrationRequest");
 
-export const RegistrationResponse = User.extend({
+export const RegistrationOrUpdateResponse = User.extend({
 	code: z.string().regex(/\d{6}/).optional(),
 }).openapi("RegistrationResponse");
+
+export const UpdateBodySchema = z
+	.object({
+		emails: z.array(z.string().email().regex(/[^:]*/)).optional(),
+		username: zodUsername.optional(),
+		password: zodPassword.optional(),
+		verifyEmail: z.boolean().optional(),
+	})
+	.openapi("UpdateUserRequest");
 
 export const UsersListResponseSchema = z.array(User).openapi("Users");

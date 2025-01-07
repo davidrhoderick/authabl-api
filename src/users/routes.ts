@@ -8,11 +8,11 @@ import {
 	UnprocessableEntitySchema,
 	User,
 } from "../common/schemas";
-import { EmailVerificationBodySchema } from "../emails/schemas";
 import { GetUserParamSchema } from "../tokens/schemas";
 import {
 	RegistrationBodySchema,
-	RegistrationResponse,
+	RegistrationOrUpdateResponse,
+	UpdateBodySchema,
 	UsersListResponseSchema,
 } from "./schemas";
 
@@ -43,7 +43,7 @@ export const registrationRoute = createRoute({
 		200: {
 			content: {
 				"application/json": {
-					schema: RegistrationResponse,
+					schema: RegistrationOrUpdateResponse,
 				},
 			},
 			description: "User created",
@@ -171,23 +171,35 @@ export const getUserRoute = createRoute({
 	},
 });
 
-export const forgottenPasswordRoute = createRoute({
+export const updateUserRoute = createRoute({
 	tags,
-	method: "post",
-	path: "/{clientId}/forgotten-password",
+	description:
+		"Updates a user based.  Optionally triggers email verification by sending a `verifyEmail` flag.  Make sure the password is confirmed before setting.",
+	method: "patch",
+	path: "/{clientId}/{userId}",
 	request: {
 		body: {
 			content: {
 				"application/json": {
-					// TODO replace this
-					schema: EmailVerificationBodySchema,
+					schema: UpdateBodySchema,
 				},
 			},
 		},
+		params: ClientIdUserIdParamSchema,
 	},
+	security: [
+		{
+			Client: [],
+		},
+	],
 	responses: {
 		200: {
-			description: "Email sent",
+			content: {
+				"application/json": {
+					schema: RegistrationOrUpdateResponse,
+				},
+			},
+			description: "User created",
 		},
 		400: {
 			content: {
@@ -204,6 +216,14 @@ export const forgottenPasswordRoute = createRoute({
 				},
 			},
 			description: "Unauthorized",
+		},
+		422: {
+			content: {
+				"application/json": {
+					schema: UnprocessableEntitySchema,
+				},
+			},
+			description: "Unprocessable Entity",
 		},
 		500: {
 			content: {
