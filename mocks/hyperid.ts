@@ -1,4 +1,4 @@
-export default function () {
+export default function (args?: { urlSafe: boolean }) {
 	return (): string => {
 		const chars =
 			"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
