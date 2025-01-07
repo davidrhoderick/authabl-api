@@ -49,8 +49,8 @@ export const createOrUpdateSession = async ({
 		(await detectRefreshToken(c, providedRefreshToken, true));
 
 	// Set the refreshTokenKey by the refreshTokenResult
-	let refreshTokenKey: undefined | string | null | false =
-		refreshTokenResult?.refreshTokenKey || providedRefreshToken;
+	let refreshTokenKey: undefined | string | null =
+		refreshTokenResult?.refreshTokenKey ?? providedRefreshToken;
 
 	if (!refreshTokenKey && accessTokenResult) {
 		// Detect the refresh token
@@ -86,7 +86,7 @@ export const createOrUpdateSession = async ({
 
 	// Re-use the provided session ID or create a new one
 	const sessionId =
-		!forceNew && accessTokenResult && accessTokenResult.sessionId?.length
+		!forceNew && accessTokenResult?.sessionId?.length
 			? accessTokenResult.sessionId
 			: hyperid({ urlSafe: true })();
 
