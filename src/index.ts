@@ -5,6 +5,7 @@ import { cors } from "hono/cors";
 import clients from "./clients";
 import emails from "./emails";
 import passwords from "./passwords";
+import seed from "./seed";
 import sessions from "./sessions";
 import tokens from "./tokens";
 import users from "./users";
@@ -25,6 +26,9 @@ app
   .route("/tokens", tokens)
   // Session management for users
   .route("/sessions", sessions)
+  // Seed the database
+  .route("/seed", seed)
+  // Handle errors
   .onError((error, c) => {
     console.error(JSON.stringify(error));
     return c.json({ code: 500, message: "Internal server error" }, 500);

@@ -1,0 +1,88 @@
+import { Hono } from "hono";
+import type { Bindings } from "./common/types";
+import {
+  CLIENT_PREFIX,
+  EMAIL_PREFIX,
+  OAUATHABL_CLIENTID,
+  USER_PREFIX,
+} from "./common/constants";
+import type { Client, ClientValue } from "./clients/types";
+import type { UserMetadata, UserValue } from "./users/types";
+import { hashPassword } from "./common/utils";
+import { splitClientMetadata } from "./clients/utils";
+import hyperid from "hyperid";
+
+const app = new Hono<{ Bindings: Bindings }>();
+
+app.post("/", async (c) => {
+  const authorizationHeader = c.req.header("Authorization");
+  const seedToken = authorizationHeader?.split("Bearer ")[1];
+
+  if (seedToken !== c.env.SEED_TOKEN)
+    return c.json({ message: "Unauthorized", code: 401 }, 401);
+
+  try {
+    const clientKey = `${CLIENT_PREFIX}:${OAUATHABL_CLIENTID}`;
+    const clientExists = await c.env.KV.get<ClientValue>(clientKey);
+    if (!clientExists) {
+      const client: Client = {
+        id: "oauthabl",
+        name: "oauthabl",
+        allowedOrigins: ["http://localhost:8787", "https://api.oauthabl.com"],
+        accessTokenValidity: 3600,
+        refreshTokenValidity: 1209600,
+        disableRefreshToken: false,
+        refreshRefreshToken: true,
+        secret: hyperid()(),
+      };
+
+      const { value, options } = splitClientMetadata(client);
+
+      await c.env.KV.put(clientKey, value, options);
+      console.log("Created oauthabl client with ID");
+    } else {
+      console.log("oauthabl client already exists");
+    }
+
+    const emailKey = `${EMAIL_PREFIX}:${OAUATHABL_CLIENTID}:${c.env.SUPERADMIN_EMAIL}`;
+    const userId = await c.env.KV.get(emailKey);
+    if (userId) {
+      const userKey = `${USER_PREFIX}:${OAUATHABL_CLIENTID}:${userId}`;
+      const userExists = await c.env.KV.get<UserValue>(userKey, "json");
+      if (userExists) {
+        console.log("Superadmin already exists");
+      } else {
+        console.error("Inconsistent state: Email key found, but user missing");
+      }
+    } else {
+      // Create the superadmin user
+      const newUserId = crypto.randomUUID();
+      const createdAt = Date.now();
+      const updatedAt = createdAt;
+      const value: UserValue = {
+        password: await hashPassword(c.env.SUPERADMIN_PASSWORD),
+      };
+      const metadata: UserMetadata = {
+        emailAddresses: [c.env.SUPERADMIN_EMAIL],
+        emailVerified: true,
+        createdAt,
+        updatedAt,
+      };
+
+      // Save the user
+      const userKey = `${USER_PREFIX}:${OAUATHABL_CLIENTID}:${newUserId}`;
+      await c.env.KV.put(userKey, JSON.stringify(value), { metadata });
+      await c.env.KV.put(emailKey, newUserId);
+
+      console.log("Created superadmin");
+    }
+  } catch (error) {
+    console.error(error);
+    return c.json({ message: "Internal Server Error", code: 500 }, 500);
+  }
+
+  // Return the response
+  return c.json({ message: "Created superadmin", code: 200 }, 200);
+});
+
+export default app;
