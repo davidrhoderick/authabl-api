@@ -36,9 +36,7 @@ Using the "Coverage Gutters" extension might work (there's an issue with the `te
 
 ### Current Development Tasks
 
-1. **Document Forgotten Password Flow with Insomnia**
-
-2. **Implement user update endpoint**
+1. **Implement user update endpoint**
 
    - Add a new endpoint for updating user data:
      - `username`
@@ -46,21 +44,21 @@ Using the "Coverage Gutters" extension might work (there's an issue with the `te
      - `password`
    - Add a new `updatedAt` property
 
-3. **Add Roles or Permissions**
+2. **Add Roles or Permissions**
 
    - Implement role-based access control by adding a `role` field and role-checking middleware.
      - **`superadmin`**: Full control across all clients
      - **`clientadmin`**: Manage a singular client and associated users.
      - **`user` (or any resource server defined value, such as `admin` or `editor`)**: Role for resource servers/client usage (user is the fallback if `undefined`).
 
-4. **Add Role-Based Endpoint Security**
+3. **Add Role-Based Endpoint Security**
 
    - Ensure endpoint-level access restrictions:
      - `superadmin`-only endpoints (e.g., creating clients, managing `superadmin` users)
      - `clientadmin`-only endpoints (e.g., managing users for a client) via the `:clientId` URL parameter.
      - Ensure that `users` (and all others) can only access their own resources via the `:userId` URL parameter.
 
-5. **Set up OAuthabl Admin Client**
+4. **Set up OAuthabl Admin Client**
    - Add a special, protected admin client to manage:
      - `superadmin` creation (manual initial setup of first user).
      - Client creation and management
