@@ -260,9 +260,38 @@ app
       updatedAt: Date.now(),
     };
 
-    const { value: newValue, options } = splitUserMetadata(updatedUser);
+    const { value: rawNewValue, options } = splitUserMetadata(updatedUser);
+
+    const newValue = JSON.stringify({
+      password: await hashPassword(JSON.parse(rawNewValue).password),
+    } as UserValue);
 
     await c.env.KV.put(userKey, newValue, options);
+
+    if (newUser.username !== metadata.username) {
+      await c.env.KV.delete(
+        `${USERNAME_PREFIX}:${clientId}:${metadata.username}`,
+      );
+
+      await c.env.KV.put(
+        `${USERNAME_PREFIX}:${clientId}:${newUser.username}`,
+        userId,
+      );
+    }
+
+    if (newUser.emailAddresses?.length) {
+      for (const email of newUser.emailAddresses) {
+        if (!metadata.emailAddresses?.includes(email))
+          await c.env.KV.put(`${EMAIL_PREFIX}:${clientId}:${email}`, userId);
+      }
+    }
+
+    if (metadata.emailAddresses?.length) {
+      for (const email of metadata.emailAddresses) {
+        if (!newUser.emailAddresses?.includes(email))
+          await c.env.KV.delete(`${EMAIL_PREFIX}:${clientId}:${email}`);
+      }
+    }
 
     const { password: _password, ...response } = updatedUser;
 

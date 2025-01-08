@@ -36,29 +36,21 @@ Using the "Coverage Gutters" extension might work (there's an issue with the `te
 
 ### Current Development Tasks
 
-1. **Implement user update endpoint**
-
-   - Add a new endpoint for updating user data:
-     - `username`
-     - `emails`
-     - `password`
-   - Add a new `updatedAt` property
-
-2. **Add Roles or Permissions**
+1. **Add Roles or Permissions**
 
    - Implement role-based access control by adding a `role` field and role-checking middleware.
      - **`superadmin`**: Full control across all clients
      - **`clientadmin`**: Manage a singular client and associated users.
      - **`user` (or any resource server defined value, such as `admin` or `editor`)**: Role for resource servers/client usage (user is the fallback if `undefined`).
 
-3. **Add Role-Based Endpoint Security**
+2. **Add Role-Based Endpoint Security**
 
    - Ensure endpoint-level access restrictions:
      - `superadmin`-only endpoints (e.g., creating clients, managing `superadmin` users)
      - `clientadmin`-only endpoints (e.g., managing users for a client) via the `:clientId` URL parameter.
      - Ensure that `users` (and all others) can only access their own resources via the `:userId` URL parameter.
 
-4. **Set up OAuthabl Admin Client**
+3. **Set up OAuthabl Admin Client**
    - Add a special, protected admin client to manage:
      - `superadmin` creation (manual initial setup of first user).
      - Client creation and management
