@@ -4,6 +4,22 @@ on:
     branches:
       - master
 jobs:
+  Lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.12.0
+          cache: "yarn"
+      - name: Install dependencies
+        run: yarn
+      - name: Lint
+        run: yarn lint
+
   Test:
     runs-on: ubuntu-latest
     steps:
