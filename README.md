@@ -80,6 +80,6 @@ Using the "Coverage Gutters" extension might work (there's an issue with the `te
     - Allow IP changes within a safe threshold (e.g., same subnet).
 
 - **Support for Access Token Request Flow**
-  - Implement the standard OAuth2 autheroization code flow for additional client use cases.
+  - Implement the standard OAuth2 authorization code flow for additional client use cases.
     - Focus on a child function React component implementation that allows complete stylistic control over the inputs.
     - Make sure to keep front-end and back-end (SDK fetch client) implementation simple (probably through dog-fooding).
