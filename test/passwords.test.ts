@@ -1,5 +1,4 @@
 import { SELF } from "cloudflare:test";
-import type { Client } from "../src/clients/types";
 import {
   ACCESSTOKEN_COOKIE,
   REFRESHTOKEN_COOKIE,
@@ -7,33 +6,14 @@ import {
 import type { ForgotPasswordResponse } from "../src/passwords/types";
 import type { MobileTokenResponse } from "../src/tokens/types";
 import type { User } from "../src/users/types";
+import { bootstrapClient } from "./test-utils";
 
 const email = "test@test.com";
 const originalPassword = "Testp4ssw0rd!";
 const newPassword = "Newtestpassword12345!";
 
 const bootstrap = async () => {
-  const headers = new Headers({
-    "Content-Type": "application/json",
-  });
-
-  const clientResult: Client = await (
-    await SELF.fetch("https://api.oauthabl.com/clients", {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        name: "Test",
-        allowedOrigins: ["http://test.com"],
-        accessTokenValidity: 3600,
-        refreshTokenValidity: 1209600,
-        disableRefreshToken: false,
-        refreshRefreshToken: true,
-      }),
-    })
-  ).json();
-
-  headers.set("X-OAUTHABL-API-KEY", clientResult.secret);
-  const clientId = clientResult.id;
+  const { clientId, headers } = await bootstrapClient();
 
   await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
     method: "POST",
