@@ -65,3 +65,15 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+  Seed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    needs: Deploy
+    steps:
+      - env:
+          SEED_SECRET: ${{ secrets.SEED_TOKEN }}
+        run: |
+          curl -X POST "https://api.oauthabl.com" \
+            -H "Authorization: Bearer $SEED_TOKEN" \
+            -H "Content-Type: application/json"
