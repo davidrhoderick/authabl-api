@@ -8,12 +8,12 @@ import {
 	UnprocessableEntitySchema,
 	User,
 } from "../common/schemas";
-import { GetUserParamSchema } from "../tokens/schemas";
 import {
 	RegistrationBodySchema,
 	RegistrationOrUpdateResponse,
 	UpdateBodySchema,
 	UsersListResponseSchema,
+	GetUserParamSchema,
 } from "./schemas";
 
 const tags = ["OAuth"];
@@ -141,7 +141,7 @@ export const getUserRoute = createRoute({
 	tags,
 	description: "Gets a single user by either id, username, or email address.",
 	method: "get",
-	path: "/{clientId}/{userProperty}/{userIdentifier}",
+	path: "/{clientId}/{property}/{identifier}",
 	request: {
 		params: GetUserParamSchema,
 	},

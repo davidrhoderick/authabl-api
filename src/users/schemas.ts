@@ -1,5 +1,10 @@
 import { z } from "@hono/zod-openapi";
-import { User, zodPassword, zodUsername } from "../common/schemas";
+import {
+	ClientIdParamSchema,
+	User,
+	zodPassword,
+	zodUsername,
+} from "../common/schemas";
 
 export const RegistrationBodySchema = z
 	.object({
@@ -24,3 +29,8 @@ export const UpdateBodySchema = z
 	.openapi("UpdateUserRequest");
 
 export const UsersListResponseSchema = z.array(User).openapi("Users");
+
+export const GetUserParamSchema = ClientIdParamSchema.extend({
+	property: z.literal("id").or(z.literal("email")).or(z.literal("username")),
+	identifier: z.string().trim().min(1).optional(),
+});

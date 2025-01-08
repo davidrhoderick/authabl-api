@@ -7,7 +7,11 @@ import {
 	USER_PREFIX,
 } from "../common/constants";
 import type { Bindings } from "../common/types";
-import { generateEmailVerificationCode, hashPassword } from "../common/utils";
+import {
+	generateEmailVerificationCode,
+	getUserByProperty,
+	hashPassword,
+} from "../common/utils";
 import { clientAuthentication } from "../middleware/client-authentication";
 import type { SessionMetadata } from "../tokens/types";
 import { archiveSession, createOrUpdateSession } from "../tokens/utils";
@@ -85,7 +89,7 @@ app
 				response.code = await generateEmailVerificationCode({
 					kv: c.env.KV,
 					clientId,
-					id,
+					userId: id,
 				});
 			}
 		}
@@ -182,40 +186,27 @@ app
 		return c.json({ code: 200, message: "User deleted successfully" }, 200);
 	})
 	.openapi(getUserRoute, async (c) => {
-		const { clientId, userProperty, userIdentifier } = c.req.param();
+		const { clientId, property, identifier } = c.req.param();
 
-		let id: string | null = userProperty === "id" ? userIdentifier : "";
-		if (!id.length) {
-			if (userProperty === "username")
-				id = await c.env.KV.get(
-					`${USERNAME_PREFIX}:${clientId}:${userIdentifier}`,
-				);
-			else
-				id = await c.env.KV.get(
-					`${EMAIL_PREFIX}:${clientId}:${userIdentifier}`,
-				);
-		}
-
-		if (!id) return c.json({ message: "Not found", code: 404 }, 404);
-
-		const user = await c.env.KV.getWithMetadata<UserValue, UserMetadata>(
-			`${USER_PREFIX}:${clientId}:${id}`,
-			"json",
-		);
-
-		const sessions = await c.env.KV.list<SessionMetadata>({
-			prefix: `${SESSION_PREFIX}:${clientId}:${id}`,
+		const user = await getUserByProperty({
+			property: property as "id" | "email" | "username",
+			identifier,
+			clientId,
+			kv: c.env.KV,
 		});
 
-		if (!user.value || !user.metadata)
-			return c.json({ message: "Not found", code: 404 }, 404);
+		if (!user) return c.json({ message: "Not found", code: 404 }, 404);
+
+		const sessions = await c.env.KV.list<SessionMetadata>({
+			prefix: `${SESSION_PREFIX}:${clientId}:${user.id}`,
+		});
 
 		return c.json(
 			{
-				id,
-				emailAddresses: user.metadata.emailAddresses,
-				username: user.metadata.username,
-				emailVerified: user.metadata.emailVerified,
+				id: user.id,
+				emailAddresses: user.emailAddresses,
+				username: user.username,
+				emailVerified: user.emailVerified,
 				sessions: sessions.keys.length,
 			},
 			200,

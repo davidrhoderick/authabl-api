@@ -1,10 +1,5 @@
 import { z } from "@hono/zod-openapi";
-import {
-	ClientIdParamSchema,
-	User,
-	zodPassword,
-	zodUsername,
-} from "../common/schemas";
+import { User, zodPassword, zodUsername } from "../common/schemas";
 
 const TokenPassword = z.object({
 	password: zodPassword,
@@ -47,12 +42,4 @@ export const ValidationResponseSchema = z.object({
 export const MobileTokenResponseSchema = User.extend({
 	accessToken: z.string().trim().min(1),
 	refreshToken: z.string().trim().min(1).optional(),
-});
-
-export const GetUserParamSchema = ClientIdParamSchema.extend({
-	userProperty: z
-		.literal("id")
-		.or(z.literal("email"))
-		.or(z.literal("username")),
-	userIdentifier: z.string().trim().min(1).optional(),
 });

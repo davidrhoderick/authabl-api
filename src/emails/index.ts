@@ -58,10 +58,9 @@ app
 			});
 
 			return c.json({ code: 200, message: "Email verified" }, 200);
-			// biome-ignore lint/style/noUselessElse: <explanation>
-		} else {
-			return c.json({ code: 422, message: "Unprocessable Entity" }, 422);
 		}
+
+		return c.json({ code: 422, message: "Unprocessable Entity" }, 422);
 	})
 	.openapi(resendVerificationEmailRoute, async (c) => {
 		const clientId = c.req.param("clientId");
@@ -74,7 +73,7 @@ app
 		const code = await generateEmailVerificationCode({
 			kv: c.env.KV,
 			clientId,
-			id: user.id,
+			userId: user.id,
 		});
 
 		return c.json({ code }, 200);

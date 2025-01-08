@@ -9,6 +9,7 @@ import {
 	USER_PREFIX,
 	VERIFICATIONCODE_PREFIX,
 } from "./constants";
+import { combineUserMetadata } from "../users/utils";
 
 export const getClient = async ({
 	kv,
@@ -61,22 +62,27 @@ export const getUser = async ({
 	clientId: string;
 	email?: string;
 	username?: string;
-}) => {
+}): Promise<ReturnType<typeof combineUserMetadata> | undefined> => {
 	const id = email
 		? await kv.get(`${EMAIL_PREFIX}:${clientId}:${email}`, "text")
 		: username
 			? await kv.get(`${USERNAME_PREFIX}:${clientId}:${username}`, "text")
 			: false;
 
-	if (!id) return undefined;
+	if (!id) return;
 
-	return {
+	const user = await kv.getWithMetadata<UserValue, UserMetadata>(
+		`${USER_PREFIX}:${clientId}:${id}`,
+		"json",
+	);
+
+	if (!user?.value || !user?.metadata) return;
+
+	return combineUserMetadata({
 		id,
-		...(await kv.getWithMetadata<UserValue, UserMetadata>(
-			`${USER_PREFIX}:${clientId}:${id}`,
-			"json",
-		)),
-	};
+		value: user.value,
+		metadata: user.metadata,
+	});
 };
 
 export const loginVerification = async ({
@@ -91,38 +97,80 @@ export const loginVerification = async ({
 	username?: string;
 	clientId: string;
 	password: string;
-}) => {
-	const userResponse = await getUser({ kv, email, username, clientId });
+}): Promise<User | undefined> => {
+	const user = await getUser({ kv, email, username, clientId });
 
-	if (!userResponse?.value?.password) return false;
+	if (!user?.password) return;
 
-	const valid = await verifyPassword(password, userResponse.value?.password);
+	const valid = await verifyPassword(password, user?.password);
 
-	if (!valid) return false;
+	if (!valid) return;
 
-	return { id: userResponse.id, ...userResponse.metadata } as User;
+	const { password: _password, ...rest } = user;
+
+	return rest;
 };
 
-export const generateEmailVerificationCode = async ({
-	kv,
-	clientId,
-	id,
-}: {
-	kv: KVNamespace;
-	clientId: string;
-	id: string;
-}) => {
+export const generateVerificationCode = () => {
 	let verificationCode = "";
 
 	for (let i = 0; i < 6; i++) {
 		verificationCode += Math.floor(Math.random() * 9);
 	}
 
+	return verificationCode;
+};
+
+export const generateEmailVerificationCode = async ({
+	kv,
+	clientId,
+	userId,
+}: {
+	kv: KVNamespace;
+	clientId: string;
+	userId: string;
+}) => {
+	const verificationCode = generateVerificationCode();
+
 	await kv.put(
-		`${VERIFICATIONCODE_PREFIX}:${clientId}:${id}`,
+		`${VERIFICATIONCODE_PREFIX}:${clientId}:${userId}`,
 		verificationCode,
 		{ expirationTtl: 60 * 15 },
 	);
 
 	return verificationCode;
+};
+
+export const getUserByProperty = async ({
+	property,
+	identifier,
+	clientId,
+	kv,
+}: {
+	property: "id" | "email" | "username";
+	identifier: string;
+	clientId: string;
+	kv: KVNamespace;
+}) => {
+	if (property === "id") {
+		const user = await kv.getWithMetadata<UserValue, UserMetadata>(
+			`${USER_PREFIX}:${clientId}:${identifier}`,
+			"json",
+		);
+
+		if (!user?.value || !user?.metadata) return;
+
+		return combineUserMetadata({
+			id: identifier,
+			value: user.value,
+			metadata: user.metadata,
+		});
+	}
+
+	return getUser({
+		clientId,
+		kv,
+		email: property === "email" ? identifier : undefined,
+		username: property === "username" ? identifier : undefined,
+	});
 };
