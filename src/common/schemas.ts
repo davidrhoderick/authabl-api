@@ -71,5 +71,7 @@ export const User = z
     username: zodUsername.optional(),
     emailVerified: z.boolean(),
     sessions: z.number().int().optional(),
+    createdAt: z.number().int(),
+    updatedAt: z.number().int(),
   })
   .openapi("User");

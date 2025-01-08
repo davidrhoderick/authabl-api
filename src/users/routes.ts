@@ -4,6 +4,7 @@ import {
   ClientIdParamSchema,
   ClientIdUserIdParamSchema,
   InternalServerErrorSchema,
+  NotFoundSchema,
   UnauthorizedSchema,
   UnprocessableEntitySchema,
   User,
@@ -216,6 +217,14 @@ export const updateUserRoute = createRoute({
         },
       },
       description: "Unauthorized",
+    },
+    404: {
+      content: {
+        "application/json": {
+          schema: NotFoundSchema,
+        },
+      },
+      description: "Not found",
     },
     422: {
       content: {

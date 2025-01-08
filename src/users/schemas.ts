@@ -21,7 +21,7 @@ export const RegistrationOrUpdateResponse = User.extend({
 
 export const UpdateBodySchema = z
   .object({
-    emails: z.array(z.string().email().regex(/[^:]*/)).optional(),
+    emailAddresses: z.array(z.string().email().regex(/[^:]*/)).optional(),
     username: zodUsername.optional(),
     password: zodPassword.optional(),
     verifyEmail: z.boolean().optional(),

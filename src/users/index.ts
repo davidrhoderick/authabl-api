@@ -23,6 +23,7 @@ import {
   updateUserRoute,
 } from "./routes";
 import type { User, UserMetadata, UserValue } from "./types";
+import { combineUserMetadata, splitUserMetadata } from "./utils";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 
@@ -30,6 +31,8 @@ app.use("/:clientId/*", clientAuthentication);
 
 app
   .openapi(registrationRoute, async (c) => {
+    const createdAt = Date.now();
+    const updatedAt = createdAt;
     const { password: rawPassword, ...rest } = c.req.valid("json");
 
     const clientId = c.req.param("clientId");
@@ -37,21 +40,16 @@ app
 
     const emailVerified = false;
 
-    const response: {
-      id: string;
-      username?: string;
-      emailAddresses?: Array<string>;
-      code?: string;
-      emailVerified: boolean;
-    } = { id, emailVerified };
+    const response: User & { code?: string } = {
+      id,
+      emailVerified,
+      createdAt,
+      updatedAt,
+    };
 
-    const options: {
-      metadata: {
-        username?: string;
-        emailAddresses?: Array<string>;
-        emailVerified: boolean;
-      };
-    } = { metadata: { emailVerified } };
+    const options: { metadata: UserMetadata } = {
+      metadata: { emailVerified, createdAt, updatedAt },
+    };
 
     if (!rest.username?.length && !rest.email?.length)
       return c.json({ code: 400, message: "Bad Request" }, 400);
@@ -129,7 +127,13 @@ app
       (users.keys as Array<{ name: string; metadata: UserMetadata }>).map(
         ({
           name: id,
-          metadata: { emailAddresses, username, emailVerified },
+          metadata: {
+            emailAddresses,
+            username,
+            emailVerified,
+            createdAt,
+            updatedAt,
+          },
         }) => {
           return {
             emailAddresses: (emailAddresses ?? []).filter(
@@ -139,6 +143,8 @@ app
             username,
             id: id.substring(prefix.length),
             emailVerified,
+            createdAt,
+            updatedAt,
           };
         },
       ) as Array<User>,
@@ -208,22 +214,59 @@ app
         username: user.username,
         emailVerified: user.emailVerified,
         sessions: sessions.keys.length,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
       },
       200,
     );
   })
-  // TODO Update completely for patch user
   .openapi(updateUserRoute, async (c) => {
-    // Validate the input
+    const { clientId, userId } = c.req.param();
+    const newUser = c.req.valid("json");
 
-    // Check that usernames and emails
+    const userKey = `${USER_PREFIX}:${clientId}:${userId}`;
 
-    // Look up the user ID
+    const { value, metadata } = await c.env.KV.getWithMetadata<
+      UserValue,
+      UserMetadata
+    >(userKey, "json");
 
-    // Update the user data
+    if (!value || !metadata)
+      return c.json({ message: "Not found", code: 404 }, 404);
 
-    // Return the new user
-    return c.json({}, 200);
+    if (newUser.username) {
+      const existingUserByUsername = await c.env.KV.get(
+        `${USERNAME_PREFIX}:${clientId}:${newUser.username}`,
+      );
+
+      if (existingUserByUsername && existingUserByUsername !== userId)
+        return c.json({ code: 422, message: "Unprocessable Entity" }, 422);
+    }
+
+    if (newUser.emailAddresses) {
+      for (const email of newUser.emailAddresses) {
+        const existingUserByEmail = await c.env.KV.get(
+          `${EMAIL_PREFIX}:${clientId}:${email}`,
+        );
+
+        if (existingUserByEmail && existingUserByEmail !== userId)
+          return c.json({ code: 422, message: "Unprocessable Entity" }, 422);
+      }
+    }
+
+    const updatedUser = {
+      ...combineUserMetadata({ id: userId, value, metadata }),
+      ...newUser,
+      updatedAt: Date.now(),
+    };
+
+    const { value: newValue, options } = splitUserMetadata(updatedUser);
+
+    await c.env.KV.put(userKey, newValue, options);
+
+    const { password: _password, ...response } = updatedUser;
+
+    return c.json(response, 200);
   });
 
 export default app;

@@ -4,7 +4,9 @@ import { bootstrapClient } from "./test-utils";
 
 const username = "test_user";
 const email = "test@test.com";
-const originalPassword = "Testp4ssw0rd!";
+const password = "Testp4ssw0rd!";
+const newUsername = "test_user_2";
+const newEmail = "test2@test.com";
 const newPassword = "Newtestpassword12345!";
 
 describe("Users", () => {
@@ -19,7 +21,7 @@ describe("Users", () => {
         body: JSON.stringify({
           username,
           email,
-          password: originalPassword,
+          password,
         }),
       },
     );
@@ -33,6 +35,8 @@ describe("Users", () => {
       emailAddresses: [email],
       id: expect.any(String),
       emailVerified: false,
+      createdAt: expect.any(Number),
+      updatedAt: expect.any(Number),
     });
   });
 
@@ -47,7 +51,7 @@ describe("Users", () => {
         body: JSON.stringify({
           username,
           email,
-          password: originalPassword,
+          password,
           verifyEmail: true,
         }),
       },
@@ -63,6 +67,8 @@ describe("Users", () => {
       id: expect.any(String),
       emailVerified: false,
       code: expect.any(String),
+      createdAt: expect.any(Number),
+      updatedAt: expect.any(Number),
     });
   });
 
@@ -75,7 +81,7 @@ describe("Users", () => {
         method: "POST",
         headers,
         body: JSON.stringify({
-          password: originalPassword,
+          password,
         }),
       },
     );
@@ -91,7 +97,7 @@ describe("Users", () => {
       headers,
       body: JSON.stringify({
         username,
-        password: originalPassword,
+        password,
       }),
     });
 
@@ -102,7 +108,7 @@ describe("Users", () => {
         headers,
         body: JSON.stringify({
           username,
-          password: originalPassword,
+          password,
         }),
       },
     );
@@ -118,7 +124,7 @@ describe("Users", () => {
       headers,
       body: JSON.stringify({
         email,
-        password: originalPassword,
+        password,
       }),
     });
 
@@ -129,7 +135,7 @@ describe("Users", () => {
         headers,
         body: JSON.stringify({
           email,
-          password: originalPassword,
+          password,
         }),
       },
     );
@@ -147,7 +153,7 @@ describe("Users", () => {
         body: JSON.stringify({
           username,
           email,
-          password: originalPassword,
+          password,
         }),
       })
     ).json();
@@ -163,7 +169,12 @@ describe("Users", () => {
 
     const getResult = await getResponse.json();
 
-    expect(getResult).toStrictEqual({ ...user, sessions: expect.any(Number) });
+    expect(getResult).toStrictEqual({
+      ...user,
+      sessions: expect.any(Number),
+      createdAt: expect.any(Number),
+      updatedAt: expect.any(Number),
+    });
   });
 
   it("returns a user by email", async () => {
@@ -176,7 +187,7 @@ describe("Users", () => {
         body: JSON.stringify({
           username,
           email,
-          password: originalPassword,
+          password,
         }),
       })
     ).json();
@@ -195,7 +206,12 @@ describe("Users", () => {
 
     const getResult = await getResponse.json();
 
-    expect(getResult).toStrictEqual({ ...user, sessions: expect.any(Number) });
+    expect(getResult).toStrictEqual({
+      ...user,
+      sessions: expect.any(Number),
+      createdAt: expect.any(Number),
+      updatedAt: expect.any(Number),
+    });
   });
 
   it("returns a user by username", async () => {
@@ -208,7 +224,7 @@ describe("Users", () => {
         body: JSON.stringify({
           username,
           email,
-          password: originalPassword,
+          password,
         }),
       })
     ).json();
@@ -230,17 +246,15 @@ describe("Users", () => {
   it("returns 404 if user can't be found", async () => {
     const { clientId, headers } = await bootstrapClient();
 
-    const user: User = await (
-      await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          username,
-          email,
-          password: originalPassword,
-        }),
-      })
-    ).json();
+    await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        username,
+        email,
+        password,
+      }),
+    });
 
     const getResponse = await SELF.fetch(
       `https://api.oauthabl.com/users/${clientId}/email/bademailaddress@test.com`,
@@ -255,26 +269,26 @@ describe("Users", () => {
   it("returns a list of users", async () => {
     const { clientId, headers } = await bootstrapClient();
 
-    const user1 = await (
+    const user1: User = await (
       await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
         method: "POST",
         headers,
         body: JSON.stringify({
           username,
           email,
-          password: originalPassword,
+          password,
         }),
       })
     ).json();
 
-    const user2 = await (
+    const user2: User = await (
       await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
         method: "POST",
         headers,
         body: JSON.stringify({
           username: `${username}1`,
           email: "test1@email.com",
-          password: originalPassword,
+          password,
         }),
       })
     ).json();
@@ -290,8 +304,16 @@ describe("Users", () => {
 
     const listResult = await listResponse.json();
 
-    expect(listResult).toContainEqual(user1);
-    expect(listResult).toContainEqual(user2);
+    expect(listResult).toContainEqual({
+      ...user1,
+      createdAt: expect.any(Number),
+      updatedAt: expect.any(Number),
+    });
+    expect(listResult).toContainEqual({
+      ...user2,
+      createdAt: expect.any(Number),
+      updatedAt: expect.any(Number),
+    });
   });
 
   it("deletes a user", async () => {
@@ -304,7 +326,7 @@ describe("Users", () => {
         body: JSON.stringify({
           username,
           email,
-          password: originalPassword,
+          password,
         }),
       })
     ).json();
@@ -316,7 +338,7 @@ describe("Users", () => {
         body: JSON.stringify({
           username: `${username}1`,
           email: "test1@email.com",
-          password: originalPassword,
+          password,
         }),
       })
     ).json();
@@ -356,5 +378,229 @@ describe("Users", () => {
     );
 
     expect(getByUsernameResponse.status).toBe(404);
+  });
+
+  it("updates a user", async () => {
+    const { clientId, headers } = await bootstrapClient();
+
+    const user: User = await (
+      await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          username,
+          email,
+          password,
+        }),
+      })
+    ).json();
+
+    const updateResponse = await SELF.fetch(
+      `https://api.oauthabl.com/users/${clientId}/${user.id}`,
+      {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({
+          username: newUsername,
+          emailAddresses: [newEmail],
+          password: newPassword,
+        }),
+      },
+    );
+
+    expect(updateResponse.status).toBe(200);
+
+    const updateResult: User = await updateResponse.json();
+
+    expect(updateResult).toStrictEqual({
+      username: newUsername,
+      emailAddresses: [newEmail],
+      emailVerified: false,
+      id: user.id,
+      createdAt: expect.any(Number),
+      updatedAt: expect.any(Number),
+    });
+
+    const getUserResult = await (
+      await SELF.fetch(
+        `https://api.oauthabl.com/users/${clientId}/id/${user.id}`,
+        { headers },
+      )
+    ).json();
+
+    expect(getUserResult).toStrictEqual({
+      ...updateResult,
+      sessions: expect.any(Number),
+    });
+  });
+
+  it("updates a user with the same data without error", async () => {
+    const { clientId, headers } = await bootstrapClient();
+
+    const user: User = await (
+      await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          username,
+          email,
+          password,
+        }),
+      })
+    ).json();
+
+    const updateResponse = await SELF.fetch(
+      `https://api.oauthabl.com/users/${clientId}/${user.id}`,
+      {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({
+          username,
+          emailAddresses: [email],
+        }),
+      },
+    );
+
+    expect(updateResponse.status).toBe(200);
+
+    const updateResult: User = await updateResponse.json();
+
+    expect(updateResult).toStrictEqual({
+      username,
+      emailAddresses: [email],
+      emailVerified: false,
+      id: user.id,
+      createdAt: expect.any(Number),
+      updatedAt: expect.any(Number),
+    });
+
+    const getUserResult = await (
+      await SELF.fetch(
+        `https://api.oauthabl.com/users/${clientId}/id/${user.id}`,
+        { headers },
+      )
+    ).json();
+
+    expect(getUserResult).toStrictEqual({
+      ...updateResult,
+      sessions: expect.any(Number),
+    });
+  });
+
+  it("returns 422 when updating a user with an unavailable username", async () => {
+    const { clientId, headers } = await bootstrapClient();
+
+    await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        username,
+        email,
+        password,
+      }),
+    });
+
+    const user: User = await (
+      await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          username: newUsername,
+          email: newEmail,
+          password,
+        }),
+      })
+    ).json();
+
+    const updateResponse = await SELF.fetch(
+      `https://api.oauthabl.com/users/${clientId}/${user.id}`,
+      {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({
+          username,
+        }),
+      },
+    );
+
+    expect(updateResponse.status).toBe(422);
+  });
+
+  it("returns 422 when updating a user with an unavailable email", async () => {
+    const { clientId, headers } = await bootstrapClient();
+
+    await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        username,
+        email,
+        password,
+      }),
+    });
+
+    const user: User = await (
+      await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          username: newUsername,
+          email: newEmail,
+          password,
+        }),
+      })
+    ).json();
+
+    const updateResponse = await SELF.fetch(
+      `https://api.oauthabl.com/users/${clientId}/${user.id}`,
+      {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({
+          emailAddresses: [email],
+        }),
+      },
+    );
+
+    expect(updateResponse.status).toBe(422);
+  });
+
+  it("returns 404 when updating a user doesn't exist", async () => {
+    const { clientId, headers } = await bootstrapClient();
+
+    await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        username,
+        email,
+        password,
+      }),
+    });
+
+    const user: User = await (
+      await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          username: newUsername,
+          email: newEmail,
+          password,
+        }),
+      })
+    ).json();
+
+    const updateResponse = await SELF.fetch(
+      `https://api.oauthabl.com/users/${clientId}/${user.id}1`,
+      {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({
+          emailAddresses: [newEmail],
+        }),
+      },
+    );
+
+    expect(updateResponse.status).toBe(404);
   });
 });
