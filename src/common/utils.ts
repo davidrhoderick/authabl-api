@@ -1,6 +1,6 @@
 import { compareSync, hashSync } from "bcrypt-edge";
 import type { ClientMetadata, ClientValue } from "../clients/types";
-import { combineMetadata } from "../clients/utils";
+import { combineClientMetadata } from "../clients/utils";
 import type { User, UserMetadata, UserValue } from "../users/types";
 import {
 	CLIENT_PREFIX,
@@ -25,7 +25,7 @@ export const getClient = async ({
 	if (response?.value === null || response?.metadata === null) return false;
 
 	// @ts-expect-error We know this isn't null now
-	return combineMetadata(response);
+	return combineClientMetadata(response);
 };
 
 export const hashPassword = async (password: string) => {

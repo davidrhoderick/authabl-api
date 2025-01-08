@@ -11,7 +11,7 @@ import {
 	updateClientRoute,
 } from "./routes";
 import type { ClientMetadata, ClientValue } from "./types";
-import { combineMetadata, splitMetadata } from "./utils";
+import { combineClientMetadata, splitClientMetadata } from "./utils";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 
@@ -33,7 +33,7 @@ app
 
 		const newClient = { ...c.req.valid("json"), id, secret };
 
-		const { value, options } = splitMetadata(newClient);
+		const { value, options } = splitClientMetadata(newClient);
 		await c.env.KV.put(`${CLIENT_PREFIX}:${id}`, value, options);
 
 		return c.json(newClient, 200);
@@ -70,14 +70,14 @@ app
 			return c.json({ code: 404, message: "Not found" }, 404);
 
 		// @ts-expect-error these have to not be null by now
-		const oldClient = combineMetadata(response);
+		const oldClient = combineClientMetadata(response);
 
 		const newClient = {
 			...oldClient,
 			...clientUpdates,
 		};
 
-		const { value, options } = splitMetadata(newClient);
+		const { value, options } = splitClientMetadata(newClient);
 
 		await c.env.KV.put(`${CLIENT_PREFIX}:${clientId}`, value, options);
 

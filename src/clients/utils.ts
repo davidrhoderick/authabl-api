@@ -1,6 +1,6 @@
 import type { Client, ClientMetadata, ClientValue } from "./types";
 
-export const combineMetadata = ({
+export const combineClientMetadata = ({
 	value,
 	metadata,
 }: {
@@ -8,7 +8,7 @@ export const combineMetadata = ({
 	metadata: ClientMetadata;
 }): Client => ({ ...value, ...metadata });
 
-export const splitMetadata = (
+export const splitClientMetadata = (
 	client: Client,
 ): { value: string; options: { metadata: ClientMetadata } } => {
 	const { name, secret, ...value } = client;
