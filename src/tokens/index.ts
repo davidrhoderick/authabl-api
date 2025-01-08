@@ -18,6 +18,7 @@ import {
 	detectAccessToken,
 	detectRefreshToken,
 } from "./utils";
+import { setCookies } from "./utils/set-cookies";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 
@@ -47,23 +48,15 @@ app
 
 		const { accessToken, accessTokenValidity, disableRefreshToken } = result;
 
-		const path = "/";
-
-		setCookie(c, ACCESSTOKEN_COOKIE, accessToken, {
-			path,
-			httpOnly: true,
-			maxAge: accessTokenValidity,
-			sameSite: "lax",
+		setCookies({
+			c,
+			accessToken,
+			accessTokenValidity,
+			refreshToken: !disableRefreshToken ? result.refreshToken : undefined,
+			refreshTokenValidity: !disableRefreshToken
+				? result.refreshTokenValidity
+				: undefined,
 		});
-
-		if (!disableRefreshToken && result.refreshToken) {
-			setCookie(c, REFRESHTOKEN_COOKIE, result.refreshToken, {
-				path,
-				httpOnly: true,
-				maxAge: result.refreshTokenValidity,
-				sameSite: "lax",
-			});
-		}
 
 		return c.json(user, 200);
 	})
@@ -143,16 +136,14 @@ app
 					200,
 				);
 			// Otherwise, set the refresh token as a cookie
-			// biome-ignore lint/style/noUselessElse: <explanation>
-			else {
-				if (sessionResult.refreshToken)
-					setCookie(c, REFRESHTOKEN_COOKIE, sessionResult.refreshToken, {
-						path,
-						httpOnly: true,
-						maxAge: sessionResult.refreshTokenValidity,
-						sameSite: "lax",
-					});
-			}
+
+			if (sessionResult.refreshToken)
+				setCookie(c, REFRESHTOKEN_COOKIE, sessionResult.refreshToken, {
+					path,
+					httpOnly: true,
+					maxAge: sessionResult.refreshTokenValidity,
+					sameSite: "lax",
+				});
 		}
 
 		// If we received refresh token in the body, return the access token in the response body
