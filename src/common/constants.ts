@@ -3,6 +3,7 @@ export const USER_PREFIX = "u";
 export const EMAIL_PREFIX = "ue";
 export const USERNAME_PREFIX = "uu";
 export const VERIFICATIONCODE_PREFIX = "ev";
+export const FORGOTPASSWORDCODE_PREFIX = "pv";
 export const ACCESSTOKENINDEX_PREFIX = "tai";
 export const ACCESSTOKEN_PREFIX = "ta";
 export const REFRESHTOKENINDEX_PREFIX = "tri";

@@ -1,7 +1,10 @@
 import type { z } from "@hono/zod-openapi";
 import type { TokenPayloadSchema } from "../sessions/schemas";
+import type { MobileTokenResponseSchema } from "./schemas";
 
 export type TokenPayload = z.infer<typeof TokenPayloadSchema>;
+
+export type MobileTokenResponse = z.infer<typeof MobileTokenResponseSchema>;
 
 export type SessionValue = {
 	userId: string;
