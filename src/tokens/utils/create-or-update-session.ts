@@ -140,6 +140,13 @@ export const createOrUpdateSession = async ({
 			role: "user",
 		};
 		const refreshTokenString = JSON.stringify(refreshTokenData);
+
+		console.log(
+			"REFRESHTOKEN_SECRET",
+			typeof c.env.REFRESHTOKEN_SECRET,
+			c.env.REFRESHTOKEN_SECRET,
+		);
+
 		const refreshToken = await sign(
 			refreshTokenData,
 			c.env.REFRESHTOKEN_SECRET,
