@@ -15,12 +15,21 @@ jobs:
         with:
           node-version: 22.12.0
           cache: "yarn"
-      - run: yarn
-      - run: yarn test:ga
+      - name: Install dependencies
+        run: yarn
+      - name: Set up environmental variables
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           ACCESSTOKEN_SECRET: ${{ secrets.ACCESSTOKEN_SECRET }}
           REFRESHTOKEN_SECRET: ${{ secrets.REFRESHTOKEN_SECRET }}
+        run: |
+          touch .dev.vars
+          echo JWT_SECRET="$JWT_SECRET" >> .dev.vars
+          echo ACCESSTOKEN_SECRET="$ACCESSTOKEN_SECRET" >> .dev.vars
+          echo REFRESHTOKEN_SECRET="$REFRESHTOKEN_SECRET" >> .dev.vars
+        shell: bash
+      - name: Run tests
+        run: yarn test:ga
 
   Deploy:
     runs-on: ubuntu-latest
