@@ -50,7 +50,7 @@ jobs:
   Deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    needs: Test
+    needs: [Lint, Test]
     steps:
       - uses: actions/checkout@v4
       - name: Enable corepack
