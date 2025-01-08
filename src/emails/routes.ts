@@ -3,7 +3,9 @@ import {
 	BadRequestSchema,
 	ClientIdParamSchema,
 	InternalServerErrorSchema,
+	NotFoundSchema,
 	UnauthorizedSchema,
+	UnprocessableEntitySchema,
 } from "../common/schemas";
 import {
 	EmailVerificationBodySchema,
@@ -34,7 +36,7 @@ export const emailVerificationRoute = createRoute({
 	],
 	responses: {
 		200: {
-			description: "Email sent",
+			description: "Email verified",
 		},
 		400: {
 			content: {
@@ -51,6 +53,22 @@ export const emailVerificationRoute = createRoute({
 				},
 			},
 			description: "Unauthorized",
+		},
+		404: {
+			content: {
+				"application/json": {
+					schema: NotFoundSchema,
+				},
+			},
+			description: "Not Found",
+		},
+		422: {
+			content: {
+				"application/json": {
+					schema: UnprocessableEntitySchema,
+				},
+			},
+			description: "Unprocessable Entity",
 		},
 		500: {
 			content: {
