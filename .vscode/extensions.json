@@ -1,11 +1,11 @@
 {
-	"recommendations": [
-		"biomejs.biome",
-		"doppler.doppler-vscode",
-		"wix.vscode-import-cost",
-		"sonarsource.sonarlint-vscode",
-		"pflannery.vscode-versionlens",
-		"vitest.explorer",
-		"ryanluker.vscode-coverage-gutters"
-	]
+  "recommendations": [
+    "biomejs.biome",
+    "doppler.doppler-vscode",
+    "wix.vscode-import-cost",
+    "sonarsource.sonarlint-vscode",
+    "pflannery.vscode-versionlens",
+    "vitest.explorer",
+    "ryanluker.vscode-coverage-gutters"
+  ]
 }

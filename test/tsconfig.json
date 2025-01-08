@@ -8,8 +8,5 @@
       "vitest/globals"
     ]
   },
-  "include": [
-    "../",
-    "../src/env.d.ts"
-  ]
+  "include": ["../", "../src/env.d.ts"]
 }

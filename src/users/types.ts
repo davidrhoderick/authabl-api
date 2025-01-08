@@ -4,7 +4,7 @@ import type { User as UserSchema } from "../common/schemas";
 export type User = z.infer<typeof UserSchema>;
 
 export type UserValue = Pick<z.infer<typeof UserSchema>, "emailVerified"> & {
-	password: string;
+  password: string;
 };
 
 export type UserMetadata = Omit<User, "id">;

@@ -2,81 +2,81 @@ import type { Context } from "hono";
 import { getCookie } from "hono/cookie";
 import { decode } from "hono/jwt";
 import {
-	REFRESHTOKENINDEX_PREFIX,
-	REFRESHTOKEN_COOKIE,
+  REFRESHTOKENINDEX_PREFIX,
+  REFRESHTOKEN_COOKIE,
 } from "../../common/constants";
 import type { Bindings } from "../../common/types";
 import type {
-	AccessTokenResult,
-	RefreshTokenMetadata,
-	RefreshTokenResult,
-	TokenPayload,
+  AccessTokenResult,
+  RefreshTokenMetadata,
+  RefreshTokenResult,
+  TokenPayload,
 } from "../types";
 
 export const detectRefreshToken = async (
-	c: Context<{ Bindings: Bindings }>,
-	refreshTokenBody?: string,
-	returnToken?: boolean,
+  c: Context<{ Bindings: Bindings }>,
+  refreshTokenBody?: string,
+  returnToken?: boolean,
 ): Promise<undefined | RefreshTokenResult> => {
-	const now = Date.now();
+  const now = Date.now();
 
-	const refreshTokenCookie = getCookie(c, REFRESHTOKEN_COOKIE);
+  const refreshTokenCookie = getCookie(c, REFRESHTOKEN_COOKIE);
 
-	if (!refreshTokenCookie?.length && !refreshTokenBody?.length) return;
+  if (!refreshTokenCookie?.length && !refreshTokenBody?.length) return;
 
-	const refreshToken = refreshTokenCookie?.length
-		? refreshTokenCookie
-		: refreshTokenBody;
+  const refreshToken = refreshTokenCookie?.length
+    ? refreshTokenCookie
+    : refreshTokenBody;
 
-	if (!refreshToken) return;
+  if (!refreshToken) return;
 
-	const decodedRefreshToken = decode(refreshToken);
+  const decodedRefreshToken = decode(refreshToken);
 
-	if (!decodedRefreshToken) return;
+  if (!decodedRefreshToken) return;
 
-	const refreshTokenIndexKey = `${REFRESHTOKENINDEX_PREFIX}:${refreshToken}`;
+  const refreshTokenIndexKey = `${REFRESHTOKENINDEX_PREFIX}:${refreshToken}`;
 
-	const refreshTokenKey = await c.env.KV.get(refreshTokenIndexKey);
+  const refreshTokenKey = await c.env.KV.get(refreshTokenIndexKey);
 
-	if (!refreshTokenKey) return;
+  if (!refreshTokenKey) return;
 
-	const refreshTokenItem = await c.env.KV.getWithMetadata<
-		TokenPayload,
-		RefreshTokenMetadata
-	>(refreshTokenKey, "json");
+  const refreshTokenItem = await c.env.KV.getWithMetadata<
+    TokenPayload,
+    RefreshTokenMetadata
+  >(refreshTokenKey, "json");
 
-	if (!refreshTokenItem.value || !refreshTokenItem.metadata) return;
+  if (!refreshTokenItem.value || !refreshTokenItem.metadata) return;
 
-	const { payload } = decodedRefreshToken as unknown as {
-		payload: TokenPayload;
-	};
+  const { payload } = decodedRefreshToken as unknown as {
+    payload: TokenPayload;
+  };
 
-	if (
-		payload.iss === "oauthabl" &&
-		payload.aud === refreshTokenItem.value.aud &&
-		payload.sub === refreshTokenItem.value.sub &&
-		payload.exp === refreshTokenItem.value.exp &&
-		now < payload.exp &&
-		now > payload.iat &&
-		(!refreshTokenItem.metadata.revokedAt ||
-			now < refreshTokenItem.metadata.revokedAt)
-	) {
-		const result: AccessTokenResult = {
-			userId: payload.sub,
-			clientId: payload.aud,
-			expiresAt: payload.exp,
-			createdAt: payload.iat,
-			sessionId: payload.sid,
-		};
+  if (
+    payload.iss === "oauthabl" &&
+    payload.aud === refreshTokenItem.value.aud &&
+    payload.sub === refreshTokenItem.value.sub &&
+    payload.exp === refreshTokenItem.value.exp &&
+    now < payload.exp &&
+    now > payload.iat &&
+    (!refreshTokenItem.metadata.revokedAt ||
+      now < refreshTokenItem.metadata.revokedAt)
+  ) {
+    const result: AccessTokenResult = {
+      userId: payload.sub,
+      clientId: payload.aud,
+      expiresAt: payload.exp,
+      createdAt: payload.iat,
+      sessionId: payload.sid,
+    };
 
-		if (returnToken)
-			return {
-				...result,
-				refreshTokenIndexKey,
-				refreshTokenKey,
-			};
-		return result;
-	}
+    if (returnToken)
+      return {
+        ...result,
+        refreshTokenIndexKey,
+        refreshTokenKey,
+      };
+    return result;
+  }
 
-	return;
+  return;
 };

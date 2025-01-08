@@ -5,15 +5,15 @@ const code = z.string().regex(/\d{6}/);
 const email = z.string().email().regex(/[^:]*/);
 
 export const ForgotPasswordBodySchema = z.object({
-	email,
+  email,
 });
 
 export const ForgotPasswordResponseSchema = z.object({
-	code,
+  code,
 });
 
 export const ResetPasswordBodySchema = z.object({
-	email,
-	code,
-	password: zodPassword,
+  email,
+  code,
+  password: zodPassword,
 });
