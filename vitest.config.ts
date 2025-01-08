@@ -14,6 +14,7 @@ export default defineWorkersConfig({
       provider: "istanbul",
       include: ["src/**/*.ts"],
       reporter: ["html", "lcovonly"],
+      clean: false,
     },
     alias: {
       hyperid: resolve("./mocks/hyperid.ts"),
