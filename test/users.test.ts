@@ -1,6 +1,6 @@
 import { SELF } from "cloudflare:test";
-import { bootstrapClient } from "./test-utils";
 import type { User } from "../src/users/types";
+import { bootstrapClient } from "./test-utils";
 
 const username = "test_user";
 const email = "test@test.com";
