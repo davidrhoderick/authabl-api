@@ -1,16 +1,16 @@
 import { Hono } from "hono";
-import type { Bindings } from "./common/types";
+import hyperid from "hyperid";
+import type { Client, ClientValue } from "./clients/types";
+import { splitClientMetadata } from "./clients/utils";
 import {
   CLIENT_PREFIX,
   EMAIL_PREFIX,
   OAUATHABL_CLIENTID,
   USER_PREFIX,
 } from "./common/constants";
-import type { Client, ClientValue } from "./clients/types";
-import type { UserMetadata, UserValue } from "./users/types";
+import type { Bindings } from "./common/types";
 import { hashPassword } from "./common/utils";
-import { splitClientMetadata } from "./clients/utils";
-import hyperid from "hyperid";
+import type { UserMetadata, UserValue } from "./users/types";
 
 const app = new Hono<{ Bindings: Bindings }>();
 
