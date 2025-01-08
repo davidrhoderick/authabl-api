@@ -117,6 +117,8 @@ app
         : undefined,
     });
 
+    // Clear all sessions
+
     return c.json({ code: 200, message: "Password reset" }, 200);
   })
   .openapi(mobileResetPasswordRoute, async (c) => {
@@ -170,6 +172,8 @@ app
     });
 
     if (!result) return c.json({ code: 401, message: "Unauthorized" }, 401);
+
+    // Clear all sessions
 
     return c.json(
       {
