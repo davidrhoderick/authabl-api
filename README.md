@@ -36,10 +36,7 @@ Using the "Coverage Gutters" extension might work (there's an issue with the `te
 
 ### Current Development Tasks
 
-1. **Implement Forgotten Password Flow**
-
-   - Add endpoint for requesting a code.
-   - Add endpoint for confirming code and resetting password.
+1. **Document Forgotten Password Flow with Insomnia**
 
 2. **Implement user update endpoint**
 
