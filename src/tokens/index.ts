@@ -35,7 +35,7 @@ app
       clientId,
       ...emailUsername,
     });
-    
+
     if (!user) return c.json({ code: 401, message: "Unauthorized" }, 401);
 
     const result = await createOrUpdateSession({
