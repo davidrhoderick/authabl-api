@@ -158,6 +158,21 @@ describe("Passwords", () => {
     ).json();
 
     expect(user.emailVerified).toBe(true);
+
+    const consumePasswordResetResponse = await SELF.fetch(
+      `https://api.oauthabl.com/passwords/${clientId}/reset/web`,
+      {
+        headers,
+        method: "POST",
+        body: JSON.stringify({
+          email,
+          code: forgotPasswordResult.code,
+          password: newPassword,
+        }),
+      },
+    );
+
+    expect(consumePasswordResetResponse.status).toBe(422);
   });
 
   it("sends a code that can be used to change a user's password on web", async () => {
@@ -222,6 +237,21 @@ describe("Passwords", () => {
     ).json();
 
     expect(user.emailVerified).toBe(true);
+
+    const consumePasswordResetResponse = await SELF.fetch(
+      `https://api.oauthabl.com/passwords/${clientId}/reset/web`,
+      {
+        headers,
+        method: "POST",
+        body: JSON.stringify({
+          email,
+          code: forgotPasswordResult.code,
+          password: newPassword,
+        }),
+      },
+    );
+
+    expect(consumePasswordResetResponse.status).toBe(422);
   });
 
   it("returns 404 if the email is incorrect", async () => {

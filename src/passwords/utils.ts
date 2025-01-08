@@ -10,5 +10,11 @@ export const verifyForgotPasswordCode = async ({
     `${FORGOTPASSWORDCODE_PREFIX}:${clientId}:${userId}`,
   );
 
-  return verificationCode === code;
+  if (verificationCode === code) {
+    await kv.delete(`${FORGOTPASSWORDCODE_PREFIX}:${clientId}:${userId}`);
+
+    return true;
+  }
+
+  return false;
 };
