@@ -5,7 +5,7 @@ import { splitClientMetadata } from "./clients/utils";
 import {
   CLIENT_PREFIX,
   EMAIL_PREFIX,
-  OAUATHABL_CLIENTID,
+  OAUTHABL_CLIENTID,
   USER_PREFIX,
 } from "./common/constants";
 import type { Bindings } from "./common/types";
@@ -22,7 +22,7 @@ app.post("/", async (c) => {
     return c.json({ message: "Unauthorized", code: 401 }, 401);
 
   try {
-    const clientKey = `${CLIENT_PREFIX}:${OAUATHABL_CLIENTID}`;
+    const clientKey = `${CLIENT_PREFIX}:${OAUTHABL_CLIENTID}`;
     const clientExists = await c.env.KV.get<ClientValue>(clientKey);
     if (!clientExists) {
       const client: Client = {
@@ -44,10 +44,10 @@ app.post("/", async (c) => {
       console.log("oauthabl client already exists");
     }
 
-    const emailKey = `${EMAIL_PREFIX}:${OAUATHABL_CLIENTID}:${c.env.SUPERADMIN_EMAIL}`;
+    const emailKey = `${EMAIL_PREFIX}:${OAUTHABL_CLIENTID}:${c.env.SUPERADMIN_EMAIL}`;
     const userId = await c.env.KV.get(emailKey);
     if (userId) {
-      const userKey = `${USER_PREFIX}:${OAUATHABL_CLIENTID}:${userId}`;
+      const userKey = `${USER_PREFIX}:${OAUTHABL_CLIENTID}:${userId}`;
       const userExists = await c.env.KV.get<UserValue>(userKey, "json");
       if (userExists) {
         console.log("Superadmin already exists");
@@ -70,7 +70,7 @@ app.post("/", async (c) => {
       };
 
       // Save the user
-      const userKey = `${USER_PREFIX}:${OAUATHABL_CLIENTID}:${newUserId}`;
+      const userKey = `${USER_PREFIX}:${OAUTHABL_CLIENTID}:${newUserId}`;
       await c.env.KV.put(userKey, JSON.stringify(value), { metadata });
       await c.env.KV.put(emailKey, newUserId);
 

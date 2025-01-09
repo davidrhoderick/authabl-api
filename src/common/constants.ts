@@ -15,4 +15,4 @@ export const SESSIONREFRESHTOKEN_PREFIX = "sr";
 export const ACCESSTOKEN_COOKIE = "oauthabl_accesstoken";
 export const REFRESHTOKEN_COOKIE = "oauthabl_refreshtoken";
 
-export const OAUATHABL_CLIENTID = "oauthabl";
+export const OAUTHABL_CLIENTID = "oauthabl";
