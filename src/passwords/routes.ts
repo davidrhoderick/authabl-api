@@ -30,6 +30,11 @@ export const forgotPasswordRoute = createRoute({
       },
     },
   },
+  security: [
+    {
+      Client: [],
+    },
+  ],
   responses: {
     200: {
       description: "Code sent",
@@ -89,6 +94,11 @@ export const webResetPasswordRoute = createRoute({
       },
     },
   },
+  security: [
+    {
+      Client: [],
+    },
+  ],
   responses: {
     200: {
       description: "Password reset",
@@ -142,6 +152,11 @@ export const mobileResetPasswordRoute = createRoute({
     "Reset the password for a user using a generated code on a web client, which means we create the session and return tokens in the response body.",
   method: "post",
   path: "/{clientId}/reset/mobile",
+  security: [
+    {
+      Client: [],
+    },
+  ],
   request: {
     body: {
       content: {
