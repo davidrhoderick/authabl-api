@@ -1,10 +1,11 @@
 {
   "name": "hono-oath2-admin-api",
   "scripts": {
-    "dev": "doppler run --mount .dev.vars --mount-format env -- wrangler dev",
+    "clean:env": "rm -f .dev.vars",
+    "dev": "yarn clean:env && doppler run --mount .dev.vars --mount-format env -- wrangler dev",
     "deploy": "wrangler deploy --minify",
-    "test": "doppler run --mount .dev.vars --mount-format env -- vitest --coverage --run",
-    "test:watch": "doppler run --mount .dev.vars --mount-format env -- vitest --coverage",
+    "test": "yarn clean:env && doppler run --mount .dev.vars --mount-format env -- vitest --coverage --run",
+    "test:watch": "yarn clean:env && doppler run --mount .dev.vars --mount-format env -- vitest --coverage",
     "test:ga": "vitest --coverage --run",
     "lint": "biome lint",
     "lint:ga": "biome ci"
