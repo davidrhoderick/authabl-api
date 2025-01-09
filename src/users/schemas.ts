@@ -31,6 +31,6 @@ export const UpdateBodySchema = z
 export const UsersListResponseSchema = z.array(User).openapi("Users");
 
 export const GetUserParamSchema = ClientIdParamSchema.extend({
-  property: z.literal("id").or(z.literal("email")).or(z.literal("username")),
+  property: z.enum(["id", "email", "username"]),
   identifier: z.string().trim().min(1).optional(),
 });

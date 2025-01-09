@@ -23,7 +23,7 @@ export const TokenPayloadSchema = z.object({
   exp: z.number().int(),
   aud: z.string().trim().min(1),
   iat: z.number().int(),
-  type: z.literal("access").or(z.literal("refresh")),
+  type: z.enum(["access", "refresh"]),
   sid: z.string().trim().min(1),
   role: z.string().trim().min(1),
 });
