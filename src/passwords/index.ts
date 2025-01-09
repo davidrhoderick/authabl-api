@@ -21,6 +21,7 @@ import {
   webResetPasswordRoute,
 } from "./routes";
 import { verifyForgotPasswordCode } from "./utils";
+import { clearUsersSessions } from "../sessions/utils";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 
@@ -96,6 +97,8 @@ app
       metadata: { emailVerified: true },
     });
 
+    await clearUsersSessions({ clientId, userId: user.id, env: c.env });
+
     const result = await createOrUpdateSession({
       clientId,
       userId: user.id,
@@ -116,8 +119,6 @@ app
         ? result.refreshTokenValidity
         : undefined,
     });
-
-    // Clear all sessions
 
     return c.json({ code: 200, message: "Password reset" }, 200);
   })
@@ -164,6 +165,8 @@ app
       metadata: { emailVerified: true },
     });
 
+    await clearUsersSessions({ clientId, userId: user.id, env: c.env });
+
     const result = await createOrUpdateSession({
       clientId,
       userId: user.id,
@@ -172,8 +175,6 @@ app
     });
 
     if (!result) return c.json({ code: 401, message: "Unauthorized" }, 401);
-
-    // Clear all sessions
 
     return c.json(
       {

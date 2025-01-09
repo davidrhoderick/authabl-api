@@ -29,6 +29,7 @@ import {
 } from "./routes";
 import type { AccessToken, RefreshToken } from "./schemas";
 import type { ArchivedSessions } from "./types";
+import { clearUsersSessions } from "./utils";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 
@@ -196,20 +197,7 @@ app
   .openapi(clearSessionsRoute, async (c) => {
     const { clientId, userId } = c.req.param();
 
-    const prefix = `${SESSION_PREFIX}:${clientId}:${userId}:`;
-
-    const sessions = await c.env.KV.list<SessionMetadata>({
-      prefix,
-    });
-
-    for (const session of sessions.keys) {
-      await archiveSession({
-        env: c.env,
-        clientId,
-        userId,
-        sessionId: session.name.substring(prefix.length),
-      });
-    }
+    await clearUsersSessions({ clientId, userId, env: c.env });
 
     return c.json({ code: 200, message: "Success" }, 200);
   });

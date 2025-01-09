@@ -7,6 +7,7 @@ import type { ForgotPasswordResponse } from "../src/passwords/types";
 import type { MobileTokenResponse } from "../src/tokens/types";
 import type { User } from "../src/users/types";
 import { bootstrapClient } from "./test-utils";
+import type { Sessions } from "../src/sessions/types";
 
 const email = "test@test.com";
 const originalPassword = "Testp4ssw0rd!";
@@ -125,9 +126,6 @@ describe("Passwords", () => {
     expect(passwordResetResult.accessToken).toStrictEqual(expect.any(String));
     expect(passwordResetResult.refreshToken).toStrictEqual(expect.any(String));
 
-    await checkOriginalPassword({ headers, clientId }, true);
-    await checkNewPassword({ headers, clientId });
-
     const user: User = await (
       await SELF.fetch(
         `https://api.oauthabl.com/users/${clientId}/email/${email}`,
@@ -153,6 +151,18 @@ describe("Passwords", () => {
     );
 
     expect(consumePasswordResetResponse.status).toBe(422);
+
+    const sessionsResult: Sessions = await (
+      await SELF.fetch(
+        `https://api.oauthabl.com/sessions/${clientId}/${user.id}`,
+        { headers },
+      )
+    ).json();
+
+    expect(sessionsResult.length).toBe(1);
+
+    await checkOriginalPassword({ headers, clientId }, true);
+    await checkNewPassword({ headers, clientId });
   });
 
   it("sends a code that can be used to change a user's password on web", async () => {
@@ -204,9 +214,6 @@ describe("Passwords", () => {
 
     expect(validationResponse.status).toBe(200);
 
-    await checkOriginalPassword({ headers, clientId }, true);
-    await checkNewPassword({ headers, clientId });
-
     const user: User = await (
       await SELF.fetch(
         `https://api.oauthabl.com/users/${clientId}/email/${email}`,
@@ -232,6 +239,18 @@ describe("Passwords", () => {
     );
 
     expect(consumePasswordResetResponse.status).toBe(422);
+
+    const sessionsResult: Sessions = await (
+      await SELF.fetch(
+        `https://api.oauthabl.com/sessions/${clientId}/${user.id}`,
+        { headers },
+      )
+    ).json();
+
+    expect(sessionsResult.length).toBe(1);
+
+    await checkOriginalPassword({ headers, clientId }, true);
+    await checkNewPassword({ headers, clientId });
   });
 
   it("returns 404 if the email is incorrect", async () => {
