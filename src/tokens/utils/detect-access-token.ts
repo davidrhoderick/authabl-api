@@ -78,6 +78,4 @@ export const detectAccessToken = async (
       };
     return result;
   }
-
-  return;
 };
