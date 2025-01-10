@@ -18,6 +18,11 @@ export const getClientRoute = createRoute({
   request: {
     params: ClientParamsSchema,
   },
+  security: [
+    {
+      Client: [],
+    },
+  ],
   responses: {
     200: {
       content: {
@@ -51,6 +56,11 @@ export const listClientRoute = createRoute({
   description: "Lists all clients.",
   method: "get",
   path: "/",
+  security: [
+    {
+      Client: [],
+    },
+  ],
   responses: {
     200: {
       content: {
@@ -81,6 +91,11 @@ export const createClientRoute = createRoute({
       content: { "application/json": { schema: CreateClientBodySchema } },
     },
   },
+  security: [
+    {
+      Client: [],
+    },
+  ],
   responses: {
     200: {
       content: {
@@ -112,6 +127,11 @@ export const updateClientRoute = createRoute({
       content: { "application/json": { schema: UpdateClientBodySchema } },
     },
   },
+  security: [
+    {
+      Client: [],
+    },
+  ],
   responses: {
     200: {
       content: {
@@ -145,6 +165,11 @@ export const deleteClientRoute = createRoute({
   description: "Removes a client.",
   method: "delete",
   path: "/{clientId}",
+  security: [
+    {
+      Client: [],
+    },
+  ],
   request: {
     params: ClientParamsSchema,
   },
