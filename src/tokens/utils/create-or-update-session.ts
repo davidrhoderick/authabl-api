@@ -93,7 +93,7 @@ export const createOrUpdateSession = async ({
   // Create the access token data
   const accessTokenData: TokenPayload = {
     sub: userId,
-    iss: "oauthabl",
+    iss: "authabl",
     aud: clientId,
     iat,
     type: "access",
@@ -131,7 +131,7 @@ export const createOrUpdateSession = async ({
     // Create the refresh token data
     const refreshTokenData: TokenPayload = {
       sub: userId,
-      iss: "oauthabl",
+      iss: "authabl",
       aud: clientId,
       iat,
       type: "refresh",

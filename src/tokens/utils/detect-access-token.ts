@@ -53,7 +53,7 @@ export const detectAccessToken = async (
   };
 
   if (
-    payload.iss === "oauthabl" &&
+    payload.iss === "authabl" &&
     payload.iss === accessTokenItem.value.iss &&
     payload.sub === accessTokenItem.value.sub &&
     payload.exp === accessTokenItem.value.exp &&

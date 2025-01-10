@@ -1,4 +1,4 @@
-name = "oauthabl-api"
+name = "authabl-api"
 main = "src/index.ts"
 compatibility_date = "2024-12-17"
 assets = { directory = "public" }
@@ -14,7 +14,7 @@ id = "dbf8308bccfd4b80936211bed77a2ac7"
 
 [[r2_buckets]]
 binding = "R2"
-bucket_name = "oauthabl"
+bucket_name = "authabl"
 
 # [[d1_databases]]
 # binding = "DB"

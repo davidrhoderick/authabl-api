@@ -7,7 +7,7 @@ export const bootstrapClient = async () => {
   });
 
   const clientResult: Client = await (
-    await SELF.fetch("https://api.oauthabl.com/clients", {
+    await SELF.fetch("https://api.authabl.com/clients", {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -21,7 +21,7 @@ export const bootstrapClient = async () => {
     })
   ).json();
 
-  headers.set("X-OAUTHABL-API-KEY", clientResult.secret);
+  headers.set("X-AUTHABL-API-KEY", clientResult.secret);
 
   return { headers, clientId: clientResult.id };
 };

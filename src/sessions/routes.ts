@@ -19,7 +19,7 @@ const tags = ["OAuth"];
 export const listSessionsRoute = createRoute({
   tags,
   description:
-    "Lists all sessions for a user.  Detects the current session via either a Bearer token, if used from a mobile device, or the `oauthabl_accesstoken` cookie, if used from a web client.",
+    "Lists all sessions for a user.  Detects the current session via either a Bearer token, if used from a mobile device, or the `authabl_accesstoken` cookie, if used from a web client.",
   method: "get",
   path: "/{clientId}/{userId}",
   request: {

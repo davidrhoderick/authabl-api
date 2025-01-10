@@ -14,7 +14,7 @@ describe("Users", () => {
     const { clientId, headers } = await bootstrapClient();
 
     const registrationResponse = await SELF.fetch(
-      `https://api.oauthabl.com/users/${clientId}`,
+      `https://api.authabl.com/users/${clientId}`,
       {
         method: "POST",
         headers,
@@ -44,7 +44,7 @@ describe("Users", () => {
     const { clientId, headers } = await bootstrapClient();
 
     const registrationResponse = await SELF.fetch(
-      `https://api.oauthabl.com/users/${clientId}`,
+      `https://api.authabl.com/users/${clientId}`,
       {
         method: "POST",
         headers,
@@ -76,7 +76,7 @@ describe("Users", () => {
     const { clientId, headers } = await bootstrapClient();
 
     const registrationResponse = await SELF.fetch(
-      `https://api.oauthabl.com/users/${clientId}`,
+      `https://api.authabl.com/users/${clientId}`,
       {
         method: "POST",
         headers,
@@ -92,7 +92,7 @@ describe("Users", () => {
   it("returns 422 if username is in use", async () => {
     const { clientId, headers } = await bootstrapClient();
 
-    await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+    await SELF.fetch(`https://api.authabl.com/users/${clientId}`, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -102,7 +102,7 @@ describe("Users", () => {
     });
 
     const registrationResponse = await SELF.fetch(
-      `https://api.oauthabl.com/users/${clientId}`,
+      `https://api.authabl.com/users/${clientId}`,
       {
         method: "POST",
         headers,
@@ -119,7 +119,7 @@ describe("Users", () => {
   it("returns 422 if email is in use", async () => {
     const { clientId, headers } = await bootstrapClient();
 
-    await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+    await SELF.fetch(`https://api.authabl.com/users/${clientId}`, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -129,7 +129,7 @@ describe("Users", () => {
     });
 
     const registrationResponse = await SELF.fetch(
-      `https://api.oauthabl.com/users/${clientId}`,
+      `https://api.authabl.com/users/${clientId}`,
       {
         method: "POST",
         headers,
@@ -147,7 +147,7 @@ describe("Users", () => {
     const { clientId, headers } = await bootstrapClient();
 
     const user: User = await (
-      await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+      await SELF.fetch(`https://api.authabl.com/users/${clientId}`, {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -159,7 +159,7 @@ describe("Users", () => {
     ).json();
 
     const getResponse = await SELF.fetch(
-      `https://api.oauthabl.com/users/${clientId}/id/${user.id}`,
+      `https://api.authabl.com/users/${clientId}/id/${user.id}`,
       {
         headers,
       },
@@ -181,7 +181,7 @@ describe("Users", () => {
     const { clientId, headers } = await bootstrapClient();
 
     const user: User = await (
-      await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+      await SELF.fetch(`https://api.authabl.com/users/${clientId}`, {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -193,7 +193,7 @@ describe("Users", () => {
     ).json();
 
     const getResponse = await SELF.fetch(
-      `https://api.oauthabl.com/users/${clientId}/email/${
+      `https://api.authabl.com/users/${clientId}/email/${
         // biome-ignore lint/style/noNonNullAssertion: Asserted in another test
         encodeURIComponent(user.emailAddresses?.[0]!)
       }`,
@@ -218,7 +218,7 @@ describe("Users", () => {
     const { clientId, headers } = await bootstrapClient();
 
     const user: User = await (
-      await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+      await SELF.fetch(`https://api.authabl.com/users/${clientId}`, {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -230,7 +230,7 @@ describe("Users", () => {
     ).json();
 
     const getResponse = await SELF.fetch(
-      `https://api.oauthabl.com/users/${clientId}/username/${user.username}`,
+      `https://api.authabl.com/users/${clientId}/username/${user.username}`,
       {
         headers,
       },
@@ -246,7 +246,7 @@ describe("Users", () => {
   it("returns 404 if user can't be found", async () => {
     const { clientId, headers } = await bootstrapClient();
 
-    await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+    await SELF.fetch(`https://api.authabl.com/users/${clientId}`, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -257,7 +257,7 @@ describe("Users", () => {
     });
 
     const getResponse = await SELF.fetch(
-      `https://api.oauthabl.com/users/${clientId}/email/bademailaddress@test.com`,
+      `https://api.authabl.com/users/${clientId}/email/bademailaddress@test.com`,
       {
         headers,
       },
@@ -270,7 +270,7 @@ describe("Users", () => {
     const { clientId, headers } = await bootstrapClient();
 
     const user1: User = await (
-      await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+      await SELF.fetch(`https://api.authabl.com/users/${clientId}`, {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -282,7 +282,7 @@ describe("Users", () => {
     ).json();
 
     const user2: User = await (
-      await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+      await SELF.fetch(`https://api.authabl.com/users/${clientId}`, {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -294,7 +294,7 @@ describe("Users", () => {
     ).json();
 
     const listResponse = await SELF.fetch(
-      `https://api.oauthabl.com/users/${clientId}`,
+      `https://api.authabl.com/users/${clientId}`,
       {
         headers,
       },
@@ -320,7 +320,7 @@ describe("Users", () => {
     const { clientId, headers } = await bootstrapClient();
 
     const user1 = await (
-      await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+      await SELF.fetch(`https://api.authabl.com/users/${clientId}`, {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -332,7 +332,7 @@ describe("Users", () => {
     ).json();
 
     const user2: User = await (
-      await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+      await SELF.fetch(`https://api.authabl.com/users/${clientId}`, {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -344,7 +344,7 @@ describe("Users", () => {
     ).json();
 
     const deleteResponse = await SELF.fetch(
-      `https://api.oauthabl.com/users/${clientId}/${user2.id}`,
+      `https://api.authabl.com/users/${clientId}/${user2.id}`,
       {
         method: "DELETE",
         headers,
@@ -354,7 +354,7 @@ describe("Users", () => {
     expect(deleteResponse.status).toBe(200);
 
     const listResult = await (
-      await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+      await SELF.fetch(`https://api.authabl.com/users/${clientId}`, {
         headers,
       })
     ).json();
@@ -363,7 +363,7 @@ describe("Users", () => {
     expect(listResult).not.toContainEqual(user2);
 
     const getByEmailResponse = await SELF.fetch(
-      `http://api.oauthabl.com/users/${clientId}/email/${
+      `http://api.authabl.com/users/${clientId}/email/${
         // biome-ignore lint/style/noNonNullAssertion: Asserted in another test
         encodeURIComponent(user2.emailAddresses?.[0]!)
       }`,
@@ -373,7 +373,7 @@ describe("Users", () => {
     expect(getByEmailResponse.status).toBe(404);
 
     const getByUsernameResponse = await SELF.fetch(
-      `http://api.oauthabl.com/users/${clientId}/email/${user2.username}`,
+      `http://api.authabl.com/users/${clientId}/email/${user2.username}`,
       { headers },
     );
 
@@ -384,7 +384,7 @@ describe("Users", () => {
     const { clientId, headers } = await bootstrapClient();
 
     const user: User = await (
-      await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+      await SELF.fetch(`https://api.authabl.com/users/${clientId}`, {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -396,7 +396,7 @@ describe("Users", () => {
     ).json();
 
     const updateResponse = await SELF.fetch(
-      `https://api.oauthabl.com/users/${clientId}/${user.id}`,
+      `https://api.authabl.com/users/${clientId}/${user.id}`,
       {
         method: "PATCH",
         headers,
@@ -423,7 +423,7 @@ describe("Users", () => {
 
     const getUserResult = await (
       await SELF.fetch(
-        `https://api.oauthabl.com/users/${clientId}/id/${user.id}`,
+        `https://api.authabl.com/users/${clientId}/id/${user.id}`,
         { headers },
       )
     ).json();
@@ -438,7 +438,7 @@ describe("Users", () => {
     const { clientId, headers } = await bootstrapClient();
 
     const user: User = await (
-      await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+      await SELF.fetch(`https://api.authabl.com/users/${clientId}`, {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -450,7 +450,7 @@ describe("Users", () => {
     ).json();
 
     const updateResponse = await SELF.fetch(
-      `https://api.oauthabl.com/users/${clientId}/${user.id}`,
+      `https://api.authabl.com/users/${clientId}/${user.id}`,
       {
         method: "PATCH",
         headers,
@@ -476,7 +476,7 @@ describe("Users", () => {
 
     const getUserResult = await (
       await SELF.fetch(
-        `https://api.oauthabl.com/users/${clientId}/id/${user.id}`,
+        `https://api.authabl.com/users/${clientId}/id/${user.id}`,
         { headers },
       )
     ).json();
@@ -490,7 +490,7 @@ describe("Users", () => {
   it("returns 422 when updating a user with an unavailable username", async () => {
     const { clientId, headers } = await bootstrapClient();
 
-    await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+    await SELF.fetch(`https://api.authabl.com/users/${clientId}`, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -501,7 +501,7 @@ describe("Users", () => {
     });
 
     const user: User = await (
-      await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+      await SELF.fetch(`https://api.authabl.com/users/${clientId}`, {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -513,7 +513,7 @@ describe("Users", () => {
     ).json();
 
     const updateResponse = await SELF.fetch(
-      `https://api.oauthabl.com/users/${clientId}/${user.id}`,
+      `https://api.authabl.com/users/${clientId}/${user.id}`,
       {
         method: "PATCH",
         headers,
@@ -529,7 +529,7 @@ describe("Users", () => {
   it("returns 422 when updating a user with an unavailable email", async () => {
     const { clientId, headers } = await bootstrapClient();
 
-    await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+    await SELF.fetch(`https://api.authabl.com/users/${clientId}`, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -540,7 +540,7 @@ describe("Users", () => {
     });
 
     const user: User = await (
-      await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+      await SELF.fetch(`https://api.authabl.com/users/${clientId}`, {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -552,7 +552,7 @@ describe("Users", () => {
     ).json();
 
     const updateResponse = await SELF.fetch(
-      `https://api.oauthabl.com/users/${clientId}/${user.id}`,
+      `https://api.authabl.com/users/${clientId}/${user.id}`,
       {
         method: "PATCH",
         headers,
@@ -568,7 +568,7 @@ describe("Users", () => {
   it("returns 404 when updating a user doesn't exist", async () => {
     const { clientId, headers } = await bootstrapClient();
 
-    await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+    await SELF.fetch(`https://api.authabl.com/users/${clientId}`, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -579,7 +579,7 @@ describe("Users", () => {
     });
 
     const user: User = await (
-      await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+      await SELF.fetch(`https://api.authabl.com/users/${clientId}`, {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -591,7 +591,7 @@ describe("Users", () => {
     ).json();
 
     const updateResponse = await SELF.fetch(
-      `https://api.oauthabl.com/users/${clientId}/${user.id}1`,
+      `https://api.authabl.com/users/${clientId}/${user.id}1`,
       {
         method: "PATCH",
         headers,

@@ -16,7 +16,7 @@ const newPassword = "Newtestpassword12345!";
 const bootstrap = async () => {
   const { clientId, headers } = await bootstrapClient();
 
-  await SELF.fetch(`https://api.oauthabl.com/users/${clientId}`, {
+  await SELF.fetch(`https://api.authabl.com/users/${clientId}`, {
     method: "POST",
     headers,
     body: JSON.stringify({
@@ -36,7 +36,7 @@ const checkOriginalPassword = async (
   inverse?: boolean,
 ) => {
   const response = await SELF.fetch(
-    `https://api.oauthabl.com/tokens/${clientId}/mobile`,
+    `https://api.authabl.com/tokens/${clientId}/mobile`,
     {
       headers,
       method: "POST",
@@ -63,7 +63,7 @@ const checkNewPassword = async (
   inverse?: boolean,
 ) => {
   const response = await SELF.fetch(
-    `https://api.oauthabl.com/tokens/${clientId}/mobile`,
+    `https://api.authabl.com/tokens/${clientId}/mobile`,
     {
       headers,
       method: "POST",
@@ -90,7 +90,7 @@ describe("Passwords", () => {
     const { headers, clientId } = await bootstrap();
 
     const forgotPasswordResponse = await SELF.fetch(
-      `https://api.oauthabl.com/passwords/${clientId}/forgot`,
+      `https://api.authabl.com/passwords/${clientId}/forgot`,
       {
         headers,
         method: "POST",
@@ -106,7 +106,7 @@ describe("Passwords", () => {
       await forgotPasswordResponse.json();
 
     const passwordResetResponse = await SELF.fetch(
-      `https://api.oauthabl.com/passwords/${clientId}/reset/mobile`,
+      `https://api.authabl.com/passwords/${clientId}/reset/mobile`,
       {
         headers,
         method: "POST",
@@ -128,7 +128,7 @@ describe("Passwords", () => {
 
     const user: User = await (
       await SELF.fetch(
-        `https://api.oauthabl.com/users/${clientId}/email/${email}`,
+        `https://api.authabl.com/users/${clientId}/email/${email}`,
         {
           headers,
         },
@@ -138,7 +138,7 @@ describe("Passwords", () => {
     expect(user.emailVerified).toBe(true);
 
     const consumePasswordResetResponse = await SELF.fetch(
-      `https://api.oauthabl.com/passwords/${clientId}/reset/web`,
+      `https://api.authabl.com/passwords/${clientId}/reset/web`,
       {
         headers,
         method: "POST",
@@ -154,7 +154,7 @@ describe("Passwords", () => {
 
     const sessionsResult: Sessions = await (
       await SELF.fetch(
-        `https://api.oauthabl.com/sessions/${clientId}/${user.id}`,
+        `https://api.authabl.com/sessions/${clientId}/${user.id}`,
         { headers },
       )
     ).json();
@@ -169,7 +169,7 @@ describe("Passwords", () => {
     const { headers, clientId } = await bootstrap();
 
     const forgotPasswordResponse = await SELF.fetch(
-      `https://api.oauthabl.com/passwords/${clientId}/forgot`,
+      `https://api.authabl.com/passwords/${clientId}/forgot`,
       {
         headers,
         method: "POST",
@@ -185,7 +185,7 @@ describe("Passwords", () => {
       await forgotPasswordResponse.json();
 
     const passwordResetResponse = await SELF.fetch(
-      `https://api.oauthabl.com/passwords/${clientId}/reset/web`,
+      `https://api.authabl.com/passwords/${clientId}/reset/web`,
       {
         headers,
         method: "POST",
@@ -208,7 +208,7 @@ describe("Passwords", () => {
     headers.set("cookie", cookies as string);
 
     const validationResponse = await SELF.fetch(
-      `https://api.oauthabl.com/tokens/${clientId}`,
+      `https://api.authabl.com/tokens/${clientId}`,
       { headers },
     );
 
@@ -216,7 +216,7 @@ describe("Passwords", () => {
 
     const user: User = await (
       await SELF.fetch(
-        `https://api.oauthabl.com/users/${clientId}/email/${email}`,
+        `https://api.authabl.com/users/${clientId}/email/${email}`,
         {
           headers,
         },
@@ -226,7 +226,7 @@ describe("Passwords", () => {
     expect(user.emailVerified).toBe(true);
 
     const consumePasswordResetResponse = await SELF.fetch(
-      `https://api.oauthabl.com/passwords/${clientId}/reset/web`,
+      `https://api.authabl.com/passwords/${clientId}/reset/web`,
       {
         headers,
         method: "POST",
@@ -242,7 +242,7 @@ describe("Passwords", () => {
 
     const sessionsResult: Sessions = await (
       await SELF.fetch(
-        `https://api.oauthabl.com/sessions/${clientId}/${user.id}`,
+        `https://api.authabl.com/sessions/${clientId}/${user.id}`,
         { headers },
       )
     ).json();
@@ -257,7 +257,7 @@ describe("Passwords", () => {
     const { headers, clientId } = await bootstrap();
 
     const forgotPasswordResponse = await SELF.fetch(
-      `https://api.oauthabl.com/passwords/${clientId}/forgot`,
+      `https://api.authabl.com/passwords/${clientId}/forgot`,
       {
         headers,
         method: "POST",
@@ -273,7 +273,7 @@ describe("Passwords", () => {
       await forgotPasswordResponse.json();
 
     const passwordResetResponse = await SELF.fetch(
-      `https://api.oauthabl.com/passwords/${clientId}/reset`,
+      `https://api.authabl.com/passwords/${clientId}/reset`,
       {
         headers,
         method: "POST",
@@ -295,7 +295,7 @@ describe("Passwords", () => {
     const { headers, clientId } = await bootstrap();
 
     const forgotPasswordResponse = await SELF.fetch(
-      `https://api.oauthabl.com/passwords/${clientId}/forgot`,
+      `https://api.authabl.com/passwords/${clientId}/forgot`,
       {
         headers,
         method: "POST",
@@ -311,7 +311,7 @@ describe("Passwords", () => {
       await forgotPasswordResponse.json();
 
     const passwordResetResponse = await SELF.fetch(
-      `https://api.oauthabl.com/passwords/${clientId}/reset/mobile`,
+      `https://api.authabl.com/passwords/${clientId}/reset/mobile`,
       {
         headers,
         method: "POST",
@@ -333,7 +333,7 @@ describe("Passwords", () => {
     const { headers, clientId } = await bootstrap();
 
     const forgotPasswordResponse = await SELF.fetch(
-      `https://api.oauthabl.com/passwords/${clientId}/forgot`,
+      `https://api.authabl.com/passwords/${clientId}/forgot`,
       {
         headers,
         method: "POST",
@@ -349,7 +349,7 @@ describe("Passwords", () => {
       await forgotPasswordResponse.json();
 
     const passwordResetResponse = await SELF.fetch(
-      `https://api.oauthabl.com/passwords/${clientId}/reset/web`,
+      `https://api.authabl.com/passwords/${clientId}/reset/web`,
       {
         headers,
         method: "POST",
@@ -371,7 +371,7 @@ describe("Passwords", () => {
     const { headers, clientId } = await bootstrap();
 
     const forgotPasswordResponse1 = await SELF.fetch(
-      `https://api.oauthabl.com/passwords/${clientId}/forgot`,
+      `https://api.authabl.com/passwords/${clientId}/forgot`,
       {
         headers,
         method: "POST",
@@ -387,7 +387,7 @@ describe("Passwords", () => {
       await forgotPasswordResponse1.json();
 
     const forgotPasswordResponse2 = await SELF.fetch(
-      `https://api.oauthabl.com/passwords/${clientId}/forgot`,
+      `https://api.authabl.com/passwords/${clientId}/forgot`,
       {
         headers,
         method: "POST",
@@ -403,7 +403,7 @@ describe("Passwords", () => {
       await forgotPasswordResponse2.json();
 
     const passwordResetResponse1 = await SELF.fetch(
-      `https://api.oauthabl.com/passwords/${clientId}/reset/mobile`,
+      `https://api.authabl.com/passwords/${clientId}/reset/mobile`,
       {
         headers,
         method: "POST",
@@ -418,7 +418,7 @@ describe("Passwords", () => {
     expect(passwordResetResponse1.status).toBe(422);
 
     const passwordResetResponse2 = await SELF.fetch(
-      `https://api.oauthabl.com/passwords/${clientId}/reset/mobile`,
+      `https://api.authabl.com/passwords/${clientId}/reset/mobile`,
       {
         headers,
         method: "POST",

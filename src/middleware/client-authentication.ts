@@ -6,7 +6,7 @@ import type { Bindings } from "../common/types";
 export const clientAuthentication = createMiddleware<{ Bindings: Bindings }>(
   async (c, next) => {
     const clientId = c.req.param("clientId");
-    const clientSecret = c.req.header("X-OAUTHABL-API-KEY");
+    const clientSecret = c.req.header("X-AUTHABL-API-KEY");
 
     try {
       const response = await c.env.KV.getWithMetadata<

@@ -22,7 +22,7 @@ const updateClient: UpdateClient = {
 
 describe("Clients", () => {
   it("creates a client", async () => {
-    const response = await SELF.fetch("https://api.oauthabl.com/clients", {
+    const response = await SELF.fetch("https://api.authabl.com/clients", {
       method: "post",
       body: JSON.stringify(client),
       headers: {
@@ -43,7 +43,7 @@ describe("Clients", () => {
 
   it("gets a clients", async () => {
     const createResult: Client = await (
-      await SELF.fetch("https://api.oauthabl.com/clients", {
+      await SELF.fetch("https://api.authabl.com/clients", {
         method: "post",
         body: JSON.stringify(client),
         headers: {
@@ -53,7 +53,7 @@ describe("Clients", () => {
     ).json();
 
     const response = await SELF.fetch(
-      `https://api.oauthabl.com/clients/${createResult.id}`,
+      `https://api.authabl.com/clients/${createResult.id}`,
       {
         method: "get",
       },
@@ -66,7 +66,7 @@ describe("Clients", () => {
 
   it("returns 404 if client doesn't exist", async () => {
     const createResult: Client = await (
-      await SELF.fetch("https://api.oauthabl.com/clients", {
+      await SELF.fetch("https://api.authabl.com/clients", {
         method: "post",
         body: JSON.stringify(client),
         headers: {
@@ -76,7 +76,7 @@ describe("Clients", () => {
     ).json();
 
     const updateResponse = await SELF.fetch(
-      `https://api.oauthabl.com/clients/${createResult.id}1`,
+      `https://api.authabl.com/clients/${createResult.id}1`,
       {
         method: "get",
         headers: {
@@ -94,7 +94,7 @@ describe("Clients", () => {
 
   it("lists all clients", async () => {
     const createResult: Client = await (
-      await SELF.fetch("https://api.oauthabl.com/clients", {
+      await SELF.fetch("https://api.authabl.com/clients", {
         method: "post",
         body: JSON.stringify(client),
         headers: {
@@ -103,7 +103,7 @@ describe("Clients", () => {
       })
     ).json();
 
-    const response = await SELF.fetch("https://api.oauthabl.com/clients", {
+    const response = await SELF.fetch("https://api.authabl.com/clients", {
       method: "get",
     });
 
@@ -120,7 +120,7 @@ describe("Clients", () => {
 
   it("updates a client", async () => {
     const createResult: Client = await (
-      await SELF.fetch("https://api.oauthabl.com/clients", {
+      await SELF.fetch("https://api.authabl.com/clients", {
         method: "post",
         body: JSON.stringify(client),
         headers: {
@@ -130,7 +130,7 @@ describe("Clients", () => {
     ).json();
 
     const updateResponse = await SELF.fetch(
-      `https://api.oauthabl.com/clients/${createResult.id}`,
+      `https://api.authabl.com/clients/${createResult.id}`,
       {
         method: "patch",
         body: JSON.stringify(updateClient),
@@ -153,7 +153,7 @@ describe("Clients", () => {
 
   it("returns 404 if updated client doesn't exist", async () => {
     const createResult: Client = await (
-      await SELF.fetch("https://api.oauthabl.com/clients", {
+      await SELF.fetch("https://api.authabl.com/clients", {
         method: "post",
         body: JSON.stringify(client),
         headers: {
@@ -163,7 +163,7 @@ describe("Clients", () => {
     ).json();
 
     const updateResponse = await SELF.fetch(
-      `https://api.oauthabl.com/clients/${createResult.id}1`,
+      `https://api.authabl.com/clients/${createResult.id}1`,
       {
         method: "patch",
         body: JSON.stringify(updateClient),
@@ -182,7 +182,7 @@ describe("Clients", () => {
 
   it("deletes a clients", async () => {
     const createResult: Client = await (
-      await SELF.fetch("https://api.oauthabl.com/clients", {
+      await SELF.fetch("https://api.authabl.com/clients", {
         method: "post",
         body: JSON.stringify(client),
         headers: {
@@ -192,7 +192,7 @@ describe("Clients", () => {
     ).json();
 
     const deleteResponse = await SELF.fetch(
-      `https://api.oauthabl.com/clients/${createResult.id}`,
+      `https://api.authabl.com/clients/${createResult.id}`,
       {
         method: "delete",
       },
@@ -201,7 +201,7 @@ describe("Clients", () => {
     expect(deleteResponse.status).toBe(200);
 
     const listResponse = await (
-      await SELF.fetch("https://api.oauthabl.com/clients", {
+      await SELF.fetch("https://api.authabl.com/clients", {
         method: "get",
       })
     ).json();

@@ -12,7 +12,7 @@ export const SESSION_PREFIX = "s";
 export const SESSIONACCESSTOKEN_PREFIX = "sa";
 export const SESSIONREFRESHTOKEN_PREFIX = "sr";
 
-export const ACCESSTOKEN_COOKIE = "oauthabl_accesstoken";
-export const REFRESHTOKEN_COOKIE = "oauthabl_refreshtoken";
+export const ACCESSTOKEN_COOKIE = "authabl_accesstoken";
+export const REFRESHTOKEN_COOKIE = "authabl_refreshtoken";
 
-export const OAUTHABL_CLIENTID = "oauthabl";
+export const AUTHABL_CLIENTID = "authabl";

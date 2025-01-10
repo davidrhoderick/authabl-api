@@ -19,7 +19,7 @@ export const SessionsSchema = z
 
 export const TokenPayloadSchema = z.object({
   sub: z.string().trim().min(1),
-  iss: z.literal("oauthabl"),
+  iss: z.literal("authabl"),
   exp: z.number().int(),
   aud: z.string().trim().min(1),
   iat: z.number().int(),

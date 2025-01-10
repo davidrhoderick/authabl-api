@@ -37,7 +37,7 @@ app
 app.openAPIRegistry.registerComponent("securitySchemes", "Client", {
   type: "apiKey",
   in: "header",
-  name: "X-OAUTHABL-API-KEY",
+  name: "X-AUTHABL-API-KEY",
 });
 
 app.openAPIRegistry.registerComponent("securitySchemes", "Mobile", {
@@ -51,14 +51,14 @@ app
     openapi: "3.0.0",
     info: {
       version: "1.0.0",
-      title: "oauthabl API",
+      title: "authabl API",
     },
   })
   .get(
     "/swagger",
     swaggerUI({
       url: "/openapi",
-      title: "oauthabl API",
+      title: "authabl API",
       manuallySwaggerUIHtml: (asset) => `
          <div>
            <div id="swagger-ui"></div>

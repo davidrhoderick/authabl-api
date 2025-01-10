@@ -5,7 +5,7 @@ import { splitClientMetadata } from "./clients/utils";
 import {
   CLIENT_PREFIX,
   EMAIL_PREFIX,
-  OAUTHABL_CLIENTID,
+  AUTHABL_CLIENTID,
   USER_PREFIX,
 } from "./common/constants";
 import type { Bindings } from "./common/types";
@@ -22,13 +22,13 @@ app.post("/", async (c) => {
     return c.json({ message: "Unauthorized", code: 401 }, 401);
 
   try {
-    const clientKey = `${CLIENT_PREFIX}:${OAUTHABL_CLIENTID}`;
+    const clientKey = `${CLIENT_PREFIX}:${AUTHABL_CLIENTID}`;
     const clientExists = await c.env.KV.get<ClientValue>(clientKey);
     if (!clientExists) {
       const client: Client = {
-        id: "oauthabl",
-        name: "oauthabl",
-        allowedOrigins: ["http://localhost:8787", "https://api.oauthabl.com"],
+        id: "authabl",
+        name: "authabl",
+        allowedOrigins: ["http://localhost:8787", "https://api.authabl.com"],
         accessTokenValidity: 3600,
         refreshTokenValidity: 1209600,
         disableRefreshToken: false,
@@ -39,15 +39,15 @@ app.post("/", async (c) => {
       const { value, options } = splitClientMetadata(client);
 
       await c.env.KV.put(clientKey, value, options);
-      console.log("Created oauthabl client with ID");
+      console.log("Created authabl client with ID");
     } else {
-      console.log("oauthabl client already exists");
+      console.log("authabl client already exists");
     }
 
-    const emailKey = `${EMAIL_PREFIX}:${OAUTHABL_CLIENTID}:${c.env.SUPERADMIN_EMAIL}`;
+    const emailKey = `${EMAIL_PREFIX}:${AUTHABL_CLIENTID}:${c.env.SUPERADMIN_EMAIL}`;
     const userId = await c.env.KV.get(emailKey);
     if (userId) {
-      const userKey = `${USER_PREFIX}:${OAUTHABL_CLIENTID}:${userId}`;
+      const userKey = `${USER_PREFIX}:${AUTHABL_CLIENTID}:${userId}`;
       const userExists = await c.env.KV.get<UserValue>(userKey, "json");
       if (userExists) {
         console.log("Superadmin already exists");
@@ -70,7 +70,7 @@ app.post("/", async (c) => {
       };
 
       // Save the user
-      const userKey = `${USER_PREFIX}:${OAUTHABL_CLIENTID}:${newUserId}`;
+      const userKey = `${USER_PREFIX}:${AUTHABL_CLIENTID}:${newUserId}`;
       await c.env.KV.put(userKey, JSON.stringify(value), { metadata });
       await c.env.KV.put(emailKey, newUserId);
 

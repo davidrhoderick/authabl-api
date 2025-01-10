@@ -52,7 +52,7 @@ export const detectRefreshToken = async (
   };
 
   if (
-    payload.iss === "oauthabl" &&
+    payload.iss === "authabl" &&
     payload.aud === refreshTokenItem.value.aud &&
     payload.sub === refreshTokenItem.value.sub &&
     payload.exp === refreshTokenItem.value.exp &&
