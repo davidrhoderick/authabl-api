@@ -67,6 +67,7 @@ app.post("/", async (c) => {
         emailVerified: true,
         createdAt,
         updatedAt,
+        role: "superadmin",
       };
 
       // Save the user

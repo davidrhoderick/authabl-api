@@ -25,7 +25,9 @@ export const TokenPayloadSchema = z.object({
   iat: z.number().int(),
   type: z.enum(["access", "refresh"]),
   sid: z.string().trim().min(1),
-  role: z.string().trim().min(1),
+  role: z
+    .enum(["superadmin", "clientadmin", "user"])
+    .or(z.string().trim().min(1)),
 });
 
 export const ArchivedSessionSchema = z

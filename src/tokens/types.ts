@@ -34,6 +34,7 @@ export type AccessTokenResult = {
   sessionId: string;
   accessTokenIndexKey?: string;
   accessTokenKey?: string;
+  role: string
 };
 
 export type RefreshTokenResult = {

@@ -73,5 +73,8 @@ export const User = z
     sessions: z.number().int().optional(),
     createdAt: z.number().int(),
     updatedAt: z.number().int(),
+    role: z
+      .enum(["superadmin", "clientadmin", "user"])
+      .or(z.string().regex(/^[A-Za-z]+$/)),
   })
   .openapi("User");

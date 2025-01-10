@@ -68,6 +68,7 @@ export const detectAccessToken = async (
       expiresAt: payload.exp,
       createdAt: payload.iat,
       sessionId: payload.sid,
+      role: payload.role,
     };
 
     if (returnToken)
