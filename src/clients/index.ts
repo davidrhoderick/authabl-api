@@ -12,8 +12,11 @@ import {
 } from "./routes";
 import type { ClientMetadata, ClientValue } from "./types";
 import { combineClientMetadata, splitClientMetadata } from "./utils";
+import { superadminAuthentication } from "../middleware/superadmin-authentication";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
+
+app.use(superadminAuthentication)
 
 app
   .openapi(getClientRoute, async (c) => {
