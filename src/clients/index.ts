@@ -3,6 +3,7 @@ import hyperid from "hyperid";
 import { CLIENT_PREFIX } from "../common/constants";
 import type { Bindings } from "../common/types";
 import { getClient } from "../common/utils";
+import { superadminAuthentication } from "../middleware/superadmin-authentication";
 import {
   createClientRoute,
   deleteClientRoute,
@@ -12,7 +13,6 @@ import {
 } from "./routes";
 import type { ClientMetadata, ClientValue } from "./types";
 import { combineClientMetadata, splitClientMetadata } from "./utils";
-import { superadminAuthentication } from "../middleware/superadmin-authentication";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 

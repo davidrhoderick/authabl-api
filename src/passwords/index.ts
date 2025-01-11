@@ -11,6 +11,7 @@ import {
   hashPassword,
 } from "../common/utils";
 import { clientAuthentication } from "../middleware/client-authentication";
+import { clearUsersSessions } from "../sessions/utils";
 import { createOrUpdateSession } from "../tokens/utils";
 import { setCookies } from "../tokens/utils/set-cookies";
 import type { UserMetadata, UserValue } from "../users/types";
@@ -21,7 +22,6 @@ import {
   webResetPasswordRoute,
 } from "./routes";
 import { verifyForgotPasswordCode } from "./utils";
-import { clearUsersSessions } from "../sessions/utils";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 

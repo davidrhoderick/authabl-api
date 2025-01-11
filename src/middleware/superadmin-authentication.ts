@@ -1,9 +1,9 @@
 import { createMiddleware } from "hono/factory";
+import { HTTPException } from "hono/http-exception";
 import type { ClientMetadata, ClientValue } from "../clients/types";
-import { CLIENT_PREFIX, AUTHABL_CLIENTID } from "../common/constants";
+import { AUTHABL_CLIENTID, CLIENT_PREFIX } from "../common/constants";
 import type { Bindings } from "../common/types";
 import { detectAccessToken } from "../tokens/utils";
-import { HTTPException } from "hono/http-exception";
 
 export const superadminAuthentication = createMiddleware<{
   Bindings: Bindings;

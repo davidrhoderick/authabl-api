@@ -4,10 +4,10 @@ import {
   REFRESHTOKEN_COOKIE,
 } from "../src/common/constants";
 import type { ForgotPasswordResponse } from "../src/passwords/types";
+import type { Sessions } from "../src/sessions/types";
 import type { MobileTokenResponse } from "../src/tokens/types";
 import type { User } from "../src/users/types";
 import { bootstrapClient } from "./test-utils";
-import type { Sessions } from "../src/sessions/types";
 
 const email = "test@test.com";
 const originalPassword = "Testp4ssw0rd!";

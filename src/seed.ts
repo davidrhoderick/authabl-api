@@ -3,9 +3,9 @@ import hyperid from "hyperid";
 import type { Client, ClientValue } from "./clients/types";
 import { splitClientMetadata } from "./clients/utils";
 import {
+  AUTHABL_CLIENTID,
   CLIENT_PREFIX,
   EMAIL_PREFIX,
-  AUTHABL_CLIENTID,
   USER_PREFIX,
 } from "./common/constants";
 import type { Bindings } from "./common/types";

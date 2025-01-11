@@ -2,6 +2,7 @@ import { swaggerUI } from "@hono/swagger-ui";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { cors } from "hono/cors";
 
+import { HTTPException } from "hono/http-exception";
 import clients from "./clients";
 import emails from "./emails";
 import passwords from "./passwords";
@@ -9,7 +10,6 @@ import seed from "./seed";
 import sessions from "./sessions";
 import tokens from "./tokens";
 import users from "./users";
-import { HTTPException } from "hono/http-exception";
 
 const app = new OpenAPIHono();
 

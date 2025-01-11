@@ -1,8 +1,8 @@
 import { createMiddleware } from "hono/factory";
+import { HTTPException } from "hono/http-exception";
 import type { ClientMetadata, ClientValue } from "../clients/types";
 import { CLIENT_PREFIX } from "../common/constants";
 import type { Bindings } from "../common/types";
-import { HTTPException } from "hono/http-exception";
 
 export const clientAuthentication = createMiddleware<{ Bindings: Bindings }>(
   async (c, next) => {
