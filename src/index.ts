@@ -9,6 +9,7 @@ import seed from "./seed";
 import sessions from "./sessions";
 import tokens from "./tokens";
 import users from "./users";
+import { HTTPException } from "hono/http-exception";
 
 const app = new OpenAPIHono();
 
@@ -30,7 +31,8 @@ app
   .route("/seed", seed)
   // Handle errors
   .onError((error, c) => {
-    console.error(JSON.stringify(error));
+    if (error instanceof HTTPException) return error.getResponse();
+
     return c.json({ code: 500, message: "Internal server error" }, 500);
   });
 
