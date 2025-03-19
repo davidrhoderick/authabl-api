@@ -7,4 +7,7 @@ export type Bindings = {
   SUPERADMIN_EMAIL: string;
   SUPERADMIN_PASSWORD: string;
   SEED_TOKEN: string;
+  DOPPLER_SDK_SERVICE_TOKEN: string;
+  DOPPLER_CONFIG: string;
+  DOPPLER_PROJECT: string;
 };

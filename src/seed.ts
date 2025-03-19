@@ -24,7 +24,9 @@ app.post("/", async (c) => {
   try {
     const clientKey = `${CLIENT_PREFIX}:${AUTHABL_CLIENTID}`;
     const clientExists = await c.env.KV.get<ClientValue>(clientKey);
+
     if (!clientExists) {
+      const authablClientSecret = hyperid()();
       const client: Client = {
         id: "authabl",
         name: "authabl",
@@ -33,8 +35,33 @@ app.post("/", async (c) => {
         refreshTokenValidity: 1209600,
         disableRefreshToken: false,
         refreshRefreshToken: true,
-        secret: hyperid()(),
+        secret: authablClientSecret,
       };
+
+      const dopplerSecretUpdateOptions = {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          "content-type": "application/json",
+          authorization: `Bearer ${c.env.DOPPLER_SDK_SERVICE_TOKEN}`,
+        },
+        body: JSON.stringify({
+          project: c.env.DOPPLER_PROJECT,
+          config: c.env.DOPPLER_CONFIG,
+          secrets: {
+            AUTHABL_CLIENT_SECRET: authablClientSecret,
+          },
+        }),
+      };
+
+      const response = await fetch(
+        "https://api.doppler.com/v3/configs/config/secrets",
+        dopplerSecretUpdateOptions,
+      );
+
+      const data: { success: boolean, messages: Array<string> } = await response.json();
+
+      if (!data.success) return c.json({ message: data.messages.join(', '), code: 500 }, 500);
 
       const { value, options } = splitClientMetadata(client);
 
