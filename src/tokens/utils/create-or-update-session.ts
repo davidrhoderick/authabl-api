@@ -16,6 +16,7 @@ import type { RefreshTokenResult, SessionValue, TokenPayload } from "../types";
 import { detectAccessToken } from "./detect-access-token";
 import { detectRefreshToken } from "./detect-refresh-token";
 import { invalidateTokens } from "./invalidate-tokens";
+import type { User } from "../../users/types";
 
 type CreateSessionResult = {
   accessToken: string;
@@ -27,14 +28,14 @@ type CreateSessionResult = {
 
 export const createOrUpdateSession = async ({
   clientId,
-  userId,
+  user: { id: userId, role },
   refreshToken: providedRefreshToken,
   refreshTokenResult: providedRefreshTokenResult,
   c,
   forceNew,
 }: {
   clientId: string;
-  userId: string;
+  user: Pick<User, "id" | "role">;
   refreshToken?: string;
   refreshTokenResult?: RefreshTokenResult;
   c: Context<{ Bindings: Bindings }>;
@@ -99,7 +100,7 @@ export const createOrUpdateSession = async ({
     type: "access",
     exp: iat + accessTokenValidity * 1000,
     sid: sessionId,
-    role: "user",
+    role,
   };
   const accessTokenString = JSON.stringify(accessTokenData);
   const accessToken = await sign(accessTokenData, c.env.ACCESSTOKEN_SECRET);
@@ -137,7 +138,7 @@ export const createOrUpdateSession = async ({
       type: "refresh",
       exp: iat + refreshTokenValidity * 1000,
       sid: sessionId,
-      role: "user",
+      role,
     };
     const refreshTokenString = JSON.stringify(refreshTokenData);
 

@@ -38,9 +38,14 @@ app
 
     if (!user) return c.json({ code: 401, message: "Unauthorized" }, 401);
 
+    const { id, role } = user;
+
     const result = await createOrUpdateSession({
       clientId,
-      userId: user.id,
+      user: {
+        id,
+        role,
+      },
       c,
     });
 
@@ -72,10 +77,12 @@ app
     });
 
     if (!user) return c.json({ code: 401, message: "Unauthorized" }, 401);
+    
+    const { id, role } = user;
 
     const result = await createOrUpdateSession({
       clientId,
-      userId: user.id,
+      user: { id, role },
       c,
     });
 
@@ -111,7 +118,10 @@ app
     // Create a new session
     const sessionResult = await createOrUpdateSession({
       clientId: refreshTokenResult.clientId,
-      userId: refreshTokenResult.userId,
+      user: {
+        id: refreshTokenResult.userId,
+        role: refreshTokenResult.role,
+      },
       refreshToken,
       refreshTokenResult,
       c,
