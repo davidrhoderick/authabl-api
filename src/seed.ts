@@ -16,9 +16,8 @@ const app = new Hono<{ Bindings: Bindings }>();
 
 app.post("/", async (c) => {
   const authorizationHeader = c.req.header("Authorization");
-  const seedToken = authorizationHeader?.split("Bearer ")[1];
 
-  if (seedToken !== c.env.SEED_TOKEN)
+  if (authorizationHeader !== c.env.SEED_TOKEN)
     return c.json({ message: "Unauthorized", code: 401 }, 401);
 
   try {
