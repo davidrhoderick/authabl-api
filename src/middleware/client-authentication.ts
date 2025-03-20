@@ -1,9 +1,9 @@
 import type { MiddlewareHandler } from "hono";
 import { createMiddleware } from "hono/factory";
+import { HTTPException } from "hono/http-exception";
 import type { ClientMetadata, ClientValue } from "../clients/types";
 import { CLIENT_PREFIX } from "../common/constants";
 import type { Bindings } from "../common/types";
-import { HTTPException } from "hono/http-exception";
 
 export const clientAuthenticationMiddleware: MiddlewareHandler<{
   Bindings: Bindings;
