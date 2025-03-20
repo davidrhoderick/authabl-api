@@ -1,4 +1,5 @@
 import { compareSync, hashSync } from "bcrypt-edge";
+import { HTTPException } from "hono/http-exception";
 import type { ClientMetadata, ClientValue } from "../clients/types";
 import { combineClientMetadata } from "../clients/utils";
 import type { User, UserMetadata, UserValue } from "../users/types";
@@ -10,7 +11,6 @@ import {
   USER_PREFIX,
   VERIFICATIONCODE_PREFIX,
 } from "./constants";
-import { HTTPException } from "hono/http-exception";
 
 export const getClient = async ({
   kv,

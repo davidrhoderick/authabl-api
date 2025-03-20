@@ -1,5 +1,5 @@
-import * as tokenUtils from "../src/tokens/utils";
 import { clientAuthenticationMiddleware } from "../src/middleware/client-authentication";
+import * as tokenUtils from "../src/tokens/utils";
 
 const getWithMetadataSpy = vi.fn();
 

@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
+import type { Bindings } from "../src/common/types";
 import { superadminAuthenticationMiddleware } from "../src/middleware/superadmin-authentication";
 import * as tokenUtils from "../src/tokens/utils";
-import type { Bindings } from "../src/common/types";
 
 const getWithMetadataSpy = vi.fn();
 

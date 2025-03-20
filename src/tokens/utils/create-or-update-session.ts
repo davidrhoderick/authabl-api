@@ -12,11 +12,11 @@ import {
 } from "../../common/constants";
 import type { Bindings } from "../../common/types";
 import { getClient } from "../../common/utils";
+import type { User } from "../../users/types";
 import type { RefreshTokenResult, SessionValue, TokenPayload } from "../types";
 import { detectAccessToken } from "./detect-access-token";
 import { detectRefreshToken } from "./detect-refresh-token";
 import { invalidateTokens } from "./invalidate-tokens";
-import type { User } from "../../users/types";
 
 type CreateSessionResult = {
   accessToken: string;
