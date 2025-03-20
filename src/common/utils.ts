@@ -10,6 +10,7 @@ import {
   USER_PREFIX,
   VERIFICATIONCODE_PREFIX,
 } from "./constants";
+import { HTTPException } from "hono/http-exception";
 
 export const getClient = async ({
   kv,
@@ -174,3 +175,13 @@ export const getUserByProperty = async ({
     username: property === "username" ? identifier : undefined,
   });
 };
+
+export const UnauthorizedError = new HTTPException(401, {
+  res: new Response(
+    JSON.stringify({ code: 401, message: "Unauthorized" }),
+    {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    },
+  ),
+})

@@ -1,7 +1,5 @@
-import { env } from "cloudflare:test";
-import { superadminAuthenticationMiddleware } from "../src/middleware/superadmin-authentication";
 import * as tokenUtils from "../src/tokens/utils";
-import type { Bindings } from "../src/common/types";
+import { clientAuthenticationMiddleware } from "../src/middleware/client-authentication";
 
 const getWithMetadataSpy = vi.fn();
 
@@ -9,26 +7,15 @@ const KV = {
   getWithMetadata: getWithMetadataSpy,
 };
 
-describe("Superadmin Authentication Middleware", () => {
-  it("calls next if an authabl superadmin", async () => {
-    vi.spyOn(tokenUtils, "detectAccessToken").mockImplementation(async () =>
-      Promise.resolve({
-        userId: "123456",
-        clientId: "authabl",
-        createdAt: 123456,
-        expiresAt: 1234567,
-        sessionId: "sessionId",
-        role: "superadmin",
-      }),
-    );
-
+describe("Client Authentication Middleware", () => {
+  it("calls next if matching client ID and secret", async () => {
     getWithMetadataSpy.mockImplementation(() => ({
-      metadata: { secret: (env as Bindings).AUTHABL_CLIENT_SECRET },
+      metadata: { secret: 'clientSecret' },
     }));
 
     const nextSpy = vi.fn();
 
-    await superadminAuthenticationMiddleware(
+    await clientAuthenticationMiddleware(
       {
         env: {
           // @ts-expect-error For tests, we don't care about full type-safety
@@ -36,9 +23,10 @@ describe("Superadmin Authentication Middleware", () => {
         },
         // @ts-expect-error For tests, we don't care about full type-safety
         req: {
+          param: (name: string) => name === 'clientId' ? 'clientId' : '',
           header: (name: string) =>
             name === "X-AUTHABL-API-KEY"
-              ? (env as Bindings).AUTHABL_CLIENT_SECRET
+              ? 'clientSecret'
               : undefined,
         } as { header: () => string | undefined },
       },
@@ -65,7 +53,7 @@ describe("Superadmin Authentication Middleware", () => {
     const nextSpy = vi.fn();
 
     expect(
-      superadminAuthenticationMiddleware(
+      clientAuthenticationMiddleware(
         {
           env: {
             // @ts-expect-error For tests, we don't care about full type-safety
@@ -73,9 +61,10 @@ describe("Superadmin Authentication Middleware", () => {
           },
           // @ts-expect-error For tests, we don't care about full type-safety
           req: {
+            param: (name: string) => name === 'clientId' ? 'clientId' : '',
             header: (name: string) =>
               name === "X-AUTHABL-API-KEY"
-                ? (env as Bindings).AUTHABL_CLIENT_SECRET
+                ? 'clientSecret'
                 : undefined,
           } as { header: () => string | undefined },
         },
@@ -99,13 +88,13 @@ describe("Superadmin Authentication Middleware", () => {
     );
 
     getWithMetadataSpy.mockImplementation(() => ({
-      metadata: { secret: `${(env as Bindings).AUTHABL_CLIENT_SECRET}!` },
+      metadata: { secret: "clientSecret!" },
     }));
 
     const nextSpy = vi.fn();
 
     await expect(
-      superadminAuthenticationMiddleware(
+      clientAuthenticationMiddleware(
         {
           env: {
             // @ts-expect-error For tests, we don't care about full type-safety
@@ -113,49 +102,10 @@ describe("Superadmin Authentication Middleware", () => {
           },
           // @ts-expect-error For tests, we don't care about full type-safety
           req: {
+            param: (name: string) => name === 'clientId' ? 'clientId' : '',
             header: (name: string) =>
               name === "X-AUTHABL-API-KEY"
-                ? (env as Bindings).AUTHABL_CLIENT_SECRET
-                : undefined,
-          } as { header: () => string | undefined },
-        },
-        nextSpy,
-      ),
-    ).rejects.toThrow401HTTPExceptionError();
-
-    expect(nextSpy).not.toHaveBeenCalled();
-  });
-
-  it("returns 401 if not a superadmin", async () => {
-    vi.spyOn(tokenUtils, "detectAccessToken").mockImplementation(async () =>
-      Promise.resolve({
-        userId: "123456",
-        clientId: "authabl",
-        createdAt: 123456,
-        expiresAt: 1234567,
-        sessionId: "sessionId",
-        role: "clientadmin",
-      }),
-    );
-
-    getWithMetadataSpy.mockImplementation(() => ({
-      metadata: { secret: (env as Bindings).AUTHABL_CLIENT_SECRET },
-    }));
-
-    const nextSpy = vi.fn();
-
-    await expect(
-      superadminAuthenticationMiddleware(
-        {
-          env: {
-            // @ts-expect-error For tests, we don't care about full type-safety
-            KV,
-          },
-          // @ts-expect-error For tests, we don't care about full type-safety
-          req: {
-            header: (name: string) =>
-              name === "X-AUTHABL-API-KEY"
-                ? (env as Bindings).AUTHABL_CLIENT_SECRET
+                ? 'clientSecret'
                 : undefined,
           } as { header: () => string | undefined },
         },
