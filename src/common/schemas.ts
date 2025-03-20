@@ -77,6 +77,6 @@ export const User = z
     sessions: z.number().int().optional(),
     createdAt: z.number().int(),
     updatedAt: z.number().int(),
-    role: zodRole.default('user'),
+    role: zodRole.default("user"),
   })
   .openapi("User");

@@ -13,7 +13,7 @@ export const RegistrationBodySchema = z
     username: zodUsername.optional(),
     password: zodPassword,
     verifyEmail: z.boolean().optional(),
-    role: zodRole.optional()
+    role: zodRole.optional(),
   })
   .openapi("RegistrationRequest");
 

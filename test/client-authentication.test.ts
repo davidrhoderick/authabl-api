@@ -10,7 +10,7 @@ const KV = {
 describe("Client Authentication Middleware", () => {
   it("calls next if matching client ID and secret", async () => {
     getWithMetadataSpy.mockImplementation(() => ({
-      metadata: { secret: 'clientSecret' },
+      metadata: { secret: "clientSecret" },
     }));
 
     const nextSpy = vi.fn();
@@ -23,11 +23,9 @@ describe("Client Authentication Middleware", () => {
         },
         // @ts-expect-error For tests, we don't care about full type-safety
         req: {
-          param: (name: string) => name === 'clientId' ? 'clientId' : '',
+          param: (name: string) => (name === "clientId" ? "clientId" : ""),
           header: (name: string) =>
-            name === "X-AUTHABL-API-KEY"
-              ? 'clientSecret'
-              : undefined,
+            name === "X-AUTHABL-API-KEY" ? "clientSecret" : undefined,
         } as { header: () => string | undefined },
       },
       nextSpy,
@@ -61,11 +59,9 @@ describe("Client Authentication Middleware", () => {
           },
           // @ts-expect-error For tests, we don't care about full type-safety
           req: {
-            param: (name: string) => name === 'clientId' ? 'clientId' : '',
+            param: (name: string) => (name === "clientId" ? "clientId" : ""),
             header: (name: string) =>
-              name === "X-AUTHABL-API-KEY"
-                ? 'clientSecret'
-                : undefined,
+              name === "X-AUTHABL-API-KEY" ? "clientSecret" : undefined,
           } as { header: () => string | undefined },
         },
         nextSpy,
@@ -102,11 +98,9 @@ describe("Client Authentication Middleware", () => {
           },
           // @ts-expect-error For tests, we don't care about full type-safety
           req: {
-            param: (name: string) => name === 'clientId' ? 'clientId' : '',
+            param: (name: string) => (name === "clientId" ? "clientId" : ""),
             header: (name: string) =>
-              name === "X-AUTHABL-API-KEY"
-                ? 'clientSecret'
-                : undefined,
+              name === "X-AUTHABL-API-KEY" ? "clientSecret" : undefined,
           } as { header: () => string | undefined },
         },
         nextSpy,

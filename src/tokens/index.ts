@@ -77,7 +77,7 @@ app
     });
 
     if (!user) return c.json({ code: 401, message: "Unauthorized" }, 401);
-    
+
     const { id, role } = user;
 
     const result = await createOrUpdateSession({

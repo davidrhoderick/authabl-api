@@ -67,7 +67,7 @@ export const detectRefreshToken = async (
       expiresAt: payload.exp,
       createdAt: payload.iat,
       sessionId: payload.sid,
-      role: payload.role
+      role: payload.role,
     };
 
     if (returnToken)

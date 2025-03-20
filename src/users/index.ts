@@ -39,7 +39,7 @@ app
     const id = hyperid({ urlSafe: true })();
 
     const emailVerified = false;
-    const role = rest.role ?? 'user'
+    const role = rest.role ?? "user";
 
     const response: User & { code?: string } = {
       id,
@@ -135,7 +135,7 @@ app
             emailVerified,
             createdAt,
             updatedAt,
-            role
+            role,
           },
         }) => {
           return {
@@ -148,7 +148,7 @@ app
             emailVerified,
             createdAt,
             updatedAt,
-            role
+            role,
           };
         },
       ) as Array<User>,

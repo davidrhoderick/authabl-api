@@ -16,7 +16,7 @@ import { combineClientMetadata, splitClientMetadata } from "./utils";
 
 const app = new OpenAPIHono<{ Bindings: Bindings }>();
 
-app.use(superadminAuthentication)
+app.use(superadminAuthentication);
 
 app
   .openapi(getClientRoute, async (c) => {

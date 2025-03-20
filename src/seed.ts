@@ -59,9 +59,11 @@ app.post("/", async (c) => {
         dopplerSecretUpdateOptions,
       );
 
-      const data: { success: boolean, messages: Array<string> } = await response.json();
+      const data: { success: boolean; messages: Array<string> } =
+        await response.json();
 
-      if (!data.success) return c.json({ message: data.messages.join(', '), code: 500 }, 500);
+      if (!data.success)
+        return c.json({ message: data.messages.join(", "), code: 500 }, 500);
 
       const { value, options } = splitClientMetadata(client);
 

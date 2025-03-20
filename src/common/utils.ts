@@ -177,11 +177,8 @@ export const getUserByProperty = async ({
 };
 
 export const UnauthorizedError = new HTTPException(401, {
-  res: new Response(
-    JSON.stringify({ code: 401, message: "Unauthorized" }),
-    {
-      status: 401,
-      headers: { "Content-Type": "application/json" },
-    },
-  ),
-})
+  res: new Response(JSON.stringify({ code: 401, message: "Unauthorized" }), {
+    status: 401,
+    headers: { "Content-Type": "application/json" },
+  }),
+});

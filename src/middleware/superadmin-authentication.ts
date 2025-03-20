@@ -21,8 +21,7 @@ export const superadminAuthenticationMiddleware: MiddlewareHandler<{
 
   const accessTokenResult = await detectAccessToken(c);
 
-  if (accessTokenResult?.role !== "superadmin")
-    throw UnauthorizedError;
+  if (accessTokenResult?.role !== "superadmin") throw UnauthorizedError;
 
   await next();
 };

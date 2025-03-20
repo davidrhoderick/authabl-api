@@ -34,7 +34,7 @@ export type AccessTokenResult = {
   sessionId: string;
   accessTokenIndexKey?: string;
   accessTokenKey?: string;
-  role: string
+  role: string;
 };
 
 export type RefreshTokenResult = {
@@ -45,7 +45,7 @@ export type RefreshTokenResult = {
   sessionId: string;
   refreshTokenIndexKey?: string;
   refreshTokenKey?: string;
-  role: string
+  role: string;
 };
 
 export type AccessTokenMetadata = {
