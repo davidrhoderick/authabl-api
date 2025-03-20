@@ -1650,7 +1650,7 @@ __metadata:
     hono: "npm:^4.6.14"
     hyperid: "npm:^3.3.0"
     vitest: "npm:2.1.8"
-    wrangler: "npm:^4.2.0"
+    wrangler: "npm:4"
   languageName: unknown
   linkType: soft
 
@@ -4024,7 +4024,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"wrangler@npm:^4.2.0":
+"wrangler@npm:4":
   version: 4.2.0
   resolution: "wrangler@npm:4.2.0"
   dependencies:
