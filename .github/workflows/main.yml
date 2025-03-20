@@ -74,6 +74,4 @@ jobs:
       - env:
           SEED_SECRET: ${{ secrets.SEED_TOKEN }}
         run: |
-          curl -X POST "https://api.authabl.com/seed" \
-            -H "Authorization: Bearer $SEED_TOKEN" \
-            -H "Content-Type: application/json"
+          curl -X POST "https://api.authabl.com/seed" -H "Authorization: Bearer $SEED_TOKEN" -H "Content-Type: application/json"
