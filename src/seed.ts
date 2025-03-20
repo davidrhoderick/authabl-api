@@ -11,14 +11,21 @@ import {
 import type { Bindings } from "./common/types";
 import { hashPassword } from "./common/utils";
 import type { UserMetadata, UserValue } from "./users/types";
+import type { ContentfulStatusCode } from "hono/utils/http-status";
 
 const app = new Hono<{ Bindings: Bindings }>();
 
 app.post("/", async (c) => {
   const authorizationHeader = c.req.header("Authorization");
+  const seedToken = authorizationHeader?.split("Bearer ")[1];
 
-  if (authorizationHeader !== c.env.SEED_TOKEN)
+  if (seedToken !== c.env.SEED_TOKEN)
     return c.json({ message: "Unauthorized", code: 401 }, 401);
+
+  const seedResponse: { message: string; code: ContentfulStatusCode } = {
+    message: "",
+    code: 200,
+  };
 
   try {
     const clientKey = `${CLIENT_PREFIX}:${AUTHABL_CLIENTID}`;
@@ -67,9 +74,11 @@ app.post("/", async (c) => {
       const { value, options } = splitClientMetadata(client);
 
       await c.env.KV.put(clientKey, value, options);
-      console.log("Created authabl client with ID");
+      seedResponse.message = "Created authabl client with ID";
+      console.log(seedResponse.message);
     } else {
-      console.log("authabl client already exists");
+      seedResponse.message = "authabl client already exists";
+      console.log(seedResponse.message);
     }
 
     const emailKey = `${EMAIL_PREFIX}:${AUTHABL_CLIENTID}:${c.env.SUPERADMIN_EMAIL}`;
@@ -78,7 +87,8 @@ app.post("/", async (c) => {
       const userKey = `${USER_PREFIX}:${AUTHABL_CLIENTID}:${userId}`;
       const userExists = await c.env.KV.get<UserValue>(userKey, "json");
       if (userExists) {
-        console.log("Superadmin already exists");
+        seedResponse.message = "Superadmin already exists";
+        console.log(seedResponse.message);
       } else {
         console.error("Inconsistent state: Email key found, but user missing");
       }
@@ -103,7 +113,9 @@ app.post("/", async (c) => {
       await c.env.KV.put(userKey, JSON.stringify(value), { metadata });
       await c.env.KV.put(emailKey, newUserId);
 
-      console.log("Created superadmin");
+      seedResponse.message = "Created superadmin";
+      seedResponse.code = 201
+      console.log(seedResponse.message);
     }
   } catch (error) {
     console.error(error);
@@ -111,7 +123,7 @@ app.post("/", async (c) => {
   }
 
   // Return the response
-  return c.json({ message: "Created superadmin", code: 200 }, 200);
+  return c.json(seedResponse, seedResponse.code);
 });
 
 export default app;
