@@ -39,16 +39,18 @@ app
     const id = hyperid({ urlSafe: true })();
 
     const emailVerified = false;
+    const role = rest.role ?? 'user'
 
     const response: User & { code?: string } = {
       id,
+      role,
       emailVerified,
       createdAt,
       updatedAt,
     };
 
     const options: { metadata: UserMetadata } = {
-      metadata: { emailVerified, createdAt, updatedAt },
+      metadata: { emailVerified, createdAt, updatedAt, role },
     };
 
     if (!rest.username?.length && !rest.email?.length)
@@ -108,7 +110,7 @@ app
     if (!rest.verifyEmail)
       await createOrUpdateSession({
         clientId,
-        userId: id,
+        user: { id, role },
         c,
         forceNew: true,
       });
@@ -133,6 +135,7 @@ app
             emailVerified,
             createdAt,
             updatedAt,
+            role
           },
         }) => {
           return {
@@ -145,6 +148,7 @@ app
             emailVerified,
             createdAt,
             updatedAt,
+            role
           };
         },
       ) as Array<User>,
@@ -216,6 +220,7 @@ app
         sessions: sessions.keys.length,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
+        role: user.role,
       },
       200,
     );

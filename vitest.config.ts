@@ -18,6 +18,8 @@ export default defineWorkersConfig({
     },
     alias: {
       hyperid: resolve("./mocks/hyperid.ts"),
+      '../middleware/superadmin-authentication': resolve('./mocks/superadmin-authentication.ts'),
+      '../middleware/client-authentication': resolve('./mocks/client-authentication.ts')
     },
   },
 });

@@ -101,7 +101,7 @@ app
 
     const result = await createOrUpdateSession({
       clientId,
-      userId: user.id,
+      user: { id: user.id, role: user.role },
       c,
       forceNew: true,
     });
@@ -169,7 +169,7 @@ app
 
     const result = await createOrUpdateSession({
       clientId,
-      userId: user.id,
+      user: { id: user.id, role: user.role },
       c,
       forceNew: true,
     });

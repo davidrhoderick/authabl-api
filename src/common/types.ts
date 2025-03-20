@@ -10,4 +10,5 @@ export type Bindings = {
   DOPPLER_SDK_SERVICE_TOKEN: string;
   DOPPLER_CONFIG: string;
   DOPPLER_PROJECT: string;
+  AUTHABL_CLIENT_SECRET: string;
 };

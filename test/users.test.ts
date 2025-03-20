@@ -37,6 +37,7 @@ describe("Users", () => {
       emailVerified: false,
       createdAt: expect.any(Number),
       updatedAt: expect.any(Number),
+      role: "user",
     });
   });
 
@@ -69,6 +70,7 @@ describe("Users", () => {
       code: expect.any(String),
       createdAt: expect.any(Number),
       updatedAt: expect.any(Number),
+      role: "user",
     });
   });
 
@@ -174,6 +176,7 @@ describe("Users", () => {
       sessions: expect.any(Number),
       createdAt: expect.any(Number),
       updatedAt: expect.any(Number),
+      role: "user",
     });
   });
 
@@ -308,11 +311,13 @@ describe("Users", () => {
       ...user1,
       createdAt: expect.any(Number),
       updatedAt: expect.any(Number),
+      role: "user",
     });
     expect(listResult).toContainEqual({
       ...user2,
       createdAt: expect.any(Number),
       updatedAt: expect.any(Number),
+      role: "user",
     });
   });
 
@@ -419,6 +424,7 @@ describe("Users", () => {
       id: user.id,
       createdAt: expect.any(Number),
       updatedAt: expect.any(Number),
+      role: "user",
     });
 
     const getUserResult = await (
@@ -472,6 +478,7 @@ describe("Users", () => {
       id: user.id,
       createdAt: expect.any(Number),
       updatedAt: expect.any(Number),
+      role: "user",
     });
 
     const getUserResult = await (

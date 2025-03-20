@@ -2,6 +2,10 @@ import { z } from "@hono/zod-openapi";
 
 export const zodUsername = z.string().regex(/\w{5,32}/);
 
+export const zodRole = z
+  .enum(["superadmin", "clientadmin", "user"])
+  .or(z.string().regex(/^[A-Za-z]+$/));
+
 export const zodPassword = z
   .string()
   .min(8, "Password must be at least 8 characters long")
@@ -73,8 +77,6 @@ export const User = z
     sessions: z.number().int().optional(),
     createdAt: z.number().int(),
     updatedAt: z.number().int(),
-    role: z
-      .enum(["superadmin", "clientadmin", "user"])
-      .or(z.string().regex(/^[A-Za-z]+$/)),
+    role: zodRole.default('user'),
   })
   .openapi("User");

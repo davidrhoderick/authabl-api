@@ -3,6 +3,7 @@ import {
   ClientIdParamSchema,
   User,
   zodPassword,
+  zodRole,
   zodUsername,
 } from "../common/schemas";
 
@@ -12,6 +13,7 @@ export const RegistrationBodySchema = z
     username: zodUsername.optional(),
     password: zodPassword,
     verifyEmail: z.boolean().optional(),
+    role: zodRole.optional()
   })
   .openapi("RegistrationRequest");
 
