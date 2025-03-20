@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import type { ContentfulStatusCode } from "hono/utils/http-status";
 import hyperid from "hyperid";
 import type { Client, ClientValue } from "./clients/types";
 import { splitClientMetadata } from "./clients/utils";
@@ -11,7 +12,6 @@ import {
 import type { Bindings } from "./common/types";
 import { hashPassword } from "./common/utils";
 import type { UserMetadata, UserValue } from "./users/types";
-import type { ContentfulStatusCode } from "hono/utils/http-status";
 
 const app = new Hono<{ Bindings: Bindings }>();
 
@@ -114,7 +114,7 @@ app.post("/", async (c) => {
       await c.env.KV.put(emailKey, newUserId);
 
       seedResponse.message = "Created superadmin";
-      seedResponse.code = 201
+      seedResponse.code = 201;
       console.log(seedResponse.message);
     }
   } catch (error) {
