@@ -1,5 +1,4 @@
 import { compareSync, hashSync } from "bcrypt-edge";
-import { HTTPException } from "hono/http-exception";
 import type { ClientMetadata, ClientValue } from "../clients/types";
 import { combineClientMetadata } from "../clients/utils";
 import type { User, UserMetadata, UserValue } from "../users/types";
@@ -175,10 +174,3 @@ export const getUserByProperty = async ({
     username: property === "username" ? identifier : undefined,
   });
 };
-
-export const UnauthorizedError = new HTTPException(401, {
-  res: new Response(JSON.stringify({ code: 401, message: "Unauthorized" }), {
-    status: 401,
-    headers: { "Content-Type": "application/json" },
-  }),
-});

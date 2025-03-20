@@ -3,7 +3,7 @@ import { createMiddleware } from "hono/factory";
 import type { ClientMetadata, ClientValue } from "../clients/types";
 import { CLIENT_PREFIX } from "../common/constants";
 import type { Bindings } from "../common/types";
-import { UnauthorizedError } from "../common/utils";
+import { HTTPException } from "hono/http-exception";
 
 export const clientAuthenticationMiddleware: MiddlewareHandler<{
   Bindings: Bindings;
@@ -17,7 +17,15 @@ export const clientAuthenticationMiddleware: MiddlewareHandler<{
   );
 
   if (response.value === null || response.metadata?.secret !== clientSecret)
-    throw UnauthorizedError;
+    throw new HTTPException(401, {
+      res: new Response(
+        JSON.stringify({ code: 401, message: "Unauthorized" }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        },
+      ),
+    });
 
   await next();
 };
