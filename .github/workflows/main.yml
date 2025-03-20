@@ -71,11 +71,13 @@ jobs:
     timeout-minutes: 60
     needs: Deploy
     steps:
+      - name: Check available secrets
+        run: env | sort
       - env:
           SEED_SECRET: ${{ secrets.SEED_TOKEN }}
         run: |
           STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST "https://api.authabl.com/seed" -H "Authorization: Bearer $SEED_TOKEN" -H "Content-Type: application/json")
-          
+
           echo "HTTP Status: $STATUS_CODE"
           
           if [[ "$STATUS_CODE" -lt 200 || "$STATUS_CODE" -ge 300 ]]; then
