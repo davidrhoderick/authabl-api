@@ -4,7 +4,13 @@ export const ClientSchema = z
   .object({
     id: z.string().trim().min(1),
     secret: z.string().trim().min(1),
-    name: z.string().trim().min(1),
+    name: z
+      .string()
+      .trim()
+      .min(1)
+      .refine((val) => val !== "authabl", {
+        message: "authabl is a reserved client name",
+      }),
     allowedOrigins: z.array(z.string().url()).nonempty(),
     accessTokenValidity: z.number().min(60).default(3600),
     refreshTokenValidity: z.number().min(60).default(1209600),
@@ -26,6 +32,16 @@ export const ClientParamsSchema = z
     clientId: z.string().trim().min(1),
   })
   .openapi("ClientId");
+
+export const DeleteClientParamsSchema = z.object({
+  clientId: z
+    .string()
+    .trim()
+    .min(1)
+    .refine((val) => val !== "authabl", {
+      message: "deleting authabl is not allowed",
+    }),
+});
 
 export const ClientsSchema = z
   .array(

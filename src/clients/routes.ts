@@ -5,6 +5,7 @@ import {
   ClientSchema,
   ClientsSchema,
   CreateClientBodySchema,
+  DeleteClientParamsSchema,
   UpdateClientBodySchema,
 } from "./schemas";
 
@@ -171,7 +172,7 @@ export const deleteClientRoute = createRoute({
     },
   ],
   request: {
-    params: ClientParamsSchema,
+    params: DeleteClientParamsSchema,
   },
   responses: {
     200: {
