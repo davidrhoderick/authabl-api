@@ -19,9 +19,6 @@ app.post("/", async (c) => {
   const authorizationHeader = c.req.header("Authorization");
   const seedToken = authorizationHeader?.split("Bearer ")[1];
 
-  console.log("authorizationHeader", authorizationHeader);
-  console.log("SEED_TOKEN", c.env.SEED_TOKEN);
-
   if (seedToken !== c.env.SEED_TOKEN)
     return c.json({ message: "Unauthorized", code: 401 }, 401);
 
